@@ -1,40 +1,9 @@
-fiber-workflow
-├── manage.py
-├── requirements.txt
-├── README.md
-├── workflow
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── wsgi.py
-│   └── asgi.py
-├── apps
-│   ├── accounts
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── models.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── tasks
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── models.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   └── workgroups
-│       ├── __init__.py
-│       ├── admin.py
-│       ├── apps.py
-│       ├── models.py
-│       ├── urls.py
-│       └── views.py
-├── templates
-│   ├── base.html
-│   ├── accounts
-│   ├── tasks
-│   └── workgroups
-└── static
-    ├── css
-    └── js
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('accounts/', include('apps.accounts.urls')),
+    path('tasks/', include('apps.tasks.urls')),
+    path('workgroups/', include('apps.workgroups.urls')),
+]

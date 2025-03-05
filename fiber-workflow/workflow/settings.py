@@ -11,6 +11,9 @@ SECRET_KEY = 'your-secret-key-here'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -52,15 +55,20 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fiber_workflow',
+        'NAME': 'fiber_development',
         'USER': 'root',
-        'PASSWORD': 'your_password',
+        'PASSWORD': 'Dipi2002#',
         'HOST': 'localhost',
         'PORT': '3306',
     }
 }
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = 'dashboard'  # Change this to your dashboard URL

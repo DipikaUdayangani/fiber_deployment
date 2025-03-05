@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fiber Development - Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="../static/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="{% static 'images/slt_logo_new.png' %}" alt="SLT Logo" class="logo">
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li class="active">
+                        <a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'add_user' %}"><i class="fas fa-user-plus"></i> Add User</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'manage_users' %}"><i class="fas fa-users"></i> Manage Users</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'tasks' %}"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'workgroups' %}"><i class="fas fa-users-cog"></i> Workgroups</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                    <li class="logout">
+                        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Dashboard</h1>
+                    <div class="user-info">
+                        <span>Welcome, {{ request.user.username }}</span>
+                        <img src="{% static 'images/default-avatar.png' %}" alt="User Avatar" class="avatar">
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Dashboard Cards -->
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <i class="fas fa-users"></i>
+                        <h3>Total Users</h3>
+                        <p>150</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-tasks"></i>
+                        <h3>Active Tasks</h3>
+                        <p>25</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-project-diagram"></i>
+                        <h3>Projects</h3>
+                        <p>10</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -9,4 +9,7 @@ urlpatterns = [
     path('tasks/', views.tasks, name='tasks'),
     path('settings/', views.settings, name='settings'),
     path('logout/', views.logout_view, name='logout'),
+    path('password-reset/', views.password_reset_request, name='password_reset'),
+    path('password-reset/confirm/<str:uidb64>/<str:token>/', 
+         views.password_reset_confirm, name='password_reset_confirm'),
 ]

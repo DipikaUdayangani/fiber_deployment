@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fiber Development - Tasks</title>
+    <link rel="stylesheet" type="text/css" href="../static/tasks.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="{% static 'images/slt_logo_new.png' %}" alt="SLT Logo" class="logo">
+                <h3>Fiber Development</h3>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="{% url 'dashboard' %}"><i class="fas fa-home"></i>Home</a></li>
+                    <li><a href="{% url 'add_user' %}"><i class="fas fa-user-plus"></i>Add User</a></li>
+                    <li><a href="{% url 'manage_users' %}"><i class="fas fa-users"></i>Manage Users</a></li>
+                    <li class="active"><a href="{% url 'tasks' %}"><i class="fas fa-tasks"></i>Tasks</a></li>
+                    <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i>Settings</a></li>
+                    <li class="logout"><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-wrapper">
+                <!-- Header Section -->
+                <div class="content-header">
+                    <div class="header-left">
+                        <h2>Task Management</h2>
+                        <span class="task-count">Total Tasks: 25</span>
+                    </div>
+                    <div class="task-controls">
+                        <div class="search-bar">
+                            <input type="text" placeholder="Search tasks...">
+                            <button class="search-btn"><i class="fas fa-search"></i></button>
+                        </div>
+                        <button class="add-task-btn" onclick="openTaskModal()">
+                            <i class="fas fa-plus"></i> New Task
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Task Filters -->
+                <div class="task-filters">
+                    <button class="filter-btn active" data-filter="all">All Tasks</button>
+                    <button class="filter-btn" data-filter="pending">Pending</button>
+                    <button class="filter-btn" data-filter="progress">In Progress</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+
+                <!-- Task Table -->
+                <div class="table-container">
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Task Name</th>
+                                <th>Assigned To</th>
+                                <th>Workgroup</th>
+                                <th>RTOM</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Task rows will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Modal -->
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Add New Task</h2>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label>Task Name</label>
+                        <input type="text" name="taskName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Assign To</label>
+                        <select name="assignTo" required>
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Workgroup</label>
+                        <select name="workgroup" required>
+                            <option value="">Select Workgroup</option>
+                            <option value="NET-PLAN-TX">NET-PLAN-TX</option>
+                            <option value="LEA-MNG-OPMC">LEA-MNG-OPMC</option>
+                            <option value="NET-PLAN-ACC">NET-PLAN-ACC</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>RTOM</label>
+                        <select name="rtom" required>
+                            <option value="">Select RTOM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Deadline</label>
+                        <input type="date" name="deadline" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn-save">Save Task</button>
+                        <button type="button" class="btn-cancel" onclick="closeTaskModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

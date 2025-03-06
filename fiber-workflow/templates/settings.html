@@ -1,11 +1,13 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Fiber Development - Settings</title>
     <link rel="stylesheet" type="text/css" href=" ../static/settings.css">
+    <script src=" ../static/settings.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
+
+
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
@@ -16,10 +18,10 @@
             </div>
             <nav class="nav-menu">
                 <ul>
-                    <li><a href="{% url 'dashboard' %}"><i class="fas fa-home"></i>Home</a></li>
-                    <li><a href="{% url 'add_user' %}"><i class="fas fa-user-plus"></i>Add User</a></li>
-                    <li><a href="{% url 'manage_users' %}"><i class="fas fa-users"></i>Manage Users</a></li>
-                    <li><a href="{% url 'tasks' %}"><i class="fas fa-tasks"></i>Tasks</a></li>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i>Home</a></li>
+                    <li><a href="add_user.html"><i class="fas fa-user-plus"></i>Add User</a></li>
+                    <li><a href="manage_users.html"><i class="fas fa-users"></i>Manage Users</a></li>
+                    <li><a href="tasks.html"><i class="fas fa-tasks"></i>Tasks</a></li>
                     <li class="active"><a href="{% url 'settings' %}"><i class="fas fa-cog"></i>Settings</a></li>
                     <li class="logout"><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
                 </ul>
@@ -103,5 +105,62 @@
             </div>
         </div>
     </div>
+    <script>
+        function validatePassword(password) {
+            const minLength = 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            const errors = [];
+            if (password.length < minLength) errors.push('Password must be at least 8 characters');
+            if (!hasUpperCase) errors.push('Include at least one uppercase letter');
+            if (!hasLowerCase) errors.push('Include at least one lowercase letter');
+            if (!hasNumbers) errors.push('Include at least one number');
+            if (!hasSpecialChar) errors.push('Include at least one special character');
+
+            return errors;
+        }
+
+        // Update password form submission
+        const passwordForm = document.querySelectorAll('.settings-form')[1];
+        passwordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPassword = this.querySelector('input[type="password"]:nth-child(2)').value;
+            const confirmPassword = this.querySelector('input[type="password"]:nth-child(3)').value;
+            
+            const errors = validatePassword(newPassword);
+            const errorContainer = this.querySelector('.error-message') || 
+                document.createElement('div');
+            errorContainer.className = 'error-message';
+            
+            if (errors.length > 0) {
+                errorContainer.textContent = errors.join('. ');
+                errorContainer.classList.add('show');
+                this.appendChild(errorContainer);
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                errorContainer.textContent = 'Passwords do not match!';
+                errorContainer.classList.add('show');
+                this.appendChild(errorContainer);
+                return;
+            }
+
+            // Simulate API call
+            const btn = this.querySelector('.btn-save');
+            btn.classList.add('loading');
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                const successMessage = document.createElement('div');
+                successMessage.className = 'success-message';
+                successMessage.textContent = 'Password updated successfully!';
+                this.insertBefore(successMessage, this.firstChild);
+                this.reset();
+            }, 1500);
+        });
+    </script>
 </body>
 </html>

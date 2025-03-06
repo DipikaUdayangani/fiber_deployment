@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fiber Development - Manage Users</title>
+    <link rel="stylesheet" type="text/css" href="../static/manage_users.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="../static/slt_logo_new.be681e06.png" alt="SLT Logo" class="logo">
+                <h3>Fiber Development</h3>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
+                    </li>
+                    <li>
+                        <a href="add_user.html"><i class="fas fa-user-plus"></i>Add User</a>
+                    </li>
+                    <li class="active">
+                        <a href="manage_users.html"><i class="fas fa-users"></i>Manage Users</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i>Tasks</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                    </li>
+                    <li class="logout">
+                        <a href="login.html"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="content-header">
+                    <h2>Manage Users</h2>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search users...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Email</th>
+                                <th>Workgroup</th>
+                                <th>RTOM</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>EMP001</td>
+                                <td>user1@slt.lk</td>
+                                <td>NET-PLAN-TX</td>
+                                <td>RTOM 1</td>
+                                <td><span class="status active">Active</span></td>
+                                <td>
+                                    <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Add more rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

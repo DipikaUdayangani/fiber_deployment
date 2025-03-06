@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fiber Development - Settings</title>
+    <link rel="stylesheet" type="text/css" href=" ../static/settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="{% static 'images/slt_logo_new.png' %}" alt="SLT Logo" class="logo">
+                <h3>Fiber Development</h3>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="{% url 'dashboard' %}"><i class="fas fa-home"></i>Home</a></li>
+                    <li><a href="{% url 'add_user' %}"><i class="fas fa-user-plus"></i>Add User</a></li>
+                    <li><a href="{% url 'manage_users' %}"><i class="fas fa-users"></i>Manage Users</a></li>
+                    <li><a href="{% url 'tasks' %}"><i class="fas fa-tasks"></i>Tasks</a></li>
+                    <li class="active"><a href="{% url 'settings' %}"><i class="fas fa-cog"></i>Settings</a></li>
+                    <li class="logout"><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="content-header">
+                    <h2>Settings</h2>
+                </div>
+
+                <!-- Settings Sections -->
+                <div class="settings-container">
+                    <!-- Profile Settings -->
+                    <div class="settings-section">
+                        <h3><i class="fas fa-user-circle"></i> Profile Settings</h3>
+                        <form class="settings-form">
+                            <div class="form-group">
+                                <label>Profile Picture</label>
+                                <div class="profile-upload">
+                                    <img src="{% static 'images/default-avatar.png' %}" alt="Profile" id="profile-preview">
+                                    <input type="file" id="profile-upload" accept="image/*">
+                                    <label for="profile-upload" class="upload-btn">Change Photo</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Employee ID</label>
+                                <input type="text" value="EMP001" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" value="user@slt.lk">
+                            </div>
+                            <button type="submit" class="btn-save">Save Changes</button>
+                        </form>
+                    </div>
+
+                    <!-- Password Settings -->
+                    <div class="settings-section">
+                        <h3><i class="fas fa-lock"></i> Password Settings</h3>
+                        <form class="settings-form">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" required>
+                            </div>
+                            <button type="submit" class="btn-save">Update Password</button>
+                        </form>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="settings-section">
+                        <h3><i class="fas fa-bell"></i> Notification Settings</h3>
+                        <div class="settings-options">
+                            <div class="option">
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Email Notifications</span>
+                            </div>
+                            <div class="option">
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Task Updates</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

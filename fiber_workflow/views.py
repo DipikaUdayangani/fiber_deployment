@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 def login_view(request):
     if request.method == 'POST':
@@ -28,9 +30,13 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
+@require_POST
 def logout_view(request):
-    logout(request)
-    return redirect('login')
+    try:
+        logout(request)
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 @login_required
 def dashboard(request):

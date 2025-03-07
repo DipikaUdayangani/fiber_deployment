@@ -95,12 +95,13 @@
                                 <th>Workgroup</th>
                                 <th>RTOM</th>
                                 <th>Deadline</th>
+                                <th width="80">Attachment</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Task rows will be dynamically populated -->
+                            <!-- Tasks will be loaded here dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -143,6 +144,15 @@
                     <div class="form-group">
                         <label>Deadline</label>
                         <input type="date" name="deadline" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskAttachment">Attachment (PDF)</label>
+                        <input type="file" 
+                               id="taskAttachment" 
+                               name="attachment" 
+                               accept=".pdf"
+                               class="file-input">
+                        <small class="file-hint">Maximum file size: 5MB</small>
                     </div>
                     <div class="form-buttons">
                         <button type="submit" class="btn-save">Save Task</button>

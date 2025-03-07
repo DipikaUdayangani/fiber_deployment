@@ -185,11 +185,18 @@
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    vertical-align: middle;
 }
 
 .tasks-table th {
     background-color: #f8f9fa;
     font-weight: 600;
+}
+
+.tasks-table th:nth-child(7),
+.tasks-table td:nth-child(7) {
+    min-width: 100px;
+    max-width: 150px;
 }
 
 /* Status Badges */
@@ -319,10 +326,11 @@
 
 /* Status Badge Styles */
 .status-badge {
-    padding: 4px 8px;
+    padding: 6px 12px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 500;
+    display: inline-block;
 }
 
 .status-badge.pending {
@@ -489,6 +497,125 @@
     margin-left: 4px;
 }
 
+/* Add attachment button styles */
+.attachment-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.attachment-btn:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+.attachment-btn i {
+    color: #dc3545;
+    font-size: 14px;
+}
+
+.attachment-name {
+    font-size: 12px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* File input styles */
+.file-input {
+    border: 1px dashed #ddd;
+    padding: 10px;
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.file-input:hover {
+    border-color: #80bdff;
+}
+
+.file-hint {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+}
+
+/* Update attachment styles */
+.attachment-cell {
+    text-align: center;
+}
+
+.attachment-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attachment-btn.upload {
+    border-style: dashed;
+}
+
+.attachment-btn.upload:hover {
+    background: #f8f9fa;
+    border-color: #80bdff;
+}
+
+.attachment-btn.view {
+    border-style: solid;
+}
+
+.attachment-btn.view:hover {
+    background: #e9ecef;
+}
+
+.attachment-btn i {
+    font-size: 14px;
+}
+
+.attachment-btn.upload i {
+    color: #666;
+}
+
+.attachment-btn.view i {
+    color: #dc3545;
+}
+
+/* Add tooltip for buttons */
+.attachment-btn {
+    position: relative;
+}
+
+.attachment-btn:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-bottom: 5px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
@@ -515,5 +642,16 @@
 
     .search-bar input {
         width: 100%;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .attachment-name {
+        display: none;
+    }
+    
+    .attachment-btn {
+        padding: 4px;
     }
 }

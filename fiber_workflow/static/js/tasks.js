@@ -149,7 +149,23 @@ function addTaskToTable(taskData) {
         <td>${taskData.assignTo}</td>
         <td>${taskData.workgroup}</td>
         <td>${taskData.rtom}</td>
-        <td><span class="status-badge pending">Pending</span></td>
+        <td>${taskData.deadline}</td>
+        <td class="attachment-cell">
+            ${taskData.attachment ? `
+                <button class="attachment-btn view" onclick="viewAttachment('${taskData.attachment}')">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+            ` : `
+                <button class="attachment-btn upload" onclick="openAttachmentDialog('${taskId}')">
+                    <i class="fas fa-upload"></i>
+                </button>
+            `}
+        </td>
+        <td>
+            <span class="status-badge ${taskData.status}">
+                ${getStatusLabel(taskData.status)}
+            </span>
+        </td>
         <td class="actions">
             <button class="action-btn edit" onclick="openEditTaskModal('${taskId}')">
                 <i class="fas fa-edit"></i>
@@ -161,6 +177,52 @@ function addTaskToTable(taskData) {
     `;
     
     tbody.insertBefore(row, tbody.firstChild);
+}
+
+function getStatusLabel(status) {
+    const labels = {
+        'pending': 'Pending',
+        'progress': 'In Progress',
+        'completed': 'Completed'
+    };
+    return labels[status] || status;
+}
+
+function openAttachmentDialog(taskId) {
+    // Create hidden file input
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf';
+    fileInput.style.display = 'none';
+    
+    // Handle file selection
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            uploadAttachment(taskId, file);
+        }
+    };
+    
+    // Trigger file dialog
+    document.body.appendChild(fileInput);
+    fileInput.click();
+    document.body.removeChild(fileInput);
+}
+
+function uploadAttachment(taskId, file) {
+    // Here you would normally upload the file to your server
+    // For demo purposes, we'll just update the UI
+    const cell = document.querySelector(`tr[data-task-id="${taskId}"] .attachment-cell`);
+    cell.innerHTML = `
+        <button class="attachment-btn view" onclick="viewAttachment('${file.name}')">
+            <i class="fas fa-file-pdf"></i>
+        </button>
+    `;
+}
+
+function viewAttachment(filePath) {
+    // Open PDF in new window/tab
+    window.open(filePath, '_blank');
 }
 
 function generateTaskId() {
@@ -336,26 +398,29 @@ const tasks = [
         assignedTo: 'John Doe',
         workgroup: 'NET-PLAN-TX',
         rtom: 'RTOM Colombo',
-        status: 'pending',
-        priority: 'High'
+        deadline: '2024-03-15',
+        attachment: null,
+        status: 'pending'
     },
     {
         id: 'TASK002',
-        name: 'Cable Installation - Kandy',
+        name: 'Cable Installation',
         assignedTo: 'Jane Smith',
-        workgroup: 'ACCESS-PLAN',
-        rtom: 'RTOM Central',
-        status: 'progress',
-        priority: 'Medium'
+        workgroup: 'LEA-MNG-OPMC',
+        rtom: 'RTOM Kandy',
+        deadline: '2024-03-20',
+        attachment: 'document.pdf',
+        status: 'progress'
     },
     {
         id: 'TASK003',
-        name: 'Network Testing - Galle',
+        name: 'Network Testing',
         assignedTo: 'Mike Wilson',
-        workgroup: 'LEA-MNG-OPMC',
-        rtom: 'RTOM Southern',
-        status: 'completed',
-        priority: 'Low'
+        workgroup: 'ACCESS-PLAN',
+        rtom: 'RTOM Galle',
+        deadline: '2024-03-18',
+        attachment: null,
+        status: 'completed'
     }
     // Add more dummy tasks as needed
 ];
@@ -393,6 +458,18 @@ function filterTasks(status) {
             <td>${task.assignedTo}</td>
             <td>${task.workgroup}</td>
             <td>${task.rtom}</td>
+            <td>${task.deadline}</td>
+            <td class="attachment-cell">
+                ${task.attachment ? `
+                    <button class="attachment-btn view" onclick="viewAttachment('${task.attachment}')">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                ` : `
+                    <button class="attachment-btn upload" onclick="openAttachmentDialog('${task.id}')">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                `}
+            </td>
             <td><span class="status-badge ${task.status}">${task.status}</span></td>
             <td>
                 <button class="action-btn edit" onclick="openEditTaskModal('${task.id}')">

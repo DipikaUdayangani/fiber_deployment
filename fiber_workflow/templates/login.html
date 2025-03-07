@@ -15,8 +15,8 @@
         <!-- Left side with logos and welcome message -->
         <div class="left-side">
             <div class="logo-container">
-                <img src="{% static 'images/slt_logo_new.png' %}" alt="SLT Logo" class="slt-logo">
-                <img src="{% static 'images/mobitel_logo.png' %}" alt="Mobitel Logo" class="mobitel-logo">
+                <img src="../static/images/slt_logo.png" alt="SLT Logo" class="slt-logo">
+                
             </div>
             <div class="welcome-text">
                 <h1>Welcome to</h1>
@@ -115,7 +115,7 @@
             <span class="close" id="closeForgotPassword">&times;</span>
             <h2 class="modal-title">Reset Password</h2>
             <form method="POST" action="{% url 'password_reset' %}" class="reset-form">
-                {% csrf_token %}
+               
                 <div class="form-group">
                     <label for="reset_employee_id">Employee ID</label>
                     <div class="input-group">

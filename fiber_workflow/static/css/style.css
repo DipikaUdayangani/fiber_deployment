@@ -25,37 +25,102 @@ body {
 
 /* Left side styles */
 .left-side {
+    position: relative;
     flex: 1;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: white;
-    padding: 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    padding-top: 100px;  /* Add padding to prevent text overlap with logo */
 }
 
-.logo-container {
-    margin-bottom: 40px;
+/* Background image container */
+.left-side::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/background.png');
+    background-size: cover;
+    background-position: center;
+    filter: blur(1.5px);  /* Reduced blur from 3px to 1.5px */
+    z-index: 0;
 }
 
-.slt-logo, .mobitel-logo {
+/* Blue overlay - slightly adjusted opacity */
+.left-side::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(30, 60, 114, 0.6),  /* Reduced opacity from 0.7 to 0.6 */
+        rgba(42, 82, 152, 0.55)  /* Reduced opacity from 0.65 to 0.55 */
+    );
+    z-index: 1;
+}
+
+/* Content positioning */
+.logo-container, .welcome-text {
+    position: relative;
+    z-index: 2;
+    color: white;
+}
+
+/* Adjusted logo brightness */
+.slt-logo {
     max-width: 200px;
-    margin: 10px;
+    margin-bottom: 40px;
+    filter: brightness(1.1);  /* Reduced brightness from 1.2 to 1.1 */
 }
 
+/* Logo container styles */
+.logo-container {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    z-index: 2;
+}
+
+.slt-logo {
+    width: 450px;  /* Increased from 350px to 450px */
+    height: auto;
+    filter: brightness(1.1);
+}
+
+/* Adjust welcome text position */
 .welcome-text {
+    position: relative;
+    z-index: 2;
+    color: white;
     text-align: center;
+    margin-top: 180px;  /* Increased from 120px to 180px to move text down */
 }
 
+/* Increase welcome text size */
 .welcome-text h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
+    font-size: 3em;  /* Increased from 2.5em to 3.5em */
+    margin-bottom: 15px;  /* Increased from 10px to 15px */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .welcome-text h2 {
-    font-size: 2em;
-    margin-bottom: 20px;
+    font-size: 2.5em;  /* Increased from 2em to 2.5em */
+    margin-bottom: 25px;  /* Increased from 20px to 25px */
+    font-weight: 500;
+}
+
+.welcome-text p {
+    font-size: 1.2em;  /* Increased from 1.1em to 1.2em */
+    opacity: 0.9;
+    line-height: 1.5;
 }
 
 /* Right side styles */

@@ -1,6 +1,6 @@
+import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -11,6 +11,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -18,7 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'fiber_workflow',
+    'fiber_workflow',  # Add your app here
 ]
 
 MIDDLEWARE = [
@@ -36,7 +37,7 @@ ROOT_URLCONF = 'fiber_development.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join( 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -51,13 +52,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fiber_development.wsgi.application'
 
+# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'fiber_development',
+        'USER': 'root',
+        'PASSWORD': 'Dipi2002#',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -73,28 +80,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'fiber_workflow' / 'static',
-]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "fiber_workflow" / "static",]
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
-
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@domain.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with your email password/app password
-DEFAULT_FROM_EMAIL = 'SLT-MOBITEL <noreply@sltmobitel.lk>'
+# Email settings
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+
+# Login URL
+LOGIN_URL = '/'  # Assuming login is at the root URL
+

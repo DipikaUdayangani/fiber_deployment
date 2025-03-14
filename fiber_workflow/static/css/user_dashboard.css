@@ -1,0 +1,234 @@
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --sidebar-width: 240px;
+    --topbar-height: 56px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+/* Navbar styling */
+.navbar {
+    padding: 0.75rem 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    z-index: 1030;
+}
+
+.navbar-brand img {
+    filter: brightness(0) invert(1);
+}
+
+/* Sidebar styling */
+.sidebar {
+    position: fixed;
+    top: var(--topbar-height);
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    background-color: #fff;
+    width: var(--sidebar-width);
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: var(--secondary-color);
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: var(--primary-color);
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.sidebar .nav-link.active {
+    color: var(--primary-color);
+    background-color: rgba(13, 110, 253, 0.1);
+    border-left: 4px solid var(--primary-color);
+}
+
+.sidebar .nav-link .bi {
+    font-size: 1.1rem;
+}
+
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+/* Content area */
+.content-wrapper {
+    margin-top: var(--topbar-height);
+    transition: margin 0.3s;
+    padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .content-wrapper {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+/* Stats cards */
+.stats-card {
+    border-left: 4px solid transparent;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    transition: transform 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+}
+
+.stats-card.success {
+    border-left-color: var(--success-color);
+}
+
+.stats-card.warning {
+    border-left-color: var(--warning-color);
+}
+
+.stats-card.danger {
+    border-left-color: var(--danger-color);
+}
+
+.stats-card .text-xs {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+}
+
+.dashboard-table {
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.dashboard-table th {
+    font-weight: 600;
+    color: var(--dark-color);
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dashboard-table td {
+    vertical-align: middle;
+}
+
+/* Status badges */
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 0.25rem;
+}
+
+/* Avatar */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Progress bars */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 4px;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 0.75rem 1.25rem;
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+}
+
+.card-header h6 {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Dropdown customization */
+.dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Utilities */
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+/* User profile dropdown */
+.navbar .dropdown-toggle::after {
+    margin-left: 0.5rem;
+}
+
+.navbar .dropdown-toggle img {
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}

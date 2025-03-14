@@ -60,8 +60,10 @@
                         <a href="#" class="forgot-password" onclick="showForgotPasswordModal()">Forgot Password?</a>
                     </div>
                     <div class="button-group">
-                        <button type="submit" class="btn btn-primary">Sign In</button>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='dashboard.html'">Sign In</button>
                         <button type="button" class="btn btn-secondary" onclick="showSignUpModal()">Sign Up</button>
+
+                        
                     </div>
                 </form>
             </div>
@@ -73,7 +75,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 class="modal-title">Create Account</h2>
-            <form method="POST" action="{% url 'register' %}" class="signup-form">
+            <form method="POST" action="register" class="signup-form">
               
                 <div class="form-group">
                     <label for="full_name">Full Name</label>

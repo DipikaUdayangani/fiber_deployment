@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -51,6 +52,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fiber_development.wsgi.application'
+
+
 
 # Database
 DATABASES = {
@@ -103,4 +106,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For developm
 # Login URL
 LOGIN_URL = '/dashboard/'  # Assuming login is at the root URL
 
-AUTH_USER_MODEL = 'fiber_workflow.CustomUser'
+AUTH_USER_MODEL = 'admin_panel.User'

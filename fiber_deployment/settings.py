@@ -106,4 +106,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For developm
 # Login URL
 LOGIN_URL = '/dashboard/'  # Assuming login is at the root URL
 
-AUTH_USER_MODEL = 'fiber_workflow.User'
+AUTH_USER_MODEL = 'admin_panel.User'

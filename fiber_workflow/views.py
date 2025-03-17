@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from .models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import force_bytes, force_str
@@ -13,8 +14,9 @@ from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
-from .models import WorkGroup, Task, TaskAssignment
+from .models import Workgroup, Task, TaskAssignment
 from .forms import LoginForm, RegistrationForm
+from django.contrib.auth.hashers import make_password
 
 def login_view(request):
     if request.method == 'POST':
@@ -35,6 +37,18 @@ def login_view(request):
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
+
+def register_view(request):
+    if request.method == "POST":
+        form = RegistrationForm(request.POST)  # Corrected the assignment syntax
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect('login')
+    else:
+        form = RegistrationForm()
+    return render(request, 'accounts/signup.html', {'form': form})
+
 
 @require_POST
 def logout_view(request):

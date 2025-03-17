@@ -61,6 +61,9 @@ DATABASES = {
         'PASSWORD': 'Dipi2002#',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -98,5 +101,6 @@ DEFAULT_FROM_EMAIL = 'noreply@example.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
 
 # Login URL
-LOGIN_URL = '/'  # Assuming login is at the root URL
+LOGIN_URL = '/dashboard/'  # Assuming login is at the root URL
 
+AUTH_USER_MODEL = 'fiber_workflow.CustomUser'

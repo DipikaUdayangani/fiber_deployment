@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+
 
 class Workgroup(models.Model):
     name = models.CharField(max_length=100)
@@ -13,6 +15,7 @@ class Workgroup(models.Model):
         return self.name
 
 class Task(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('in_progress', 'In Progress'),
@@ -33,6 +36,7 @@ class Task(models.Model):
         return self.title
 
 class TaskAssignment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='assignments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_assignments')
     assigned_at = models.DateTimeField(auto_now_add=True)
@@ -63,7 +67,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     def __str__(self):
-        return self.full_name
+        return self.username
 
 class PasswordReset(models.Model):
     employee_id = models.ForeignKey(User, on_delete=models.CASCADE, to_field='employee_id')

@@ -36,7 +36,7 @@ class Task(models.Model):
         return self.title
 
 class TaskAssignment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='assignments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_assignments')
     assigned_at = models.DateTimeField(auto_now_add=True)

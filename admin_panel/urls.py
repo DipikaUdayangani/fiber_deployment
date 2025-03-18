@@ -1,11 +1,12 @@
 from django.urls import path
 from . import views
 from .views import  login
+from .views import login_view
 
 urlpatterns = [
-    path('', views.login_view, name='login'),
+    path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', lambda request: render(request, 'admin_panel/dashboard.html'), name='dashboard'),
     path('login/', login, name='login'),
     path('settings/', views.settings, name='settings'),
     path('password-reset/', views.password_reset_request, name='password_reset'),

@@ -149,3 +149,10 @@ def tasks(request):
     }
     return render(request, 'tasks.html', context)
 
+
+def admin_login_view(request):
+    # Your login logic here
+    from django.shortcuts import render, redirect
+    # Basic implementation - replace with your actual login logic
+    return render(request, 'admin/login.html')
+

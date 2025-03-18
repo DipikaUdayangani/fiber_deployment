@@ -112,5 +112,7 @@ AUTH_USER_MODEL = 'admin_panel.User'
 
 
 LOGIN_REDIRECT_URL = '/dashboard/'
+
 LOGIN_URL = '/login/'
+
 LOGOUT_REDIRECT_URL = '/login/'

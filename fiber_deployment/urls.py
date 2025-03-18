@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('user_panel.urls')),
+    path('user/', include('user_panel.urls', namespace='user_panel')),
     # Use only one login path, not two overlapping ones
     path('admin-login/', LoginView.as_view(template_name='admin/login.html'), name='admin-login'),
     path('user-login/', LoginView.as_view(template_name='user/login.html'), name='user-login'),

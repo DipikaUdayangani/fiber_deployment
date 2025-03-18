@@ -20,8 +20,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'fiber_workflow',  # Add your app here
-]
+    'admin_panel',
+    'user_panel',
+    'employee_panel',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -33,7 +35,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'fiber_development.urls'
+ROOT_URLCONF = 'fiber_deployment.urls'
 
 TEMPLATES = [
     {
@@ -51,7 +53,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'fiber_development.wsgi.application'
+WSGI_APPLICATION = 'fiber_deployment.wsgi.application'
 
 
 
@@ -94,7 +96,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "fiber_workflow" / "static",]
+STATICFILES_DIRS = [BASE_DIR / "admin_panel" / "static",]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

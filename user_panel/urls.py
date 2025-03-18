@@ -1,8 +1,12 @@
 from django.urls import path
-from .views import user_login, user_dashboard, user_logout
+from . import views
+
+app_name = 'user_panel'
 
 urlpatterns = [
-    path('login/', user_login, name='login'),
-    path('dashboard/', user_dashboard, name='dashboard'),
-    path('logout/', user_logout, name='logout'),
+    path('dashboard/', views.user_dashboard, name='dashboard'),
+    path('tasks/', views.user_tasks, name='user_tasks'),
+    path('tasks/<int:task_id>/', views.task_detail, name='task_detail'),
+    path('projects/', views.project_list, name='project_list'),
+    path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
 ]

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from admin_panel.models import Task, Workgroup, TaskAssignment
+from core.models import Task, Workgroup, TaskAssignment
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import LoginForm

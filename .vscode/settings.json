@@ -4,11 +4,12 @@
             "previewLimit": 50,
             "server": "localhost",
             "port": 5432,
-            "askForPassword": true,
             "driver": "PostgreSQL",
-            "name": "fiber_DB",
+            "name": "postgres",
             "database": "fiber_DB",
-            "username": "postgres"
+            "username": "postgres",
+            "password": "Dipi2002#",
+            "connectionTimeout": 30
         }
     ]
 }

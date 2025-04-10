@@ -57,18 +57,14 @@ WSGI_APPLICATION = 'fiber_deployment.wsgi.application'
 
 
 
-# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fiber_development',
-        'USER': 'root',
-        'PASSWORD': 'Dipi2002#',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'fiber_DB',  # Your PostgreSQL database name
+        'USER': 'postgres',  # Default PostgreSQL user
+        'PASSWORD': 'Dipi2002#',  # Set this in your PostgreSQL setup
         'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        'PORT': '5432',
     }
 }
 

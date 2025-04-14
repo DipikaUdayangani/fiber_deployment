@@ -38,10 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ossdeployment',  # Main app for the project
-    'accounts',  # Custom app for user accounts
-    'admin_panel',
-    'contractor_panel',
-    'employee_panel',
+    'apps.accounts',  # Custom app for user accounts
+    'apps.admin_panel',
+    'apps.contractor_panel',
+    'apps.employee_panel',
 ]
 
 MIDDLEWARE = [

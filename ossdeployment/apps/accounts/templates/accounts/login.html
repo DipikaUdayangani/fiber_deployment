@@ -2,11 +2,13 @@
 <html>
 <head>
     <title>SLT-MOBITEL Fiber Development</title>
-    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="../static/js/signup.js"></script>
-    <script src="../static/js/password-toggle.js"></script>
-    <script src="../static/js/password-reset.js"></script>
+    <script src="{% static 'js/signup.js' %}"></script>
+    <script src="{% static 'js/password-toggle.js' %}"></script>
+    <script src="{% static 'js/password-reset.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
 </head>
 
 
@@ -36,8 +38,20 @@
                      
                     </div>
              
-                <form method="POST" class="login-form">
-                  
+                    <form method="POST" action="{% url 'accounts:login' %}" class="login-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="user_type">User Type</label>
+                        <div class="input-group">
+                            <select id="user_type" name="user_type" required>
+                                <option value="">Select User Type</option>
+                                <option value="administrator">Administrator</option>
+                                <option value="employee">Employee</option>
+                                <option value="contractor">Contractor</option>
+                            </select>
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="employee_id">Employee ID</label>
                         <div class="input-group">
@@ -60,10 +74,8 @@
                         <a href="#" class="forgot-password" onclick="showForgotPasswordModal()">Forgot Password?</a>
                     </div>
                     <div class="button-group">
-                        <button type="button" class="btn btn-primary" onclick="redirectToDashboard()">Sign In</button>
+                        <button type="submit" class="btn btn-primary">Sign In</button>
                         <button type="button" class="btn btn-secondary" onclick="showSignUpModal()">Sign Up</button>
-
-                        
                     </div>
                 </form>
             </div>
@@ -116,8 +128,8 @@
         <div class="modal-content">
             <span class="close" id="closeForgotPassword">&times;</span>
             <h2 class="modal-title">Reset Password</h2>
-            <form method="POST" action="{% url 'password_reset' %}" class="reset-form">
-               
+            <form method="POST" action="{% url 'accounts:password_reset' %}" class="reset-form">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="reset_employee_id">Employee ID</label>
                     <div class="input-group">

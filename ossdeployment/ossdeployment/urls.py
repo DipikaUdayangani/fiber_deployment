@@ -16,11 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.accounts.urls')),
     path('admin-panel/', include('apps.admin_panel.urls')),
-    path('employee-panel/', include('apps.employee_panel.urls')),
-    path('contractor-panel/', include('apps.contractor_panel.urls')),
-]
+    path('employee/', include('apps.employee_panel.urls')),
+    path('contractor/', include('apps.contractor_panel.urls')),
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

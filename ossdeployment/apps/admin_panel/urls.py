@@ -1,9 +1,10 @@
-
 # apps/admin_panel/urls.py
 
 from django.urls import path
 from . import views
 
+app_name = 'admin_panel'
+
 urlpatterns = [
-    path('', views.dashboard_view, name='admin_dashboard'),  # ✅ Make sure this matches a real view
+    path('dashboard/', views.dashboard_view, name='dashboard'),
 ]

@@ -5,8 +5,8 @@
             "server": "localhost",
             "port": 5432,
             "driver": "PostgreSQL",
-            "name": "postgres",
-            "database": "fiber_DB",
+            "name": "OSS",
+            "database": "OSS_DB",
             "username": "postgres",
             "password": "Dipi2002#",
             "connectionTimeout": 30

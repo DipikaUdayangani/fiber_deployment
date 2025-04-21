@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import TaskAssignment
+from django.contrib import messages
+from .models import User, Task, Project, TaskAssignment, RTOM
 
 @login_required
 def dashboard_view(request):
@@ -8,6 +9,58 @@ def dashboard_view(request):
         return redirect('accounts:login')
     
     context = {
-        'user': request.user
+        'total_projects': Project.objects.count(),
+        'active_projects': Project.objects.filter(status='ACTIVE').count(),
+        'completed_projects': Project.objects.filter(status='COMPLETED').count(),
+        'on_hold_projects': Project.objects.filter(status='ON_HOLD').count(),
+        'total_users': User.objects.count(),
+        'online_users': User.objects.filter(is_active=True).count(),
+        'total_tasks': Task.objects.count(),
+        'pending_tasks': TaskAssignment.objects.filter(status='PENDING').count()
     }
     return render(request, 'admin_panel/dashboard.html', context)
+
+@login_required
+def add_user_view(request):
+    if request.user.workgroup != 'XXX-RTOM':
+        return redirect('accounts:login')
+    
+    if request.method == 'POST':
+        # Handle user creation
+        try:
+            User.objects.create_user(
+                username=request.POST['employee_id'],
+                employee_number=request.POST['employee_id'],
+                password=request.POST['password'],
+                email=request.POST['email'],
+                workgroup=request.POST['workgroup']
+            )
+            messages.success(request, 'User created successfully')
+            return redirect('admin_panel:manage_users')
+        except Exception as e:
+            messages.error(request, str(e))
+    
+    return render(request, 'admin_panel/add_user.html')
+
+@login_required
+def manage_users_view(request):
+    if request.user.workgroup != 'XXX-RTOM':
+        return redirect('accounts:login')
+    
+    users = User.objects.all().exclude(id=request.user.id)
+    return render(request, 'admin_panel/manage_users.html', {'users': users})
+
+@login_required
+def tasks_view(request):
+    if request.user.workgroup != 'XXX-RTOM':
+        return redirect('accounts:login')
+    
+    tasks = Task.objects.all().select_related('project', 'assigned_to')
+    return render(request, 'admin_panel/tasks.html', {'tasks': tasks})
+
+@login_required
+def settings_view(request):
+    if request.user.workgroup != 'XXX-RTOM':
+        return redirect('accounts:login')
+    
+    return render(request, 'admin_panel/settings.html')

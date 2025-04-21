@@ -2,9 +2,15 @@
 <html>
 <head>
     <title>Fiber Development - Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="../static/css/dashboard.css">
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+
+
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="../static/js/dashboard.js" defer></script>
+
     
 </head>
 <body>
@@ -12,7 +18,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo-container">
-                <img src="../static/images/slt_logo.png" alt="SLT Logo" class="logo">
+                <img src="{% static 'images/slt_logo.png' %}" alt="SLT Logo" class="logo">
             </div>
             <nav class="nav-menu">
                 <ul>
@@ -52,7 +58,7 @@
                     <div class="user-info">
                         <span>Welcome, Admin</span>
                         <button class="user-avatar-btn" onclick="showUserProfileModal()">
-                            <img src="../static/images/user.png" alt="User Avatar" class="avatar">
+                            <img src="{% static 'user.png' %}" alt="User Avatar" class="avatar">
                         </button>
                     </div>
                 </div>

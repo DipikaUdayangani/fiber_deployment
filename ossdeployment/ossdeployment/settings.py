@@ -154,3 +154,9 @@ AUTH_USER_MODEL = 'admin_panel.User'
 # Add login URLs
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
+
+
+STATIC_URL = '/static/'
+
+# Optional if using a global static folder:
+STATICFILES_DIRS = [BASE_DIR / "static"]

@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'ossdeployment.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fiber_DB',  # Your PostgreSQL database name
+        'NAME': 'OSS_DB',  # Your PostgreSQL database name
         'USER': 'postgres',  # Default PostgreSQL user
         'PASSWORD': 'Dipi2002#',  # Set this in your PostgreSQL setup
         'HOST': 'localhost',

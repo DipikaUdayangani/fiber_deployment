@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
+from django.utils import timezone
 
 class User(AbstractUser):
     WORKGROUP_CHOICES = [
@@ -50,26 +51,24 @@ class RTOM(models.Model):
     area_type = models.CharField(max_length=20, choices=[('METRO', 'Metro'), ('REGION', 'Region')])
 
 class Task(models.Model):
-    TASK_CHOICES = [
-        ('SPECIFY_DESIGN', 'Specify Design Details'),
-        ('APPROVE_PE', 'Approve PE'),
-        ('SURVEY_FIBER', 'Survey Fiber Route'),
-        ('ASSIGN_WORK', 'Assign Work'),
-        ('DRAW_FIBER', 'Draw Fiber'),
-        ('SPLICE_TERMINATE', 'Splice & Terminate'),
-        ('UPLOAD_FIBER_OSS', 'Upload Fiber in OSS'),
-        ('CONDUCT_FIBER_PAT', 'Conduct Fiber PAT'),
-        ('UPLOAD_DRAWING', 'Upload Drawing'),
-        ('UPDATE_MASTER_DWG', 'Update Master DWG'),
-        ('CLOSE_EVENT', 'Close Event'),
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('COMPLETED', 'Completed')
     ]
 
-    name = models.CharField(max_length=50, choices=TASK_CHOICES)
+    name = models.CharField(max_length=200)
     description = models.TextField()
-    assigned_workgroup = models.CharField(max_length=50, choices=User.WORKGROUP_CHOICES)
-    area_condition = models.CharField(max_length=20, choices=[('METRO', 'Metro'), ('REGION', 'Region')], null=True)
+    assigned_workgroup = models.CharField(max_length=50)
+    area_condition = models.CharField(max_length=20)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    rtom = models.ForeignKey('RTOM', on_delete=models.SET_NULL, null=True, related_name='tasks')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    attachment = models.FileField(upload_to='task_attachments/', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 class Project(models.Model):
     name = models.CharField(max_length=200)  # Fixed here
@@ -79,13 +78,27 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class TaskAssignment(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('COMPLETED', 'Completed')
+    ]
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, default='PENDING')  # Fixed here
-    completed_at = models.DateTimeField(null=True, blank=True)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    assigned_to = models.ForeignKey('User', on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.task.name} - {self.assigned_to.employee_number}"
+
+    def save(self, *args, **kwargs):
+        if self.status == 'COMPLETED' and not self.completed_at:
+            self.completed_at = timezone.now()
+        super().save(*args, **kwargs)
 
 class DummyCredentials:
     ADMIN = {
@@ -112,34 +125,6 @@ class DummyCredentials:
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, RTOM, Task, Project, TaskAssignment
-
-@admin.register(User)
-class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'employee_number', 'workgroup', 'rtom')
-    list_filter = ('workgroup', 'rtom')
-    fieldsets = UserAdmin.fieldsets + (
-        ('Additional Info', {'fields': ('employee_number', 'workgroup', 'rtom')}),
-    )
-
-@admin.register(RTOM)
-class RTOMAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'area_type')
-    search_fields = ('name', 'code')
-
-@admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'assigned_workgroup', 'area_condition')
-    list_filter = ('assigned_workgroup', 'area_condition')
-
-@admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rtom', 'status', 'created_at')
-    list_filter = ('rtom', 'status')
-
-@admin.register(TaskAssignment)
-class TaskAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('project', 'task', 'assigned_to', 'status', 'completed_at')
-    list_filter = ('status', 'task', 'assigned_to')
 
 @login_required
 def dashboard(request):

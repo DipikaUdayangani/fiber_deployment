@@ -1,71 +1,57 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Fiber Development - Add User</title>
-    <link rel="stylesheet" type="text/css" href="../static/css/add_user.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="logo-container">
-                <img src="../static/images/slt_logo.png" alt="SLT Logo" class="logo">
-                <h3>Fiber Development</h3>
-            </div>
-            <nav class="nav-menu">
-                <ul>
-                    <li><a href="dashboard.html"><i class="fas fa-home"></i>Home</a></li>
-                    <li class="active"><a href="{% url 'add_user' %}"><i class="fas fa-user-plus"></i>Add User</a></li>
-                    <li><a href="manage_users.html"><i class="fas fa-users"></i>Manage Users</a></li>
-                    <li><a href="tasks.html"><i class="fas fa-tasks"></i>Tasks</a></li>
-                    <li><a href="settings.html"><i class="fas fa-cog"></i>Settings</a></li>
-                    <li class="logout"><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
-                </ul>
-            </nav>
-        </div>
+{% block title %}Add User - Admin Panel{% endblock %}
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="content-wrapper">
-                <div class="content-header">
-                    <h2>Add New User</h2>
-                </div>
-                <div class="content-body">
-                    <form method="POST" class="user-form">
-                        <div class="form-group">
-                            <label for="employee_id">Employee ID</label>
-                            <input type="text" id="employee_id" name="employee_id" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="workgroup">Workgroup</label>
-                            <select id="workgroup" name="workgroup" required>
-                                <option value="">Select Workgroup</option>
-                                <option value="NET-PLAN-TX">NET-PLAN-TX</option>
-                                <option value="LEA-MNG-OPMC">LEA-MNG-OPMC</option>
-                                <option value="NET-PLAN-ACC">NET-PLAN-ACC</option>
-                                <option value="NET-PROJ-ACC-CABLE">NET-PROJ-ACC-CABLE</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="rtom">RTOM</label>
-                            <select id="rtom" name="rtom" required>
-                                <option value="">Select RTOM</option>
-                                <option value="RTOM1">RTOM 1</option>
-                                <option value="RTOM2">RTOM 2</option>
-                                <option value="RTOM3">RTOM 3</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add User</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+{% block content %}
+<header>
+    <div class="header-content">
+        <h1>Add New User</h1>
     </div>
-</body>
-</html>
+</header>
+
+<div class="content-wrapper">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="user-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="employee_id">Employee ID</label>
+            <input type="text" id="employee_id" name="employee_id" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="workgroup">Workgroup</label>
+            <select id="workgroup" name="workgroup" required>
+                <option value="">Select Workgroup</option>
+                <option value="NET-PLAN-TX">NET-PLAN-TX</option>
+                <option value="LEA-MNG-OPMC">LEA-MNG-OPMC</option>
+                <option value="NET-PLAN-ACC">NET-PLAN-ACC</option>
+                <option value="NET-PROJ-ACC-CABLE">NET-PROJ-ACC-CABLE</option>
+                <option value="XXX-MNG-OPMC">XXX-MNG-OPMC</option>
+                <option value="XXX-ENG-NW">XXX-ENG-NW</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create User</button>
+    </form>
+</div>
+{% endblock %}

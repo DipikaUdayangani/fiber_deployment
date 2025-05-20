@@ -2,16 +2,21 @@
 <html>
 <head>
     <title>Fiber Development - Manage Users</title>
-    <link rel="stylesheet" type="text/css" href="../static/css/manage_users.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/manage_users.css' %}">
+    <script src="{% static 'js/manage_users.js' %}" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="../static/js/manage_users.js" defer></script>
+    
+
+    
+
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
         <div class="sidebar">
             <div class="logo-container">
-                <img src="../static/images/slt_logo.png" alt="SLT Logo" class="logo">
+                <img src="{% static 'images/slt_logo.png' %}" alt="SLT Logo" class="logo">
                 <h3>Fiber Development</h3>
             </div>
             <nav class="nav-menu">
@@ -19,9 +24,7 @@
                     <li>
                         <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
                     </li>
-                    <li>
-                        <a href="add_user.html"><i class="fas fa-user-plus"></i>Add User</a>
-                    </li>
+                    
                     <li class="active">
                         <a href="manage_users.html"><i class="fas fa-users"></i>Manage Users</a>
                     </li>

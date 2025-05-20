@@ -1,47 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiber Development - Dashboard</title>
     {% load static %}
-
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<script src="{% static 'js/dashboard.js' %}" defer></script>
-
-
-   
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    
+    <link rel="stylesheet" href="{% static 'css/manage_users.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{% static 'js/dashboard.js' %}" defer></script>
+    <script src="{% static 'js/manage_users.js' %}" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="logo-container">
                 <img src="{% static 'images/slt_logo.png' %}" alt="SLT Logo" class="logo">
             </div>
             <nav class="nav-menu">
                 <ul>
-                    <li class="active">
-                        <a href="dashboard.html"><i class="fas fa-home"></i> Home</a>
+                    <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <a href="{% url 'admin_panel:dashboard' %}">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
                     </li>
-                    <li>
-                        <a href="add_user.html"><i class="fas fa-user-plus"></i> Add User</a>
+                    <li class="{% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}">
+                        <a href="{% url 'admin_panel:manage_users' %}">
+                            <i class="fas fa-users"></i>
+                            <span>Manage Users</span>
+                        </a>
                     </li>
-                    <li>
-                        <a href="url manage_users.html"><i class="fas fa-users"></i> Manage Users</a>
+                    <li class="{% if request.resolver_match.url_name == 'tasks' %}active{% endif %}">
+                        <a href="{% url 'admin_panel:tasks' %}">
+                            <i class="fas fa-tasks"></i>
+                            <span>Tasks</span>
+                        </a>
                     </li>
-                    <li>
-                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
-                    </li>
-                    <li>
-                        <a href="Workgroups"><i class="fas fa-users-cog"></i> Workgroups</a>
-                    </li>
-                    <li>
-                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    <li class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                        <a href="{% url 'admin_panel:settings' %}">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
                     </li>
                     <li class="logout">
-                        <button class="logout-btn" onclick="handleLogout()">
+                        <button class="logout-btn" onclick="showLogoutModal()">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </button>
@@ -54,17 +58,75 @@
         <div class="main-content">
             <header>
                 <div class="header-content">
+                    <button class="toggle-sidebar" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <h1>Dashboard</h1>
                     <div class="user-info">
-                        <span>Welcome, Admin</span>
+                        <span>Welcome, {{ request.user.get_full_name|default:request.user.username }}</span>
                         <button class="user-avatar-btn" onclick="showUserProfileModal()">
-                            <img src="{% static 'user.png' %}" alt="User Avatar" class="avatar">
+                            <img src="{% static 'images/user.png' %}" alt="User Avatar" class="avatar">
                         </button>
                     </div>
                 </div>
             </header>
 
             <div class="dashboard-content">
+                {% if request.resolver_match.url_name == 'manage_users' %}
+                <!-- Manage Users Section -->
+                <div class="manage-users-section">
+                    <div class="section-header">
+                        <h2>User Management</h2>
+                        <button class="btn-primary" onclick="showAddUserModal()">
+                            <i class="fas fa-user-plus"></i> Add New User
+                        </button>
+                    </div>
+                    
+                    <!-- Users Table -->
+                    <div class="users-table-container">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Workgroup</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.employee_number }}</td>
+                                    <td>{{ user.get_full_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.workgroup }}</td>
+                                    <td>
+                                        <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                                            {{ user.is_active|yesno:"Active,Inactive" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon" onclick="editUser('{{ user.id }}')" title="Edit User">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="toggleUserStatus('{{ user.id }}')" title="Toggle Status">
+                                                <i class="fas {% if user.is_active %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
+                                            </button>
+                                            <button class="btn-icon delete" onclick="deleteUser('{{ user.id }}')" title="Delete User">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
                 <!-- Dashboard Cards -->
                 <div class="dashboard-cards">
                     <!-- Projects Card -->
@@ -72,11 +134,11 @@
                         <i class="fas fa-project-diagram"></i>
                         <div class="card-content">
                             <h3>Total Projects</h3>
-                            <p>24</p>
+                            <p>{{ total_projects|default:"0" }}</p>
                             <div class="card-details">
-                                <span><i class="fas fa-clock"></i> 15 Active</span>
-                                <span><i class="fas fa-check-circle"></i> 6 Completed</span>
-                                <span><i class="fas fa-pause-circle"></i> 3 On Hold</span>
+                                <span><i class="fas fa-clock"></i> {{ active_projects|default:"0" }} Active</span>
+                                <span><i class="fas fa-check-circle"></i> {{ completed_projects|default:"0" }} Completed</span>
+                                <span><i class="fas fa-pause-circle"></i> {{ on_hold_projects|default:"0" }} On Hold</span>
                             </div>
                         </div>
                     </button>
@@ -86,11 +148,11 @@
                         <i class="fas fa-users"></i>
                         <div class="card-content">
                             <h3>Total Users</h3>
-                            <p>42</p>
+                            <p>{{ total_users|default:"0" }}</p>
                             <div class="card-details">
-                                <span><i class="fas fa-circle text-success"></i> 12 Online</span>
-                                <span><i class="fas fa-user-clock"></i> 8 Active Today</span>
-                                <span><i class="fas fa-building"></i> 4 Departments</span>
+                                <span><i class="fas fa-circle text-success"></i> {{ online_users|default:"0" }} Online</span>
+                                <span><i class="fas fa-user-clock"></i> {{ active_today_users|default:"0" }} Active Today</span>
+                                <span><i class="fas fa-building"></i> {{ total_workgroups|default:"0" }} Workgroups</span>
                             </div>
                         </div>
                     </button>
@@ -100,147 +162,154 @@
                         <i class="fas fa-tasks"></i>
                         <div class="card-content">
                             <h3>Active Tasks</h3>
-                            <p>35</p>
+                            <p>{{ active_tasks|default:"0" }}</p>
                             <div class="card-details">
-                                <span><i class="fas fa-exclamation-circle"></i> 8 High Priority</span>
-                                <span><i class="fas fa-calendar-day"></i> 5 Due Today</span>
-                                <span><i class="fas fa-hourglass-half"></i> 22 In Progress</span>
+                                <span><i class="fas fa-exclamation-circle"></i> {{ high_priority_tasks|default:"0" }} High Priority</span>
+                                <span><i class="fas fa-calendar-day"></i> {{ due_today_tasks|default:"0" }} Due Today</span>
+                                <span><i class="fas fa-hourglass-half"></i> {{ in_progress_tasks|default:"0" }} In Progress</span>
                             </div>
                         </div>
                     </button>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Projects Modal -->
-    <div id="projectsModal" class="modal">
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Current Projects</h2>
-                <button class="add-project-btn" onclick="showAddProjectModal()">
-                    <i class="fas fa-plus"></i> New Project
+                <h2><i class="fas fa-user-plus"></i> Add New User</h2>
+                <button class="close" onclick="closeAddUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm" method="post" action="{% url 'admin_panel:add_user' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="employee_number">Employee Number <span class="required">*</span></label>
+                        <input type="text" id="employee_number" name="employee_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name">First Name <span class="required">*</span></label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name <span class="required">*</span></label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="workgroup">Workgroup <span class="required">*</span></label>
+                        <select id="workgroup" name="workgroup" required>
+                            <option value="">Select Workgroup</option>
+                            {% for workgroup in workgroups %}
+                            <option value="{{ workgroup.id }}">{{ workgroup.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rtom">RTOM <span class="required">*</span></label>
+                        <select id="rtom" name="rtom" required>
+                            <option value="">Select RTOM</option>
+                            {% for rtom in rtoms %}
+                            <option value="{{ rtom.id }}">{{ rtom.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password <span class="required">*</span></label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password <span class="required">*</span></label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeAddUserModal()">
+                    <i class="fas fa-times"></i> Cancel
                 </button>
-                <span class="close" onclick="closeProjectsModal()">&times;</span>
+                <button type="submit" form="addUserForm" class="btn-primary">
+                    <i class="fas fa-save"></i> Save User
+                </button>
             </div>
-            <div class="projects-list">
-                <!-- Projects will be loaded here dynamically -->
-            </div>
         </div>
     </div>
 
-    <!-- Users Modal -->
-    <div id="usersModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Total Users</h2>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Employee ID</th>
-                        <th>Workgroup</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Tasks Modal -->
-    <div id="tasksModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Active Tasks</h2>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Task Name</th>
-                        <th>Project</th>
-                        <th>Assigned To</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Add Project Modal -->
-    <div id="addProjectModal" class="modal">
+    <!-- Existing Modals -->
+    <!-- Logout Modal -->
+    <div id="logoutModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add New Project</h2>
-                <span class="close" onclick="closeAddProjectModal()">&times;</span>
+                <h2><i class="fas fa-sign-out-alt"></i> Confirm Logout</h2>
+                <span class="close" onclick="closeLogoutModal()">&times;</span>
             </div>
-            <form id="addProjectForm" class="project-form">
-                <div class="form-group">
-                    <label for="projectName">Project Name <span class="required">*</span></label>
-                    <input type="text" id="projectName" name="projectName" required>
-                </div>
-                <div class="form-group">
-                    <label for="sltRef">SLT REF No <span class="required">*</span></label>
-                    <input type="text" id="sltRef" name="sltRef" required>
-                </div>
-                <div class="form-group">
-                    <label for="peNos">PE No/PE Nos</label>
-                    <input type="text" id="peNos" name="peNos">
-                </div>
-                <div class="form-group">
-                    <label for="contractNo">CONTRACT No <span class="required">*</span></label>
-                    <input type="text" id="contractNo" name="contractNo" required>
-                </div>
-                <div class="form-group">
-                    <label for="projectNo">PROJECT No <span class="required">*</span></label>
-                    <input type="text" id="projectNo" name="projectNo" required>
-                </div>
-                <div class="form-group">
-                    <label for="invoice">INVOICE</label>
-                    <input type="text" id="invoice" name="invoice">
-                </div>
-                <button type="submit" class="btn-primary">Save Project</button>
-            </form>
+            <div class="modal-body">
+                <p><i class="fas fa-question-circle"></i> Are you sure you want to logout?</p>
+                <p class="text-muted">You will need to login again to access the dashboard.</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" onclick="closeLogoutModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i> Yes, Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- User Profile Modal -->
     <div id="userProfileModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content profile-modal-content">
             <div class="modal-header">
                 <h2>User Profile</h2>
-                <span class="close" onclick="closeUserProfileModal()">&times;</span>
+                <button class="close" onclick="closeUserProfileModal()">&times;</button>
             </div>
-            <div class="user-profile-content">
-                <div class="user-profile-header">
-                    <img src="../static/images/user.png" alt="User Avatar" class="large-avatar">
-                    <div class="user-profile-info">
-                        <h3>John Doe</h3>
-                        <span class="user-role">Administrator</span>
+            <div class="modal-body profile-modal-body">
+                <div class="profile-avatar-section">
+                    <img src="{% static 'images/user.png' %}" alt="User Avatar" class="profile-avatar-large">
+                    <div>
+                        <div class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                        <span class="profile-role-badge">{{ request.user.get_role_display|default:"Administrator" }}</span>
                     </div>
                 </div>
-                <div class="user-details">
-                    <div class="detail-row">
-                        <span class="detail-label"><i class="fas fa-id-badge"></i> Employee ID</span>
-                        <span class="detail-value">EMP001</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label"><i class="fas fa-users"></i> Workgroup</span>
-                        <span class="detail-value">NET-PLAN-TX</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label"><i class="fas fa-envelope"></i> Email</span>
-                        <span class="detail-value">john.doe@slt.lk</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label"><i class="fas fa-phone"></i> Contact</span>
-                        <span class="detail-value">+94 71 234 5678</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label"><i class="fas fa-clock"></i> Last Login</span>
-                        <span class="detail-value">Today at 09:30 AM</span>
-                    </div>
-                </div>
+                <hr>
+                <ul class="profile-info-list">
+                    <li>
+                        <i class="fas fa-id-badge"></i>
+                        <span>Employee ID</span>
+                        <span class="profile-info-value">{{ request.user.employee_number }}</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-users"></i>
+                        <span>Workgroup</span>
+                        <span class="profile-info-value">{{ request.user.workgroup }}</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>Email</span>
+                        <span class="profile-info-value">{{ request.user.email }}</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <span>Contact</span>
+                        <span class="profile-info-value">{{ request.user.phone|default:'-' }}</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <span>Last Login</span>
+                        <span class="profile-info-value">{{ request.user.last_login|date:'l \\a\\t h:i A' }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

@@ -1,117 +1,180 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get form elements
+    // DOM Elements
     const loginForm = document.getElementById('loginForm');
-    const userTypeSelect = document.getElementById('user_type');
-    const employeeIdInput = document.getElementById('employee_id');
-    const passwordInput = document.getElementById('password');
-    const alertDiv = document.querySelector('.alert');
+    const signUpForm = document.getElementById('signUpForm');
+    const resetForm = document.getElementById('resetForm');
+    const signUpModal = document.getElementById('signUpModal');
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const closeButtons = document.querySelectorAll('.close-modal');
+    const togglePasswordButtons = document.querySelectorAll('.toggle-password');
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    // Show Sign Up Modal
+    signUpBtn.addEventListener('click', () => {
+        signUpModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    });
 
-            // Validate form
-            if (!userTypeSelect.value) {
-                showAlert('Please select a user type', 'error');
-                return;
-            }
+    // Show Forgot Password Modal
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotPasswordModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    });
 
-            if (!employeeIdInput.value) {
-                showAlert('Please enter your employee ID', 'error');
-                return;
-            }
-
-            if (!passwordInput.value) {
-                showAlert('Please enter your password', 'error');
-                return;
-            }
-
-            // If validation passes, submit the form
-            this.submit();
+    // Close Modals
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         });
-    }
+    });
 
-    // Password toggle functionality
-    const toggleButtons = document.querySelectorAll('.toggle-password');
-    toggleButtons.forEach(button => {
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Toggle Password Visibility
+    togglePasswordButtons.forEach(button => {
         button.addEventListener('click', function() {
             const input = this.previousElementSibling;
-            const type = input.getAttribute('type');
-            input.setAttribute('type', type === 'password' ? 'text' : 'password');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
     });
 
-    // Show alert message function
-    function showAlert(message, type) {
-        if (alertDiv) {
-            alertDiv.textContent = message;
-            alertDiv.className = `alert alert-${type} show`;
+    // Form Validation and Submission
+    function validateForm(form) {
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add('invalid');
+            } else {
+                input.classList.remove('invalid');
+            }
+        });
+
+        // Password validation for signup and reset forms
+        if (form === signUpForm || form === resetForm) {
+            const password = form.querySelector('input[name="password"]');
+            const confirmPassword = form.querySelector('input[name="confirm_password"]');
             
-            setTimeout(() => {
-                alertDiv.classList.remove('show');
-            }, 3000);
+            if (password && confirmPassword) {
+                if (password.value !== confirmPassword.value) {
+                    isValid = false;
+                    confirmPassword.classList.add('invalid');
+                    showAlert('Passwords do not match', 'danger');
+                }
+            }
         }
+
+        return isValid;
     }
 
-    // Display Django messages if any
-    const messages = document.querySelectorAll('.messages .alert');
-    messages.forEach(message => {
-        if (message.textContent.trim()) {
-            message.classList.add('show');
-            setTimeout(() => {
-                message.classList.remove('show');
-            }, 3000);
-        }
-    });
+    // Show Alert Message
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.querySelector('.alert-container') || createAlertContainer();
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
 
-    // Sign Up Modal
-    const modal = document.getElementById('signUpModal');
-    const closeBtn = document.querySelector('.close');
+        alertContainer.appendChild(alert);
 
-    window.showSignUpModal = function() {
-        modal.style.display = 'block';
+        // Remove alert after 5 seconds
+        setTimeout(() => {
+            alert.remove();
+            if (alertContainer.children.length === 0) {
+                alertContainer.remove();
+            }
+        }, 5000);
     }
 
-    closeBtn.onclick = function() {
-        modal.style.display = 'none';
+    // Create Alert Container if it doesn't exist
+    function createAlertContainer() {
+        const container = document.createElement('div');
+        container.className = 'alert-container';
+        const form = document.querySelector('.login-form');
+        form.insertBefore(container, form.firstChild);
+        return container;
     }
 
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
+    // Handle Form Submissions
+    function handleSubmit(form, event) {
+        event.preventDefault();
 
-    // Form validation
-    const signupForm = document.querySelector('.signup-form');
-    signupForm.addEventListener('submit', function(e) {
-        const password = document.querySelector('#signup_password').value;
-        const confirmPassword = document.querySelector('#confirm_password').value;
-
-        if (password !== confirmPassword) {
-            e.preventDefault();
-            alert('Passwords do not match!');
+        if (!validateForm(form)) {
+            showAlert('Please fill in all required fields', 'danger');
             return;
         }
 
-        if (password.length < 8) {
-            e.preventDefault();
-            alert('Password must be at least 8 characters long!');
-            return;
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.classList.add('loading');
+
+        // Simulate form submission (replace with actual AJAX call)
+        setTimeout(() => {
+            form.submit();
+        }, 1000);
+    }
+
+    // Add form submit event listeners
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => handleSubmit(loginForm, e));
+    }
+
+    if (signUpForm) {
+        signUpForm.addEventListener('submit', (e) => handleSubmit(signUpForm, e));
+    }
+
+    if (resetForm) {
+        resetForm.addEventListener('submit', (e) => handleSubmit(resetForm, e));
+    }
+
+    // Remember Me Functionality
+    const rememberCheckbox = document.getElementById('remember');
+    if (rememberCheckbox) {
+        // Check if there are saved credentials
+        const savedEmployeeId = localStorage.getItem('employeeId');
+        if (savedEmployeeId) {
+            document.getElementById('employee_id').value = savedEmployeeId;
+            rememberCheckbox.checked = true;
         }
 
-        // Password strength validation
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-        const hasSpecialChar = /[!@#$%^&*]/.test(password);
+        // Save credentials when logging in
+        loginForm.addEventListener('submit', () => {
+            if (rememberCheckbox.checked) {
+                localStorage.setItem('employeeId', document.getElementById('employee_id').value);
+            } else {
+                localStorage.removeItem('employeeId');
+            }
+        });
+    }
 
-        if (!(hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar)) {
-            e.preventDefault();
-            alert('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)');
-            return;
-        }
-    });
-});
+    // User Type Change Handler
+    const userTypeSelect = document.getElementById('user_type');
+    if (userTypeSelect) {
+        userTypeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                this.classList.add('selected');
+            } else {
+                this.classList.remove('selected');
+            }
+        });
+    }
+
+    // Prevent form resubmission on page refresh
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+}); 

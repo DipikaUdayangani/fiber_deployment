@@ -1,7 +1,7 @@
 # apps/accounts/views.py
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.admin_panel.models import User, DummyCredentials
@@ -77,3 +77,10 @@ def dashboard_view(request):
         return redirect('employee_panel:dashboard')
     else:
         return redirect('contractor_panel:dashboard')
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        messages.success(request, 'You have been successfully logged out.')
+        return redirect('accounts:login')
+    return redirect('admin_panel:dashboard')

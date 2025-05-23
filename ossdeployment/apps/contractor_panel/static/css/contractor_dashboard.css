@@ -1,0 +1,27 @@
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background: #28a745;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+nav {
+    background: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 40px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

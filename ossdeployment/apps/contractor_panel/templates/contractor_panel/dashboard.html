@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contractor Dashboard - SLT Fiber</title>
+    <link rel="stylesheet" href="{% static 'css/contractor_dashboard.css' %}">
+    <script src="{% static 'js/contractor_dashboard.js' %}" defer></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Welcome, {{ user.employee_number }}</h1>
+            <p>Contractor Dashboard</p>
+        </header>
+        <nav>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+        <main>
+            <div class="welcome-message">
+                <h2>Welcome to Contractor Portal</h2>
+                <p>Manage your fiber development contracts and projects here.</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

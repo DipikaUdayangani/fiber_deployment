@@ -36,26 +36,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
-function showSignUpModal() {
-    document.getElementById('signUpModal').style.display = 'block';
-}
-
-function showForgotPasswordModal() {
-    document.getElementById('forgotPasswordModal').style.display = 'block';
-}
-
-// Close modals when clicking on X
-document.querySelectorAll('.close').forEach(function(element) {
-    element.onclick = function() {
-        this.closest('.modal').style.display = 'none';
-    }
-});
-
-// Close modals when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-}

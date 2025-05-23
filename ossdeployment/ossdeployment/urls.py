@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.accounts.urls')),
-    path('admin-panel/', include('apps.admin_panel.urls')),
-    path('employee-panel/', include('apps.employee_panel.urls')),
-    path('contractor-panel/', include('apps.contractor_panel.urls')),
+    path('admin-panel/', include('apps.admin_panel.urls', namespace='admin_panel')),
+    path('employee/', include('apps.employee_panel.urls')),
+    path('contractor/', include('apps.contractor_panel.urls')),
 ]

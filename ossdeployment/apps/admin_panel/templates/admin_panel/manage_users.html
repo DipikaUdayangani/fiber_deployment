@@ -1,0 +1,52 @@
+{% extends "admin_panel/dashboard.html" %}
+{% load static %}
+
+{% block title %}Manage Users{% endblock %}
+{% block page_title %}  Manage Users
+{% endblock %}
+
+{% block content %}
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add New User</h2>
+            <span class="close" onclick="closeAddUserModal()">&times;</span>
+        </div>
+        <form id="addUserForm" class="user-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="employee_id">Employee ID <span class="required">*</span></label>
+                <input type="text" id="employee_id" name="employee_id" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="workgroup">Workgroup <span class="required">*</span></label>
+                <select id="workgroup" name="workgroup" required>
+                    <option value="">Select Workgroup</option>
+                    <option value="NET-PLAN-TX">NET-PLAN-TX</option>
+                    <option value="LEA-MNG-OPMC">LEA-MNG-OPMC</option>
+                    <option value="NET-PLAN-ACC">NET-PLAN-ACC</option>
+                    <option value="NET-PROJ-ACC-CABLE">NET-PROJ-ACC-CABLE</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rtom">RTOM <span class="required">*</span></label>
+                <select id="rtom" name="rtom" required>
+                    <option value="">Select RTOM</option>
+                    <option value="RTOM1">RTOM 1</option>
+                    <option value="RTOM2">RTOM 2</option>
+                    <option value="RTOM3">RTOM 3</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-save">Save User</button>
+                <button type="button" class="btn-cancel" onclick="closeAddUserModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

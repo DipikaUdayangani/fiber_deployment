@@ -3,6 +3,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'employee_panel'
+
 urlpatterns = [
-    path('', views.dashboard_view, name='employee_dashboard'),  # ✅ Update to the correct view
+    path('dashboard/', views.dashboard_view, name='dashboard'),
 ]

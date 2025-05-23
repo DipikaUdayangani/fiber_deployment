@@ -1,0 +1,20 @@
+{% extends "admin_panel/dashboard.html" %}
+{% load static %}
+
+{% block title %}Contractor Dashboard{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1 class="page-title">Contractor Dashboard</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    <div class="welcome-card">
+        <i class="fas fa-hard-hat welcome-icon"></i>
+        <h2>Welcome, {{ user.employee_number }}</h2>
+        <p>Contractor Portal - SLT Fiber Development</p>
+    </div>
+</div>
+{% endblock %}

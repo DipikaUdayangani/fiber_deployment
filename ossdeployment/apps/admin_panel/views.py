@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from datetime import datetime
 from .models import User, Task, Project, TaskAssignment, RTOM
 
@@ -18,6 +20,7 @@ def dashboard_view(request):
         'online_users': User.objects.filter(is_active=True).count(),
         'active_today': User.objects.filter(last_login__date=datetime.now().date()).count(),
         'total_tasks': Task.objects.count(),
+        'active_tab': 'home'
     }
     return render(request, 'admin_panel/dashboard.html', context)
 
@@ -48,7 +51,7 @@ def manage_users_view(request):
         return redirect('accounts:login')
     
     users = User.objects.all().exclude(id=request.user.id)
-    return render(request, 'admin_panel/manage_users.html', {'users': users})
+    return render(request, 'admin_panel/manage_users.html', {'users': users, 'active_tab': 'users'})
 
 @login_required
 def tasks_view(request):
@@ -69,6 +72,7 @@ def tasks_view(request):
         'pending_tasks': task_assignments.filter(status='PENDING').count(),
         'in_progress_tasks': task_assignments.filter(status='IN_PROGRESS').count(),
         'completed_tasks': task_assignments.filter(status='COMPLETED').count(),
+        'active_tab': 'tasks'
     }
     
     return render(request, 'admin_panel/tasks.html', context)
@@ -85,4 +89,52 @@ def settings_view(request):
     if request.user.workgroup != 'XXX-RTOM':
         return redirect('accounts:login')
     
-    return render(request, 'admin_panel/settings.html')
+    return render(request, 'admin_panel/settings.html', {'active_tab': 'settings'})
+
+@login_required
+def profile_view(request):
+    return render(request, 'admin_panel/profile.html', {
+        'active_tab': 'profile'
+    })
+
+@login_required
+@require_http_methods(["POST"])
+def add_user(request):
+    try:
+        employee_id = request.POST.get('employee_id')
+        email = request.POST.get('email')
+        workgroup = request.POST.get('workgroup')
+        rtom = request.POST.get('rtom')
+
+        # Validate required fields
+        if not all([employee_id, email, workgroup, rtom]):
+            return JsonResponse({
+                'success': False,
+                'error': 'All fields are required'
+            })
+
+        # Check if user already exists
+        if User.objects.filter(employee_number=employee_id).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'Employee ID already exists'
+            })
+
+        # Create new user
+        user = User.objects.create(
+            employee_number=employee_id,
+            email=email,
+            workgroup=workgroup,
+            rtom=rtom
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'User added successfully'
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })

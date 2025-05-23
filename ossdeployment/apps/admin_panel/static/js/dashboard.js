@@ -141,68 +141,51 @@ document.addEventListener('DOMContentLoaded', function() {
             this.closest('.modal').style.display = 'none';
         };
     });
-});
 
-// Logout Modal Functions
-let isModalOpen = false;
-
-function showLogoutModal() {
-    const modal = document.getElementById('logoutModal');
-    document.body.style.overflow = 'hidden';
-    modal.style.display = 'block';
+    // Handle user profile modal
+    const userProfileBtn = document.querySelector('.user-avatar-btn');
+    const userProfileModal = document.getElementById('userProfileModal');
     
-    // Trigger reflow
-    modal.offsetHeight;
-    
-    modal.classList.add('show');
-    isModalOpen = true;
-}
+    if (userProfileBtn && userProfileModal) {
+        userProfileBtn.addEventListener('click', () => {
+            userProfileModal.style.display = 'block';
+        });
+    }
 
-function closeLogoutModal() {
-    const modal = document.getElementById('logoutModal');
-    modal.classList.remove('show');
-    
-    setTimeout(() => {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }, 300); // Match transition duration
-    
-    isModalOpen = false;
-}
-
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('logoutModal');
-        if (event.target === modal && isModalOpen) {
-            closeLogoutModal();
-        }
-    });
-
-    // Handle escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && isModalOpen) {
-            closeLogoutModal();
-        }
-    });
-
-    // Prevent form resubmission
-    const logoutForm = document.querySelector('#logoutModal form');
-    if (logoutForm) {
-        logoutForm.addEventListener('submit', function() {
-            const submitButton = this.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+    // Handle logout
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            if (!confirm('Are you sure you want to logout?')) {
+                e.preventDefault();
             }
         });
     }
-});
 
-// Handle browser back button
-window.addEventListener('popstate', function() {
-    if (isModalOpen) {
-        closeLogoutModal();
+    const signOutBtn = document.querySelector('.signout-btn');
+    if (signOutBtn) {
+        signOutBtn.addEventListener('click', showLogoutConfirmation);
     }
 });
+
+function showLogoutConfirmation(event) {
+    event.preventDefault();
+    
+    Swal.fire({
+        title: 'Sign Out',
+        text: 'Are you sure you want to sign out?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, sign out',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.getElementById('logoutForm');
+            if (form) {
+                form.submit();
+            }
+        }
+    });
+}

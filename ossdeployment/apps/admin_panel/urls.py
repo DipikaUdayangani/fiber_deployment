@@ -7,9 +7,8 @@ app_name = 'admin_panel'
 
 urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('add-user/', views.add_user_view, name='add_user'),
-    path('manage-users/', views.manage_users_view, name='manage_users'),
+    path('users/', views.manage_users_view, name='manage_users'),
     path('tasks/', views.tasks_view, name='tasks'),
-    path('workgroups/', views.workgroups_view, name='workgroups'),
     path('settings/', views.settings_view, name='settings'),
+    path('profile/', views.profile_view, name='profile'),
 ]

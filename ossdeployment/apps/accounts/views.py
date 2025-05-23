@@ -90,4 +90,4 @@ def logout_view(request):
         logout(request)
         messages.success(request, 'You have been successfully logged out.')
         return redirect('accounts:login')
-    return redirect('admin_panel:dashboard')
+    return redirect(request.META.get('HTTP_REFERER', 'accounts:login'))

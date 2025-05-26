@@ -704,6 +704,136 @@ header {
     display: none;
 }
 
+/* Dashboard Stats Styles */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Stat Cards */
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    position: relative;
+    min-height: 200px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Styling */
+.stat-icon {
+    position: absolute;
+    top: -15px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.stat-icon.projects {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.stat-icon.users {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.stat-icon.tasks {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* Content Styling */
+.stat-details {
+    margin-top: 20px;
+}
+
+.stat-details h3 {
+    color: #6c757d;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.stat-metrics {
+    display: grid;
+    gap: 12px;
+}
+
+.stat-metrics span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.stat-metrics i {
+    font-size: 12px;
+}
+
+/* Color indicators */
+.text-success {
+    color: #2ecc71;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        min-height: 180px;
+    }
+
+    .stat-number {
+        font-size: 30px;
+    }
+}
+
+/* Card-specific hover effects */
+.stat-card:hover .stat-icon.projects {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+}
+
+.stat-card:hover .stat-icon.users {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.stat-card:hover .stat-icon.tasks {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

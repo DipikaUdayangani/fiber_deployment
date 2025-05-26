@@ -166,6 +166,48 @@ document.addEventListener('DOMContentLoaded', function() {
     if (signOutBtn) {
         signOutBtn.addEventListener('click', showLogoutConfirmation);
     }
+
+    const statCards = document.querySelectorAll('.stat-card');
+    
+    // Add hover animation class
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.classList.add('card-hover');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.classList.remove('card-hover');
+        });
+    });
+
+    // Function to animate numbers
+    function animateValue(element, start, end, duration) {
+        let current = start;
+        const range = end - start;
+        const increment = range / (duration / 16);
+        const timer = setInterval(function() {
+            current += increment;
+            element.textContent = Math.round(current);
+            if (current >= end) {
+                element.textContent = end;
+                clearInterval(timer);
+            }
+        }, 16);
+    }
+
+    // Animate stat numbers when they come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const numberElement = entry.target.querySelector('.stat-number');
+                const targetNumber = parseInt(numberElement.textContent);
+                animateValue(numberElement, 0, targetNumber, 1000);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    statCards.forEach(card => observer.observe(card));
 });
 
 function showLogoutConfirmation(event) {

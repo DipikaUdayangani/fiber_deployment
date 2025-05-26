@@ -52,7 +52,54 @@
 
             <div class="dashboard-content">
                 {% block content %}
-                <!-- Content will be loaded here -->
+<div class="dashboard-stats">
+    <!-- Projects Card -->
+    <div class="stat-card">
+        <div class="stat-icon projects">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <div class="stat-details">
+            <h3>Total Projects</h3>
+            <div class="stat-number">{{ total_projects }}</div>
+            <div class="stat-metrics">
+                <span><i class="fas fa-clock"></i> {{ active_projects }} Active</span>
+                <span><i class="fas fa-check-circle"></i> {{ completed_projects }} Completed</span>
+                <span><i class="fas fa-pause-circle"></i> {{ on_hold_projects }} On Hold</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Card -->
+    <div class="stat-card">
+        <div class="stat-icon users">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-details">
+            <h3>Total Users</h3>
+            <div class="stat-number">{{ total_users }}</div>
+            <div class="stat-metrics">
+                <span><i class="fas fa-circle text-success"></i> {{ online_users }} Online</span>
+                <span><i class="fas fa-user-clock"></i> {{ active_today }} Active Today</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Card -->
+    <div class="stat-card">
+        <div class="stat-icon tasks">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="stat-details">
+            <h3>Active Tasks</h3>
+            <div class="stat-number">{{ total_tasks }}</div>
+            <div class="stat-metrics">
+                <span><i class="fas fa-clock"></i> {{ pending_tasks }} Pending</span>
+                <span><i class="fas fa-spinner"></i> {{ in_progress_tasks }} In Progress</span>
+                <span><i class="fas fa-check"></i> {{ completed_tasks }} Completed</span>
+            </div>
+        </div>
+    </div>
+</div>
                 {% endblock %}
             </div>
         </div>

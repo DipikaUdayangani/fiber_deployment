@@ -4,12 +4,17 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from datetime import datetime
+from django.utils import timezone
 from .models import User, Task, Project, TaskAssignment, RTOM
 
 @login_required
 def dashboard_view(request):
-    if request.user.workgroup != 'XXX-RTOM':
-        return redirect('accounts:login')
+    current_time = timezone.now()
+    # Consider users active if they logged in within the last 15 minutes
+    active_threshold = current_time - timezone.timedelta(minutes=15)
+    
+    # Get task assignments for status counts
+    task_assignments = TaskAssignment.objects.all()
     
     context = {
         'total_projects': Project.objects.count(),
@@ -17,9 +22,12 @@ def dashboard_view(request):
         'completed_projects': Project.objects.filter(status='COMPLETED').count(),
         'on_hold_projects': Project.objects.filter(status='ON_HOLD').count(),
         'total_users': User.objects.count(),
-        'online_users': User.objects.filter(is_active=True).count(),
-        'active_today': User.objects.filter(last_login__date=datetime.now().date()).count(),
+        'online_users': User.objects.filter(last_login__gte=active_threshold).count(),
+        'active_today': User.objects.filter(last_login__date=current_time.date()).count(),
         'total_tasks': Task.objects.count(),
+        'pending_tasks': task_assignments.filter(status='PENDING').count(),
+        'in_progress_tasks': task_assignments.filter(status='IN_PROGRESS').count(),
+        'completed_tasks': task_assignments.filter(status='COMPLETED').count(),
         'active_tab': 'home'
     }
     return render(request, 'admin_panel/dashboard.html', context)

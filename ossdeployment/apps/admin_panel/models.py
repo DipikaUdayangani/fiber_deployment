@@ -122,6 +122,18 @@ class DummyCredentials:
         'workgroup': 'XXX-MNG-OPMC'
     }
 
+class Workgroup(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, RTOM, Task, Project, TaskAssignment

@@ -1,11 +1,121 @@
-{% extends "admin_panel/dashboard.html" %}
-
-{% block title %}Tasks{% endblock %}
-{% block page_title %}Tasks Management{% endblock %}
+{% extends "admin_panel/base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="tasks-container">
-    <h2>Tasks Overview</h2>
-    <!-- Add tasks content here -->
+<link rel="stylesheet" href="{% static 'css/tasks.css' %}">
+
+<div class="content-wrapper">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="header-left">
+            <h1>Task Management</h1>
+            <span class="total-tasks">Total Tasks: {{ total_tasks }}</span>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search tasks...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <button class="new-task-btn" onclick="openTaskModal()">
+                <i class="fas fa-plus"></i> New Task
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card" onclick="showUsersModal()">
+            <div class="stat-icon users">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Total Users</h3>
+                <div class="stat-number">{{ total_users }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card" onclick="showTasksModal()">
+            <div class="stat-icon tasks">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Active Tasks</h3>
+                <div class="stat-number">{{ active_tasks }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Filters -->
+    <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">
+            All Tasks <span class="count">{{ total_tasks }}</span>
+        </button>
+        <button class="filter-tab" data-filter="pending">
+            Pending <span class="count">{{ pending_tasks }}</span>
+        </button>
+        <button class="filter-tab" data-filter="progress">
+            In Progress <span class="count">{{ in_progress_tasks }}</span>
+        </button>
+        <button class="filter-tab" data-filter="completed">
+            Completed <span class="count">{{ completed_tasks }}</span>
+        </button>
+    </div>
+
+    <!-- Tasks Table -->
+    <div class="table-responsive">
+        <table class="tasks-table">
+            <thead>
+                <tr>
+                    <th>Task ID</th>
+                    <th>Task Name</th>
+                    <th>Assigned To</th>
+                    <th>Workgroup</th>
+                    <th>RTOM</th>
+                    <th>Deadline</th>
+                    <th>Attachment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.assigned_to.get_full_name }}</td>
+                    <td>{{ task.assigned_workgroup }}</td>
+                    <td>{{ task.rtom.name }}</td>
+                    <td>{{ task.deadline|date:"Y-m-d" }}</td>
+                    <td class="attachment-cell">
+                        {% if task.attachment %}
+                        <button class="attachment-btn" onclick="viewAttachment('{{ task.attachment.url }}')">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                        {% else %}
+                        <button class="upload-btn" onclick="uploadAttachment({{ task.id }})">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="status-badge {{ task.status|lower }}">
+                            {{ task.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <button class="edit-btn" onclick="editTask({{ task.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-btn" onclick="deleteTask({{ task.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script src="{% static 'js/tasks.js' %}" defer></script>
 {% endblock %}

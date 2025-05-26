@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from datetime import datetime
 from django.utils import timezone
-from .models import User, Task, Project, TaskAssignment, RTOM
+from .models import User, Task, Project, TaskAssignment, RTOM, Workgroup  # Added Workgroup
 
 @login_required
 def dashboard_view(request):
@@ -63,23 +63,22 @@ def manage_users_view(request):
 
 @login_required
 def tasks_view(request):
-    if request.user.workgroup != 'XXX-RTOM':
-        return redirect('accounts:login')
-    
-    task_assignments = TaskAssignment.objects.select_related(
-        'task', 
-        'project', 
-        'assigned_to',
-        'task__rtom'
-    ).all()
+    tasks = Task.objects.all().order_by('-created_at')
+    users = User.objects.all()
+    workgroups = Workgroup.objects.all()
+    rtoms = RTOM.objects.all()
     
     context = {
-        'tasks': task_assignments,
+        'tasks': tasks,
+        'users': users,
+        'workgroups': workgroups,
+        'rtoms': rtoms,
+        'total_tasks': tasks.count(),
+        'pending_tasks': tasks.filter(status='PENDING').count(),
+        'in_progress_tasks': tasks.filter(status='IN_PROGRESS').count(),
+        'completed_tasks': tasks.filter(status='COMPLETED').count(),
         'total_users': User.objects.count(),
-        'active_tasks': task_assignments.filter(status='IN_PROGRESS').count(),
-        'pending_tasks': task_assignments.filter(status='PENDING').count(),
-        'in_progress_tasks': task_assignments.filter(status='IN_PROGRESS').count(),
-        'completed_tasks': task_assignments.filter(status='COMPLETED').count(),
+        'active_tasks': tasks.exclude(status='COMPLETED').count(),
         'active_tab': 'tasks'
     }
     

@@ -70,12 +70,14 @@ document.getElementById('addProjectForm').addEventListener('submit', function(e)
 // Close modals when clicking outside
 window.onclick = function(event) {
     if (event.target.classList.contains('modal')) {
-        const modals = ['projectsModal', 'addProjectModal', 'usersModal', 'tasksModal', 'userProfileModal'];
-        modals.forEach(modalId => {
-            document.getElementById(modalId).style.display = 'none';
-        });
+        closeAllModals();
     }
 }
+
+// Close button functionality
+document.querySelectorAll('.close').forEach(button => {
+    button.addEventListener('click', closeAllModals);
+});
 
 // Initialize data tables when modals open
 function loadUserData() {
@@ -164,13 +166,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const signOutBtn = document.querySelector('.signout-btn');
     if (signOutBtn) {
-        signOutBtn.addEventListener('click', showLogoutConfirmation);
+        signOutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLogoutConfirmation();
+        });
     }
 
-    const statCards = document.querySelectorAll('.stat-card');
+    // Initialize stat cards animations
+    const statCards = document.querySelectorAll('.stat-box');
     
-    // Add hover animation class
     statCards.forEach(card => {
+        // Add hover animation class
         card.addEventListener('mouseenter', function() {
             this.classList.add('card-hover');
         });
@@ -182,6 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to animate numbers
     function animateValue(element, start, end, duration) {
+        if (!element) return;
+        
         let current = start;
         const range = end - start;
         const increment = range / (duration / 16);
@@ -199,20 +207,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const numberElement = entry.target.querySelector('.stat-number');
-                const targetNumber = parseInt(numberElement.textContent);
-                animateValue(numberElement, 0, targetNumber, 1000);
-                observer.unobserve(entry.target);
+                const numberElement = entry.target.querySelector('.stat-value');
+                if (numberElement) {
+                    const targetNumber = parseInt(numberElement.textContent) || 0;
+                    animateValue(numberElement, 0, targetNumber, 1000);
+                    observer.unobserve(entry.target);
+                }
             }
         });
     }, { threshold: 0.5 });
 
+    // Observe stat boxes for animation
     statCards.forEach(card => observer.observe(card));
 });
 
-function showLogoutConfirmation(event) {
-    event.preventDefault();
-    
+// Logout confirmation function
+function showLogoutConfirmation() {
     Swal.fire({
         title: 'Sign Out',
         text: 'Are you sure you want to sign out?',
@@ -228,6 +238,76 @@ function showLogoutConfirmation(event) {
             if (form) {
                 form.submit();
             }
+        }
+    });
+}
+
+function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+}
+
+function showNewProjectForm() {
+    Swal.fire({
+        title: 'Create New Project',
+        html: `
+            <form id="newProjectForm">
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" id="projectName" class="swal2-input">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="projectDescription" class="swal2-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>RTOM</label>
+                    <select id="projectRtom" class="swal2-select">
+                        <option value="">Select RTOM</option>
+                        <option value="RTOM1">RTOM 1</option>
+                        <option value="RTOM2">RTOM 2</option>
+                        <option value="RTOM3">RTOM 3</option>
+                    </select>
+                </div>
+            </form>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Create Project',
+        confirmButtonColor: '#007bff',
+        cancelButtonColor: '#6c757d',
+        preConfirm: () => {
+            return {
+                name: document.getElementById('projectName').value,
+                description: document.getElementById('projectDescription').value,
+                rtom: document.getElementById('projectRtom').value
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            createProject(result.value);
+        }
+    });
+}
+
+function createProject(projectData) {
+    fetch('/admin-panel/projects/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(projectData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('Success!', 'Project created successfully', 'success')
+            .then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Error!', data.error, 'error');
         }
     });
 }

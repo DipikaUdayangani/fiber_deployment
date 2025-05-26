@@ -16,12 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.accounts.urls')),
+<<<<<<< Updated upstream
     path('admin-panel/', include('apps.admin_panel.urls', namespace='admin_panel')),
     path('employee/', include('apps.employee_panel.urls')),
     path('contractor/', include('apps.contractor_panel.urls')),
+=======
+    path('admin-panel/', include('apps.admin_panel.urls')),
+    path('employee-panel/', include('apps.employee_panel.urls')),
+    path('contractor-panel/', include('apps.contractor_panel.urls')),
+    path('password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+>>>>>>> Stashed changes
 ]

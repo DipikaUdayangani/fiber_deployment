@@ -1,509 +1,342 @@
-function showTotalUsersModal() {
-    const modal = document.getElementById('totalUsersModal');
-    modal.style.display = 'block';
-    loadUserData();
-}
-
-function showActiveTasksModal() {
-    const modal = document.getElementById('activeTasksModal');
-    modal.style.display = 'block';
-    loadTaskData();
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-function loadUserData() {
-    // Example data - replace with actual API call
-    const users = [
-        { name: 'John Doe', empId: 'EMP001', workgroup: 'NET-PLAN-TX', status: 'Active', lastActive: '2024-03-07 09:30' },
-        { name: 'Jane Smith', empId: 'EMP002', workgroup: 'LEA-MNG-OPMC', status: 'Active', lastActive: '2024-03-07 10:15' }
-    ];
-    
-    const tbody = document.getElementById('userTableBody');
-    tbody.innerHTML = users.map(user => `
-        <tr>
-            <td>${user.name}</td>
-            <td>${user.empId}</td>
-            <td>${user.workgroup}</td>
-            <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
-            <td>${user.lastActive}</td>
-        </tr>
-    `).join('');
-}
-
-function loadTaskData() {
-    // Example data - replace with actual API call
-    const tasks = [
-        { name: 'Site Survey', assignedTo: 'John Doe', workgroup: 'NET-PLAN-TX', deadline: '2024-03-15', status: 'In Progress' },
-        { name: 'Cable Installation', assignedTo: 'Jane Smith', workgroup: 'LEA-MNG-OPMC', deadline: '2024-03-20', status: 'Pending' }
-    ];
-    
-    const tbody = document.getElementById('taskTableBody');
-    tbody.innerHTML = tasks.map(task => `
-        <tr>
-            <td>${task.name}</td>
-            <td>${task.assignedTo}</td>
-            <td>${task.workgroup}</td>
-            <td>${task.deadline}</td>
-            <td><span class="status-badge status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span></td>
-        </tr>
-    `).join('');
-}
-
-function openTaskModal() {
-    const modal = document.getElementById('taskModal');
-    modal.style.display = 'block';
-    // Reset form
-    document.getElementById('taskForm').reset();
-    // Load employees and RTOMs based on selected workgroup
-    loadEmployees();
-    loadRTOMs();
-}
-
-function closeTaskModal() {
-    const modal = document.getElementById('taskModal');
-    modal.style.display = 'none';
-}
-
-function loadEmployees() {
-    // Dummy data - replace with actual API call
-    const employees = [
-        { id: 'EMP001', name: 'John Doe' },
-        { id: 'EMP002', name: 'Jane Smith' },
-        { id: 'EMP003', name: 'Mike Johnson' }
-    ];
-
-    const select = document.querySelector('select[name="assignTo"]');
-    select.innerHTML = '<option value="">Select Employee</option>' +
-        employees.map(emp => `<option value="${emp.id}">${emp.name}</option>`).join('');
-}
-
-function loadRTOMs() {
-    // Dummy data - replace with actual API call
-    const rtoms = [
-        'RTOM Colombo Metro',
-        'RTOM Western North',
-        'RTOM Western South',
-        'RTOM Central',
-        'RTOM North Central'
-    ];
-
-    const select = document.querySelector('select[name="rtom"]');
-    select.innerHTML = '<option value="">Select RTOM</option>' +
-        rtoms.map(rtom => `<option value="${rtom}">${rtom}</option>`).join('');
-}
-
-// Form submission handler
-document.getElementById('taskForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Get form data
-    const formData = new FormData(this);
-    const taskData = Object.fromEntries(formData);
-    
-    // Validate form
-    if (!validateTaskForm(taskData)) {
+// Simple modal handling
+function openModal(modalId) {
+    console.log('Opening modal:', modalId);
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error(`Modal element with ID "${modalId}" not found.`);
         return;
     }
     
-    // Add task to table
-    addTaskToTable(taskData);
+    // Prevent any default behaviors
+    event?.preventDefault();
+    event?.stopPropagation();
     
-    // Close modal
-    closeTaskModal();
-});
+    // Set display and visibility directly
+    modal.style.display = 'flex';
+    modal.style.visibility = 'visible';
+    modal.style.opacity = '1';
+    
+    // Add active class
+    modal.classList.add('active');
+    
+    // Prevent body scrolling
+    document.body.style.overflow = 'hidden';
+}
 
-function validateTaskForm(data) {
-    const requiredFields = ['taskName', 'assignTo', 'workgroup', 'rtom', 'deadline'];
-    let isValid = true;
+function closeModal(modalId) {
+    console.log('Closing modal:', modalId);
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error(`Modal element with ID "${modalId}" not found.`);
+        return;
+    }
     
-    requiredFields.forEach(field => {
-        const input = document.querySelector(`[name="${field}"]`);
-        if (!data[field]) {
-            isValid = false;
-            input.classList.add('error');
-        } else {
-            input.classList.remove('error');
+    // Prevent any default behaviors
+    event?.preventDefault();
+    event?.stopPropagation();
+    
+    // Remove active class
+    modal.classList.remove('active');
+    
+    // Set display and visibility after transition
+    setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            modal.style.opacity = '0';
+        }
+    }, 300);
+    
+    // Restore body scrolling
+    document.body.style.overflow = 'auto';
+}
+
+// Dummy task data
+let tasks = [
+    { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
+    { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
+    { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
+    { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
+    { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
+];
+
+// Dummy data for dropdowns (replace with actual data fetched from backend)
+const assignedToList = [
+    'John Doe',
+    'Jane Smith',
+    'Mike Wilson',
+    'User 4',
+    'User 5',
+];
+
+const workgroupsList = [
+    'NET-PLAN-TX',
+    'LEA-MNG-OPMC',
+    'NET-PLAN-ACC',
+    'NET-PROJ-ACC-CABLE',
+    'XXX-MNG-OPMC',
+    'XXX-ENG-NW',
+    'NET-PLAN-DRAWING',
+    'XXX-RTOM',
+    'ACCESS-PLAN',
+];
+
+const rtomsList = [
+    'RTOM 1',
+    'RTOM 2',
+    'RTOM 3',
+    'RTOM 4',
+    'RTOM Colombo',
+    'RTOM Kandy',
+    'RTOM Galle',
+];
+
+// Function to render the tasks table
+function renderTasksTable(tasksToRender = tasks) {
+    const tbody = document.getElementById('tasksTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = ''; // Clear existing rows
+
+    if (tasksToRender.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No tasks found.</td></tr>';
+        return;
+    }
+    
+    tasksToRender.forEach((task, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${task.id}</td>
+            <td>${task.name}</td>
+            <td>${task.assigned_to || 'Not Assigned'}</td>
+            <td>${task.workgroup || 'N/A'}</td>
+            <td>${task.rtom || 'N/A'}</td>
+            <td>${task.deadline || 'N/A'}</td>
+            <td class="attachment-cell">
+                ${task.attachment ? '<span class="attachment-icon"><i class="fas fa-file-alt"></i></span>' : 'N/A'}
+            </td>
+            <td><span class="status-badge status-${task.status.replace(/\s+/g, '-')}">${task.status}</span></td>
+            <td>
+                <button class="action-btn edit" data-index="${idx}" data-tooltip="Edit Task">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="action-btn delete" data-index="${idx}" data-tooltip="Delete Task">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Function to update tab counts
+function updateTabCounts() {
+    document.getElementById('allTasksCount').textContent = tasks.length;
+    document.getElementById('pendingTasksCount').textContent = tasks.filter(task => task.status === 'Pending').length;
+    document.getElementById('inProgressTasksCount').textContent = tasks.filter(task => task.status === 'In Progress').length;
+    document.getElementById('completedTasksCount').textContent = tasks.filter(task => task.status === 'Completed').length;
+}
+
+// Function to populate dropdown options
+function populateDropdown(selectElementId, optionsList) {
+    const selectElement = document.getElementById(selectElementId);
+    if (!selectElement) return;
+
+    // Store the currently selected value
+    const currentValue = selectElement.value;
+
+    selectElement.innerHTML = '<option value="">Select ' + selectElement.name.replace('task_', '').replace('_', ' ') + '</option>';
+
+    optionsList.forEach(optionValue => {
+        const option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionValue;
+        if (optionValue === currentValue) {
+            option.selected = true;
+        }
+        selectElement.appendChild(option);
+    });
+}
+
+// Initialize everything when the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial render of all tasks and update counts
+    renderTasksTable();
+    updateTabCounts();
+
+    // Add New Task button click handler
+    const openAddTaskModalBtn = document.getElementById('openAddTaskModalBtn');
+    if (openAddTaskModalBtn) {
+        console.log('Found + New Task button. Attaching click listener.');
+        openAddTaskModalBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('+ New Task button clicked!');
+
+            // Reset and prepare the form
+            const form = document.getElementById('addTaskForm');
+            if (form) {
+                form.reset();
+                // Populate dropdowns
+                populateDropdown('assigned_to', assignedToList);
+                populateDropdown('task_workgroup', workgroupsList);
+                populateDropdown('task_rtom', rtomsList);
+            }
+
+            // Open the modal
+            openModal('addTaskModal');
+        });
+    }
+
+    // Add Task form submission handler
+    const addTaskForm = document.getElementById('addTaskForm');
+    if (addTaskForm) {
+        addTaskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Form submission intercepted');
+
+            // Get form data
+            const formData = new FormData(this);
+
+            // Basic validation
+            if (!formData.get('task_name') || !formData.get('assigned_to') || 
+                !formData.get('workgroup') || !formData.get('rtom') || 
+                !formData.get('deadline')) {
+                alert('Please fill in all required fields.');
+                return false;
+            }
+
+            // Create new task object
+            const newTask = {
+                id: 'TASK' + (tasks.length + 1).toString().padStart(3, '0'),
+                name: formData.get('task_name'),
+                assigned_to: formData.get('assigned_to'),
+                workgroup: formData.get('workgroup'),
+                rtom: formData.get('rtom'),
+                deadline: formData.get('deadline'),
+                attachment: formData.get('attachment') && formData.get('attachment').name ? true : false,
+                status: 'Pending'
+            };
+
+            // Add the new task
+            tasks.push(newTask);
+
+            // Update UI
+            renderTasksTable();
+            updateTabCounts();
+
+            // Close modal and show success message
+            closeModal('addTaskModal');
+            alert('New task added successfully!');
+        });
+    }
+
+    // Tab switching logic
+    document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
+        tab.onclick = function() {
+            // Remove active class from all tabs
+            document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
+            // Add active class to clicked tab
+            this.classList.add('active');
+
+            const status = this.getAttribute('data-status');
+            let filteredTasks = tasks;
+            if (status !== 'All') {
+                filteredTasks = tasks.filter(task => task.status === status);
+            }
+            renderTasksTable(filteredTasks);
+        };
+    });
+
+     // Add event listeners for Edit and Delete buttons (using event delegation)
+    document.getElementById('tasksTableBody').addEventListener('click', function(e) {
+        const target = e.target.closest('.action-btn');
+        if (!target) return;
+
+        const index = target.getAttribute('data-index');
+        const task = tasks[index];
+
+        if (target.classList.contains('edit')) {
+            // Handle Edit - Open modal and populate form
+            console.log('Edit task:', task);
+            // Implement opening and populating edit modal here later
+             alert('Edit functionality coming soon for Task ID: ' + task.id);
+
+        } else if (target.classList.contains('delete')) {
+            // Handle Delete
+            if (confirm(`Are you sure you want to delete task ${task.id}?`)) {
+                tasks.splice(index, 1);
+                renderTasksTable(); // Re-render table
+                updateTabCounts(); // Update counts after deletion
+                alert('Task deleted (demo only)!');
+            }
         }
     });
-    
-    if (!isValid) {
-        alert('Please fill in all required fields');
-        return false;
-    }
-    
-    return true;
-}
 
-function addTaskToTable(taskData) {
-    const tbody = document.querySelector('.tasks-table tbody');
-    const taskId = generateTaskId();
-    
-    const row = document.createElement('tr');
-    row.setAttribute('data-task-id', taskId);
-    row.innerHTML = `
-        <td>${taskId}</td>
-        <td>${taskData.taskName}</td>
-        <td>${taskData.assignTo}</td>
-        <td>${taskData.workgroup}</td>
-        <td>${taskData.rtom}</td>
-        <td>${taskData.deadline}</td>
-        <td class="attachment-cell">
-            ${taskData.attachment ? `
-                <button class="attachment-btn view" onclick="viewAttachment('${taskData.attachment}')">
-                    <i class="fas fa-file-pdf"></i>
-                </button>
-            ` : `
-                <button class="attachment-btn upload" onclick="openAttachmentDialog('${taskId}')">
-                    <i class="fas fa-upload"></i>
-                </button>
-            `}
-        </td>
-        <td>
-            <span class="status-badge ${taskData.status}">
-                ${getStatusLabel(taskData.status)}
-            </span>
-        </td>
-        <td class="actions">
-            <button class="action-btn edit" onclick="openEditTaskModal('${taskId}')">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="action-btn delete" onclick="openDeleteTaskModal('${taskId}')">
-                <i class="fas fa-trash"></i>
-            </button>
-        </td>
-    `;
-    
-    tbody.insertBefore(row, tbody.firstChild);
-}
+    // Close button handlers for modals
+    document.querySelectorAll('.custom-modal .close-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const modal = this.closest('.custom-modal');
+            if (modal) {
+                closeModal(modal.id);
+            }
+        });
+    });
 
-function getStatusLabel(status) {
-    const labels = {
-        'pending': 'Pending',
-        'progress': 'In Progress',
-        'completed': 'Completed'
-    };
-    return labels[status] || status;
-}
-
-function openAttachmentDialog(taskId) {
-    // Create hidden file input
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.pdf';
-    fileInput.style.display = 'none';
-    
-    // Handle file selection
-    fileInput.onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            uploadAttachment(taskId, file);
-        }
-    };
-    
-    // Trigger file dialog
-    document.body.appendChild(fileInput);
-    fileInput.click();
-    document.body.removeChild(fileInput);
-}
-
-function uploadAttachment(taskId, file) {
-    // Here you would normally upload the file to your server
-    // For demo purposes, we'll just update the UI
-    const cell = document.querySelector(`tr[data-task-id="${taskId}"] .attachment-cell`);
-    cell.innerHTML = `
-        <button class="attachment-btn view" onclick="viewAttachment('${file.name}')">
-            <i class="fas fa-file-pdf"></i>
-        </button>
-    `;
-}
-
-function viewAttachment(filePath) {
-    // Open PDF in new window/tab
-    window.open(filePath, '_blank');
-}
-
-function generateTaskId() {
-    return 'TASK' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-}
-
-// Event listener for workgroup change
-document.querySelector('select[name="workgroup"]').addEventListener('change', function() {
-    loadEmployees(); // Reload employees based on selected workgroup
-});
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-};
-
-// Add event listeners when document loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Close button handler
-    const closeButtons = document.querySelectorAll('.close');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            this.closest('.modal').style.display = 'none';
+    // Cancel button handlers
+    document.querySelectorAll('.custom-modal .cancel-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const modal = this.closest('.custom-modal');
+            if (modal) {
+                closeModal(modal.id);
+            }
         });
     });
 
     // Close modal when clicking outside
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
-    };
-});
-
-// Edit Task Functions
-function openEditTaskModal(taskId) {
-    const modal = document.getElementById('editTaskModal');
-    const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
-    
-    // Get task data from the row
-    const taskData = {
-        taskId: taskId,
-        taskName: row.cells[1].textContent,
-        assignTo: row.cells[2].textContent,
-        workgroup: row.cells[3].textContent,
-        rtom: row.cells[4].textContent,
-        status: row.querySelector('.status-badge').textContent
-    };
-    
-    // Populate form fields
-    document.getElementById('editTaskId').value = taskData.taskId;
-    document.getElementById('editTaskName').value = taskData.taskName;
-    document.getElementById('editAssignTo').value = taskData.assignTo;
-    document.getElementById('editWorkgroup').value = taskData.workgroup;
-    document.getElementById('editRTOM').value = taskData.rtom;
-    document.getElementById('editStatus').value = taskData.status.toLowerCase();
-    
-    modal.style.display = 'block';
-}
-
-function closeEditTaskModal() {
-    document.getElementById('editTaskModal').style.display = 'none';
-}
-
-// Delete Task Functions
-function openDeleteTaskModal(taskId) {
-    const modal = document.getElementById('deleteTaskModal');
-    const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
-    const taskName = row.cells[1].textContent;
-    
-    document.getElementById('deleteTaskId').value = taskId;
-    document.getElementById('deleteTaskName').textContent = taskName;
-    
-    modal.style.display = 'block';
-}
-
-function closeDeleteTaskModal() {
-    document.getElementById('deleteTaskModal').style.display = 'none';
-}
-
-function confirmDeleteTask() {
-    const taskId = document.getElementById('deleteTaskId').value;
-    const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
-    if (row) {
-        row.remove();
-    }
-    closeDeleteTaskModal();
-}
-
-// Form submission handler for edit task
-document.getElementById('editTaskForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const taskData = Object.fromEntries(formData);
-    
-    // Validate form
-    if (!validateTaskForm(taskData)) {
-        return;
-    }
-    
-    // Update task in table
-    updateTaskInTable(taskData);
-    
-    closeEditTaskModal();
-});
-
-function updateTaskInTable(taskData) {
-    const row = document.querySelector(`tr[data-task-id="${taskData.taskId}"]`);
-    if (row) {
-        row.innerHTML = `
-            <td>${taskData.taskId}</td>
-            <td>${taskData.taskName}</td>
-            <td>${taskData.assignTo}</td>
-            <td>${taskData.workgroup}</td>
-            <td>${taskData.rtom}</td>
-            <td><span class="status-badge ${taskData.status}">${taskData.status}</span></td>
-            <td>
-                <button class="action-btn edit" onclick="openEditTaskModal('${taskData.taskId}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn delete" onclick="openDeleteTaskModal('${taskData.taskId}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-    }
-}
-
-// Helper function to get task data (implement with your data source)
-function getTaskById(taskId) {
-    // Replace this with actual data retrieval
-    return {
-        id: taskId,
-        name: 'Sample Task',
-        assignTo: 'John Doe',
-        workgroup: 'NET-PLAN-TX',
-        rtom: 'RTOM 1',
-        status: 'pending'
-    };
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Add event listener for edit form submission
-    document.getElementById('editTaskForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const taskData = Object.fromEntries(formData);
-        
-        // Update the row in the table
-        const row = document.querySelector(`tr[data-task-id="${taskData.taskId}"]`);
-        if (row) {
-            row.cells[1].textContent = taskData.taskName;
-            row.cells[2].textContent = taskData.assignTo;
-            row.cells[3].textContent = taskData.workgroup;
-            row.cells[4].textContent = taskData.rtom;
-            row.querySelector('.status-badge').textContent = taskData.status;
-            row.querySelector('.status-badge').className = `status-badge ${taskData.status}`;
-        }
-        
-        closeEditTaskModal();
-    });
-});
-
-// Sample task data
-const tasks = [
-    {
-        id: 'TASK001',
-        name: 'Site Survey - Colombo',
-        assignedTo: 'John Doe',
-        workgroup: 'NET-PLAN-TX',
-        rtom: 'RTOM Colombo',
-        deadline: '2024-03-15',
-        attachment: null,
-        status: 'pending'
-    },
-    {
-        id: 'TASK002',
-        name: 'Cable Installation',
-        assignedTo: 'Jane Smith',
-        workgroup: 'LEA-MNG-OPMC',
-        rtom: 'RTOM Kandy',
-        deadline: '2024-03-20',
-        attachment: 'document.pdf',
-        status: 'progress'
-    },
-    {
-        id: 'TASK003',
-        name: 'Network Testing',
-        assignedTo: 'Mike Wilson',
-        workgroup: 'ACCESS-PLAN',
-        rtom: 'RTOM Galle',
-        deadline: '2024-03-18',
-        attachment: null,
-        status: 'completed'
-    }
-    // Add more dummy tasks as needed
-];
-
-// Initialize task filtering
-document.addEventListener('DOMContentLoaded', function() {
-    // Add click handlers to filter buttons
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
-            button.classList.add('active');
-            // Filter tasks
-            filterTasks(button.dataset.status);
+    document.querySelectorAll('.custom-modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal(this.id);
+            }
         });
     });
 
-    // Initial load of all tasks
-    filterTasks('all');
-    updateTaskCounts();
-});
-
-function filterTasks(status) {
-    const filteredTasks = status === 'all' 
-        ? tasks 
-        : tasks.filter(task => task.status === status);
-
-    const tbody = document.querySelector('.tasks-table tbody');
-    tbody.innerHTML = filteredTasks.map(task => `
-        <tr data-task-id="${task.id}">
-            <td>${task.id}</td>
-            <td>${task.name}</td>
-            <td>${task.assignedTo}</td>
-            <td>${task.workgroup}</td>
-            <td>${task.rtom}</td>
-            <td>${task.deadline}</td>
-            <td class="attachment-cell">
-                ${task.attachment ? `
-                    <button class="attachment-btn view" onclick="viewAttachment('${task.attachment}')">
-                        <i class="fas fa-file-pdf"></i>
-                    </button>
-                ` : `
-                    <button class="attachment-btn upload" onclick="openAttachmentDialog('${task.id}')">
-                        <i class="fas fa-upload"></i>
-                    </button>
-                `}
-            </td>
-            <td><span class="status-badge ${task.status}">${task.status}</span></td>
-            <td>
-                <button class="action-btn edit" onclick="openEditTaskModal('${task.id}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn delete" onclick="openDeleteTaskModal('${task.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function updateTaskCounts() {
-    const counts = {
-        all: tasks.length,
-        pending: tasks.filter(t => t.status === 'pending').length,
-        progress: tasks.filter(t => t.status === 'progress').length,
-        completed: tasks.filter(t => t.status === 'completed').length
-    };
-
-    document.querySelectorAll('.filter-btn').forEach(button => {
-        const status = button.dataset.status;
-        const countSpan = button.querySelector('.task-count');
-        if (countSpan) {
-            countSpan.textContent = counts[status] || 0;
-        }
+    // Prevent clicks inside modal content from closing the modal
+    document.querySelectorAll('.modal-content').forEach(content => {
+        content.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     });
-}
 
-// Update task counts when tasks are added/edited/deleted
-function refreshTasksView() {
-    const activeFilter = document.querySelector('.filter-btn.active');
-    filterTasks(activeFilter.dataset.status);
-    updateTaskCounts();
-}
+    // Search functionality (basic filtering)
+    const taskSearchInput = document.getElementById('taskSearchInput');
+    if (taskSearchInput) {
+        taskSearchInput.oninput = function() {
+            const searchText = this.value.toLowerCase();
+            const activeTab = document.querySelector('.task-tabs .tab-link.active').getAttribute('data-status');
 
+            let tasksToSearch = tasks;
+            if (activeTab !== 'All') {
+                 tasksToSearch = tasks.filter(task => task.status === activeTab);
+            }
+
+            const filteredTasks = tasksToSearch.filter(task =>
+                Object.values(task).some(value =>
+                    value && value.toString().toLowerCase().includes(searchText)
+                )
+            );
+            renderTasksTable(filteredTasks);
+        };
+    }
+
+    // Dummy data for stat cards (replace with actual counts later)
+    // You would fetch total users and active tasks from your backend
+    document.getElementById('totalUsersCard').querySelector('.stat-value').textContent = '25'; // Example
+    document.getElementById('activeTasksCard').querySelector('.stat-value').textContent = tasks.filter(task => task.status === 'Pending' || task.status === 'In Progress').length; // Example
+}); 

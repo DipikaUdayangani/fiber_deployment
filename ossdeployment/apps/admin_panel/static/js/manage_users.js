@@ -73,24 +73,29 @@ function renderUsersTable(usersToRender = users) {
     const tbody = document.getElementById('usersTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = '';
+    tbody.innerHTML = ''; // Clear existing rows
 
     if (usersToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No users found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No users found.</td></tr>';
         return;
     }
-
+    
     usersToRender.forEach((user, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${user.employee_id}</td>
+            <td>${user.name || 'N/A'}</td>
             <td>${user.email}</td>
-            <td>${user.workgroup}</td>
-            <td>${user.rtom}</td>
-            <td><span class="status-badge status-${user.status}">${user.status}</span></td>
+            <td>${user.workgroup || 'N/A'}</td>
+            <td>${user.rtom || 'N/A'}</td>
+            <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
             <td>
-                <button class="action-btn edit" onclick="openEditUserModal(${idx})"><i class="fas fa-edit"></i></button>
-                <button class="action-btn delete" onclick="deleteUser(${idx})"><i class="fas fa-trash"></i></button>
+                <button class="action-btn edit" data-index="${idx}" data-tooltip="Edit User">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="action-btn delete" data-index="${idx}" data-tooltip="Delete User">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -116,6 +121,21 @@ function populateDropdown(selectElementId, optionsList) {
 document.addEventListener('DOMContentLoaded', function() {
     // Initial render of the users table
     renderUsersTable();
+
+    // Add event delegation for edit and delete buttons
+    document.getElementById('usersTableBody').addEventListener('click', function(e) {
+        const target = e.target.closest('.action-btn');
+        if (!target) return;
+
+        const index = target.getAttribute('data-index');
+        if (!index) return;
+
+        if (target.classList.contains('edit')) {
+            openEditUserModal(parseInt(index));
+        } else if (target.classList.contains('delete')) {
+            deleteUser(parseInt(index));
+        }
+    });
 
     // Add New User button click handler
     const openAddUserModalBtn = document.getElementById('openAddUserModalBtn');
@@ -233,18 +253,24 @@ document.addEventListener('DOMContentLoaded', function() {
 // Edit user modal handler
 function openEditUserModal(idx) {
     const user = users[idx];
+    if (!user) return;
+
     const form = document.getElementById('editUserForm');
     if (!form) return;
 
     // Populate form fields
     form.employee_id.value = user.employee_id;
     form.email.value = user.email;
-    form.workgroup.value = user.workgroup;
-    form.rtom.value = user.rtom;
+    form.workgroup.value = user.workgroup || '';
+    form.rtom.value = user.rtom || '';
     form.status.value = user.status;
 
     // Store the index
     form.setAttribute('data-user-index', idx);
+
+    // Populate dropdowns
+    populateDropdown('edit_user_workgroup', workgroupsList);
+    populateDropdown('edit_user_rtom', rtomsList);
 
     // Show the modal
     openModal('editUserModal');
@@ -252,7 +278,10 @@ function openEditUserModal(idx) {
 
 // Delete user handler
 function deleteUser(idx) {
-    if (confirm(`Are you sure you want to delete user ${users[idx].employee_id}?`)) {
+    const user = users[idx];
+    if (!user) return;
+
+    if (confirm(`Are you sure you want to delete user ${user.employee_id}?`)) {
         users.splice(idx, 1);
         renderUsersTable();
         alert('User deleted successfully!');

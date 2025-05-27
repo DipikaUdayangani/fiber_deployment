@@ -1,72 +1,50 @@
 {% extends "admin_panel/base.html" %}
 {% load static %}
 
-{% block title %}Tasks{% endblock %}
+{% block title %}Task Management{% endblock %}
+{% block page_title %}Task Management{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/tasks.css' %}">
+<link rel="stylesheet" href="{% static 'css/tasks.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="content-wrapper">
-    <!-- Header Section -->
-    <div class="header-section">
-        <div class="header-left">
-            <h1>Task Management</h1>
-            <span class="total-tasks">Total Tasks: {{ total_tasks }}</span>
-        </div>
-        <div class="header-right">
+<div class="task-management-container">
+    <div class="task-management-header">
+        <h1>Task Management</h1>
+        <div class="header-actions">
             <div class="search-box">
-                <input type="text" placeholder="Search tasks...">
-                <button class="search-btn"><i class="fas fa-search"></i></button>
+                <input type="text" id="taskSearchInput" placeholder="Search tasks...">
+                <button id="taskSearchBtn"><i class="fas fa-search"></i></button>
             </div>
-            <button class="new-task-btn" onclick="openTaskModal()">
-                <i class="fas fa-plus"></i> New Task
-            </button>
+            <button class="add-btn" id="openAddTaskModalBtn">+ New Task</button>
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-container">
-        <div class="stat-card" onclick="showUsersModal()">
-            <div class="stat-icon users">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-details">
-                <h3>Total Users</h3>
-                <div class="stat-number">{{ total_users }}</div>
-            </div>
+    <div class="task-stats-flex">
+        <!-- Total Users Card -->
+        <div class="stat-card" id="totalUsersCard">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">Loading...</div> {# Will be populated by JS #}
+            <div class="stat-label">Total Users</div>
         </div>
 
-        <div class="stat-card" onclick="showTasksModal()">
-            <div class="stat-icon tasks">
-                <i class="fas fa-tasks"></i>
-            </div>
-            <div class="stat-details">
-                <h3>Active Tasks</h3>
-                <div class="stat-number">{{ active_tasks }}</div>
-            </div>
+        <!-- Active Tasks Card -->
+        <div class="stat-card" id="activeTasksCard">
+            <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+            <div class="stat-value">Loading...</div> {# Will be populated by JS #}
+            <div class="stat-label">Active Tasks</div>
         </div>
     </div>
 
-    <!-- Task Filters -->
-    <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="all">
-            All Tasks <span class="count">{{ total_tasks }}</span>
-        </button>
-        <button class="filter-tab" data-filter="pending">
-            Pending <span class="count">{{ pending_tasks }}</span>
-        </button>
-        <button class="filter-tab" data-filter="progress">
-            In Progress <span class="count">{{ in_progress_tasks }}</span>
-        </button>
-        <button class="filter-tab" data-filter="completed">
-            Completed <span class="count">{{ completed_tasks }}</span>
-        </button>
+    <div class="task-tabs">
+        <button class="tab-link active" data-status="All">All Tasks (<span id="allTasksCount">0</span>)</button>
+        <button class="tab-link" data-status="Pending">Pending (<span id="pendingTasksCount">0</span>)</button>
+        <button class="tab-link" data-status="In Progress">In Progress (<span id="inProgressTasksCount">0</span>)</button>
+        <button class="tab-link" data-status="Completed">Completed (<span id="completedTasksCount">0</span>)</button>
     </div>
 
-    <!-- Tasks Table -->
-    <div class="table-responsive">
+    <div class="task-table-container">
         <table class="tasks-table">
             <thead>
                 <tr>
@@ -81,47 +59,83 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for task in tasks %}
-                <tr>
-                    <td>{{ task.id }}</td>
-                    <td>{{ task.name }}</td>
-                    <td>{{ task.assigned_to.get_full_name|default:"Not Assigned" }}</td>
-                    <td>{{ task.assigned_workgroup }}</td>
-                    <td>{{ task.rtom.name|default:"Not Assigned" }}</td>
-                    <td>{{ task.deadline|date:"Y-m-d" }}</td>
-                    <td class="attachment-cell">
-                        {% if task.attachment %}
-                        <button class="attachment-btn" onclick="viewAttachment('{{ task.attachment.url }}')">
-                            <i class="fas fa-file-pdf"></i>
-                        </button>
-                        {% else %}
-                        <button class="upload-btn" onclick="uploadAttachment({{ task.id }})">
-                            <i class="fas fa-upload"></i>
-                        </button>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="status-badge {{ task.status|lower }}">
-                            {{ task.status|title }}
-                        </span>
-                    </td>
-                    <td class="actions">
-                        <button class="edit-btn" onclick="editTask({{ task.id }})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="delete-btn" onclick="deleteTask({{ task.id }})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
+            <tbody id="tasksTableBody">
+                <!-- Task data will be populated by JS -->
             </tbody>
         </table>
     </div>
-</div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header-flex">
+                <h2>Add New Task</h2>
+                <span class="close-btn" onclick="closeModal('addTaskModal')">&times;</span>
+            </div>
+            <form id="addTaskForm" autocomplete="off">
+                <div class="form-row">
+                    <label for="task_name">Task Name</label>
+                    <input type="text" id="task_name" name="task_name" required>
+                </div>
+                <div class="form-row">
+                    <label for="assigned_to">Assign To</label>
+                    <select id="assigned_to" name="assigned_to" required>
+                        <option value="">Select Employee</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+                 <div class="form-row">
+                    <label for="task_workgroup">Workgroup</label>
+                    <select id="task_workgroup" name="workgroup" required>
+                        <option value="">Select Workgroup</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+                 <div class="form-row">
+                    <label for="task_rtom">RTOM</label>
+                    <select id="task_rtom" name="rtom" required>
+                         <option value="">Select RTOM</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="task_deadline">Deadline</label>
+                    <input type="date" id="task_deadline" name="deadline" required>
+                </div>
+                <div class="form-row">
+                    <label for="task_attachment">Attachment (PDF/Other)</label>
+                    <input type="file" id="task_attachment" name="attachment" accept=".pdf, image/*, .doc, .docx">
+                    <small>Maximum file size: 5MB</small>
+                </div>
+
+                <div class="form-row" style="margin-top: 1.5rem;">
+                    <button type="submit" class="save-btn">Save Task</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('addTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header-flex">
+                <h2>Edit Task</h2>
+                <span class="close-btn" onclick="closeModal('editTaskModal')">&times;</span>
+            </div>
+            <form id="editTaskForm" autocomplete="off">
+                 {# Edit task fields will go here later #}
+                <p>Edit task fields will be added here.</p>
+                 <div class="form-row" style="margin-top: 1.5rem;">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('editTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/tasks.js' %}" defer></script>
+<script src="{% static 'js/tasks.js' %}"></script>
 {% endblock %}

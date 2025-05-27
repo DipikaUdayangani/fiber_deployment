@@ -1,173 +1,138 @@
+{% extends "admin_panel/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% block title %}Admin Dashboard{% endblock %} - SLT Fiber</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="{% static 'js/dashboard.js' %}" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo-container">
-                <img src="{% static 'images/slt_logo.png' %}" alt="SLT Logo" class="logo">
-            </div>
-            <nav class="nav-menu">
-                <ul>
-                    <li class="{% if active_tab == 'home' %}active{% endif %}">
-                        <a href="{% url 'admin_panel:dashboard' %}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    <li class="{% if active_tab == 'users' %}active{% endif %}">
-                        <a href="{% url 'admin_panel:manage_users' %}"><i class="fas fa-users"></i> Manage Users</a>
-                    </li>
-                    <li class="{% if active_tab == 'tasks' %}active{% endif %}">
-                        <a href="{% url 'admin_panel:tasks' %}"><i class="fas fa-tasks"></i> Tasks</a>
-                    </li>
-                    <li class="{% if active_tab == 'settings' %}active{% endif %}">
-                        <a href="{% url 'admin_panel:settings' %}"><i class="fas fa-cog"></i> Settings</a>
-                    </li>
-                    <li class="nav-divider"></li>
-                    <li>
-                        <a href="#" class="signout-btn">
-                            <i class="fas fa-sign-out-alt"></i> Sign Out
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block extra_css %}
+{# Link to specific CSS for dashboard stats and modals #}
+<link rel="stylesheet" href="{% static 'css/dashboard_modals.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="dashboard-stats-flex">
+        <!-- Total Projects Card -->
+        <div class="stat-card" id="projectsCard">
+            <div class="stat-icon"><i class="fas fa-folder-open"></i></div>
+            <div class="stat-value">125</div> {# Dummy Data #}
+            <div class="stat-label">Total Projects</div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <header>
-                <div class="header-content">
-                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
-                    <div class="user-info">
-                        <img src="{% static 'images/user.png' %}" alt="User Avatar" class="avatar small">
-                    </div>
+        <!-- Total Users Card -->
+        <div class="stat-card" id="usersCard">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">50</div> {# Dummy Data #}
+            <div class="stat-label">Total Users</div>
+        </div>
+
+        <!-- Active Tasks Card -->
+        <div class="stat-card" id="tasksCard">
+            <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+            <div class="stat-value">35</div> {# Dummy Data #}
+            <div class="stat-label">Active Tasks</div>
+        </div>
+    </div>
+
+    {# Modals for Dashboard Stats #}
+
+    <!-- Projects List Modal -->
+    <div id="projectsModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header-flex">
+                <h2>Project Details</h2>
+                 <button class="add-btn" id="openAddProjectModalBtn">+ Add New Project</button>
+                <span class="close-btn" onclick="closeModal('projectsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="projects-table">
+                    <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th>SLT Ref No</th>
+                            <th>PE No(s)</th>
+                            <th>Contract No</th>
+                            <th>Project No</th>
+                             <th>Invoice</th>
+                            <th>Status</th>
+                            <th>Attachment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        {# Project data will be loaded here by JS #}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Project Modal -->
+    <div id="addProjectModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px;">
+             <div class="modal-header-flex">
+                <h2>Add New Project</h2>
+                <span class="close-btn" onclick="closeModal('addProjectModal')">&times;</span>
+             </div>
+            <form id="addProjectForm" autocomplete="off">
+                <div class="form-row">
+                    <label for="project_name">Project Name</label>
+                    <input type="text" id="project_name" name="project_name" required>
                 </div>
-            </header>
-
-            <div class="dashboard-content">
-                {% block content %}
-<div class="dashboard-stats">
-    <!-- Projects Card -->
-    <div class="stat-box" onclick="showProjectsModal()">
-        <div class="stat-header">
-            <div class="stat-title">Total Projects</div>
-            <div class="stat-icon">
-                <i class="fas fa-project-diagram"></i>
-            </div>
-        </div>
-        <div class="stat-value">{{ total_projects }}</div>
-        <div class="stat-details">
-            <div class="detail-item">
-                <i class="fas fa-circle text-success"></i>
-                <span>{{ active_projects }} Active</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-circle text-info"></i>
-                <span>{{ completed_projects }} Completed</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-circle text-warning"></i>
-                <span>{{ on_hold_projects }} On Hold</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Users Card -->
-    <div class="stat-box" onclick="showUsersModal()">
-        <div class="stat-header">
-            <div class="stat-title">Total Users</div>
-            <div class="stat-icon">
-                <i class="fas fa-users"></i>
-            </div>
-        </div>
-        <div class="stat-value">{{ total_users }}</div>
-        <div class="stat-details">
-            <div class="detail-item">
-                <i class="fas fa-circle text-success"></i>
-                <span>{{ online_users }} Online</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-user-clock"></i>
-                <span>{{ active_today }} Active Today</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-building"></i>
-                <span>4 Departments</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tasks Card -->
-    <div class="stat-box" onclick="showTasksModal()">
-        <div class="stat-header">
-            <div class="stat-title">Active Tasks</div>
-            <div class="stat-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-        </div>
-        <div class="stat-value">{{ total_tasks }}</div>
-        <div class="stat-details">
-            <div class="detail-item">
-                <i class="fas fa-exclamation-circle text-danger"></i>
-                <span>{{ high_priority_tasks }} High Priority</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-clock text-warning"></i>
-                <span>{{ due_today_tasks }} Due Today</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-spinner text-info"></i>
-                <span>{{ in_progress_tasks }} In Progress</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Projects Modal -->
-<div id="projectsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Project Management</h2>
-            <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-            <button class="add-btn" onclick="showNewProjectForm()">
-                <i class="fas fa-plus"></i> New Project
-            </button>
-            <div class="projects-list">
-                {% for project in projects %}
-                <div class="project-item">
-                    <div class="project-info">
-                        <h3>{{ project.name }}</h3>
-                        <span class="status {{ project.status|lower }}">{{ project.status }}</span>
-                    </div>
-                    <div class="project-meta">
-                        <span><i class="fas fa-calendar"></i> {{ project.created_at|date }}</span>
-                        <span><i class="fas fa-tasks"></i> {{ project.tasks.count }} Tasks</span>
-                    </div>
+                 <div class="form-row">
+                    <label for="slt_ref_no">SLT Ref No</label>
+                    <input type="text" id="slt_ref_no" name="slt_ref_no">
                 </div>
-                {% endfor %}
-            </div>
+                <div class="form-row">
+                    <label for="pe_nos">PE No(s)</label>
+                    <input type="text" id="pe_nos" name="pe_nos">
+                </div>
+                <div class="form-row">
+                    <label for="contract_no">CONTRACT NO</label>
+                    <input type="text" id="contract_no" name="contract_no">
+                </div>
+                 <div class="form-row">
+                    <label for="project_no">PROJECT NO</label>
+                    <input type="text" id="project_no" name="project_no">
+                </div>
+                 <div class="form-row">
+                    <label for="invoice">INVOICE</label>
+                    <input type="text" id="invoice" name="invoice">
+                </div>
+                <div class="form-row">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" required>
+                        <option value="">Select Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Finished">Finished</option>
+                    </select>
+                </div>
+                 <div class="form-row">
+                     <label for="project_attachment">Project Attachment (PDF or other files)</label>
+                     <input type="file" id="project_attachment" name="project_attachment" accept=".pdf, image/*, .doc, .docx">
+                </div>
+
+                <div class="form-row" style="margin-top: 1.5rem;">
+                    <button type="submit" class="save-btn">Save Project</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('addProjectModal')">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-<!-- Similar modals for Tasks and Users -->
-                {% endblock %}
-            </div>
-        </div>
-    </div>
+    {# Users List Modal (if needed here, otherwise remove) #}
+    {# Assuming user list is on manage_users page, this modal can be removed if not used on dashboard #}
+    {# If needed for dashboard, content goes here #}
 
-    <!-- Add the logout form at the bottom of the body -->
-    <form id="logoutForm" method="post" action="{% url 'accounts:logout' %}" style="display: none;">
-        {% csrf_token %}
-    </form>
-</body>
-</html>
+    {# Tasks List Modal (if needed here, otherwise remove) #}
+    {# Assuming tasks list is on tasks page, this modal can be removed if not used on dashboard #}
+    {# If needed for dashboard, content goes here #}
+
+{% endblock %}
+
+{% block extra_js %}
+{# Link to specific JS for dashboard interactivity and modals #}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/dashboard_modals.js' %}" defer></script>
+{% endblock %}
 

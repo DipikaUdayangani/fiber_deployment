@@ -63,22 +63,45 @@ def manage_users_view(request):
 
 @login_required
 def tasks_view(request):
+    # Get all tasks with their assignments
     tasks = Task.objects.all().order_by('-created_at')
+    task_assignments = TaskAssignment.objects.select_related('assigned_to', 'task').all()
+    
+    # Create a dictionary to map task IDs to their assignments
+    task_assignments_dict = {ta.task_id: ta for ta in task_assignments}
+    
+    # Get other required data
     users = User.objects.all()
     workgroups = Workgroup.objects.all()
     rtoms = RTOM.objects.all()
     
+    # Prepare tasks with assignment data
+    tasks_with_assignments = []
+    for task in tasks:
+        assignment = task_assignments_dict.get(task.id)
+        task_data = {
+            'id': task.id,
+            'name': task.name,
+            'assigned_to': assignment.assigned_to if assignment else None,
+            'assigned_workgroup': task.assigned_workgroup,
+            'rtom': task.rtom,
+            'deadline': task.updated_at,  # Using updated_at as deadline for now
+            'status': assignment.status if assignment else task.status,
+            'attachment': task.attachment
+        }
+        tasks_with_assignments.append(task_data)
+    
     context = {
-        'tasks': tasks,
+        'tasks': tasks_with_assignments,
         'users': users,
         'workgroups': workgroups,
         'rtoms': rtoms,
         'total_tasks': tasks.count(),
-        'pending_tasks': tasks.filter(status='PENDING').count(),
-        'in_progress_tasks': tasks.filter(status='IN_PROGRESS').count(),
-        'completed_tasks': tasks.filter(status='COMPLETED').count(),
+        'pending_tasks': task_assignments.filter(status='PENDING').count(),
+        'in_progress_tasks': task_assignments.filter(status='IN_PROGRESS').count(),
+        'completed_tasks': task_assignments.filter(status='COMPLETED').count(),
         'total_users': User.objects.count(),
-        'active_tasks': tasks.exclude(status='COMPLETED').count(),
+        'active_tasks': task_assignments.exclude(status='COMPLETED').count(),
         'active_tab': 'tasks'
     }
     

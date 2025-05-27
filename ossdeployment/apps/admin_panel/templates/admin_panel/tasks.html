@@ -1,6 +1,12 @@
 {% extends "admin_panel/base.html" %}
 {% load static %}
 
+{% block title %}Tasks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tasks.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="content-wrapper">
     <!-- Header Section -->
@@ -80,9 +86,9 @@
                 <tr>
                     <td>{{ task.id }}</td>
                     <td>{{ task.name }}</td>
-                    <td>{{ task.assigned_to.get_full_name }}</td>
+                    <td>{{ task.assigned_to.get_full_name|default:"Not Assigned" }}</td>
                     <td>{{ task.assigned_workgroup }}</td>
-                    <td>{{ task.rtom.name }}</td>
+                    <td>{{ task.rtom.name|default:"Not Assigned" }}</td>
                     <td>{{ task.deadline|date:"Y-m-d" }}</td>
                     <td class="attachment-cell">
                         {% if task.attachment %}
@@ -97,7 +103,7 @@
                     </td>
                     <td>
                         <span class="status-badge {{ task.status|lower }}">
-                            {{ task.get_status_display }}
+                            {{ task.status|title }}
                         </span>
                     </td>
                     <td class="actions">
@@ -114,4 +120,8 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/tasks.js' %}" defer></script>
 {% endblock %}

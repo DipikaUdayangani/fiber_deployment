@@ -1,388 +1,330 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Container for the entire manage users page content */
+.manage-users-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 2rem;
+    margin: 2rem; /* Adjust margin as needed based on your base template */
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f9;
-}
-
-.dashboard-container {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* Sidebar Styles */
-.sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    color: white;
-    padding: 20px 0;
-    position: fixed;
-    height: 100vh;
-}
-
-.logo-container {
-    text-align: center;
-    padding: 20px;
-    border-bottom: 1px solid #34495e;
-}
-
-.logo {
-    width: 120px;
-    margin-bottom: 10px;
-}
-
-.logo-container h3 {
-    color: white;
-    font-size: 18px;
-}
-
-.nav-menu ul {
-    list-style: none;
-    padding: 0;
-}
-
-.nav-menu li {
-    padding: 15px 25px;
-    transition: background-color 0.3s;
-}
-
-.nav-menu li:hover, 
-.nav-menu li.active {
-    background-color: #34495e;
-}
-
-.nav-menu a {
-    color: white;
-    text-decoration: none;
+/* Header section with title, add button, and search bar */
+.manage-users-header {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    justify-content: space-between; /* Pushes title to left, actions to right */
+    margin-bottom: 1.5rem;
+    gap: 1rem; /* Space between title and actions */
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
 }
 
-.nav-menu i {
-    margin-right: 10px;
-    width: 20px;
-}
-
-.logout {
-    margin-top: 50px;
-    border-top: 1px solid #34495e;
-}
-
-/* Main Content Styles */
-.main-content {
-    flex: 1;
-    margin-left: 250px;
-    padding: 20px;
-}
-
-.content-wrapper {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.page-header {
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #eee;
-}
-
-.page-title {
-    font-size: 1.5rem;
-    font-weight: 500;
+.manage-users-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
     color: #333;
     margin: 0;
 }
 
-.add-user-btn {
-    background: #007bff;
-    color: white;
+/* New styles for the container grouping button and search */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between button and search */
+    flex-wrap: wrap; /* Allow button and search to wrap on smaller screens */
+}
+
+
+/* Style for the Add New User button */
+.add-btn {
+    background: #1976d2; /* Primary blue color */
+    color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
+    transition: background 0.2s ease;
 }
 
-.add-user-btn:hover {
-    background: #0056b3;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.add-btn:hover {
+    background: #125ea2; /* Darker blue on hover */
 }
 
-.add-user-btn i {
-    font-size: 16px;
-}
-
-.content-header {
+/* Search bar styles */
+.search-box {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    gap: 0.5rem;
 }
 
-.content-header h2 {
-    color: #2c3e50;
-    font-size: 24px;
+.search-box input[type="text"] {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #d0d7de;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
 }
 
-/* Search Bar Styles */
-.search-bar {
-    margin: 20px;
-    display: flex;
-    gap: 10px;
-}
-
-.search-bar input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
-}
-
-.search-bar input:focus {
+.search-box input[type="text"]:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25); /* Focus glow */
 }
 
-/* Table Styles */
+.search-box button {
+    background: #e0e0e0; /* Light gray button */
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-box button:hover {
+    background: #bdbdbd; /* Darker gray on hover */
+}
+
+.search-box button i {
+    color: #333;
+}
+
+
+/* User Table Styles */
 .users-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Remove space between borders */
     background: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+    border-radius: 8px; /* Rounded corners for the table container */
+    overflow: hidden; /* Ensures rounded corners are visible */
 }
 
 .users-table th,
 .users-table td {
-    padding: 12px 15px;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #eee; /* Light border between rows */
     text-align: left;
-    border-bottom: 1px solid #eee;
+    font-size: 1rem;
 }
 
 .users-table th {
-    background: #f8f9fa;
+    background: #f5f7fa; /* Light header background */
     font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9rem;
 }
 
-.users-table tr:hover {
-    background-color: #f8f9fa;
+.users-table tbody tr:hover {
+    background-color: #f8f9fa; /* Highlight row on hover */
 }
 
-/* Status Styles */
-.status {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.85em;
+/* Status Badge Styles */
+.status-badge {
+    padding: 0.3em 0.9em;
+    border-radius: 12px; /* Pill shape */
+    font-size: 0.95em;
+    color: #fff;
+    font-weight: 500;
+    display: inline-block;
+    text-align: center;
 }
 
-.status.active {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
+.status-Active { background: #2ecc71; } /* Green for Active */
+.status-Inactive { background: #e74c3c; } /* Red for Inactive */
 
-.status.inactive {
-    background: #ffebee;
-    color: #c62828;
-}
 
-/* Action Buttons */
+/* Action Buttons in table */
 .action-btn {
-    padding: 8px;
     border: none;
-    border-radius: 4px;
+    background: none;
     cursor: pointer;
-    margin-right: 5px;
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    display: inline-flex; /* Align icon nicely */
+    align-items: center;
+    justify-content: center;
 }
 
-.action-btn.edit {
-    background-color: #f1c40f;
-    color: white;
-}
+.action-btn.edit { color: #f1c40f; } /* Yellow for Edit */
+.action-btn.delete { color: #e74c3c; } /* Red for Delete */
 
-.action-btn.delete {
-    background-color: #e74c3c;
-    color: white;
+.action-btn:hover {
+    opacity: 0.8; /* Subtle hover effect */
 }
 
 /* Modal Styles */
-.modal {
+.custom-modal {
     display: none;
     position: fixed;
-    top: 0;
+    z-index: 1050;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.custom-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
 }
 
 .modal-content {
-    background: white;
-    width: 90%;
-    max-width: 500px;
-    margin: 50px auto;
+    background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    animation: slideIn 0.3s ease;
+    padding: 2rem;
+    position: relative;
+    width: 95%;
+    max-width: 500px;
+    margin: 1.75rem auto;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
 }
 
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #dee2e6;
+.custom-modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header-flex {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    position: relative; /* For close button positioning */
 }
 
-.modal-header h2 {
-    margin: 0;
+.modal-header-flex h2 {
+     margin: 0;
     font-size: 1.5rem;
     color: #333;
+    font-weight: 600;
 }
 
-.close {
-    font-size: 24px;
-    color: #666;
+
+.close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.8rem;
+    color: #888;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
 }
 
-.close:hover {
-    color: #dc3545;
+.close-btn:hover {
+    color: #dc3545; /* Red on hover */
 }
 
-.form-group {
-    margin-bottom: 20px;
+/* Form row styling */
+.form-row {
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #495057;
+.form-row label {
     font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: #495057;
+    font-size: 1rem;
 }
 
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
+.form-row input[type="text"],
+.form-row input[type="email"],
+.form-row select {
+    padding: 0.7rem 1rem;
     border: 1px solid #ced4da;
     border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.form-row input:focus,
+.form-row select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
 }
 
+.required {
+    color: #e74c3c; /* Red asterisk */
+    font-size: 1.1em;
+}
+
+/* Form action buttons */
 .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 1.5rem;
 }
 
-.btn {
-    padding: 8px 16px;
+.save-btn, .cancel-btn {
+    padding: 0.7rem 1.5rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.user-info {
-    margin: 10px 0;
+    font-size: 1rem;
     font-weight: 500;
+    transition: background 0.2s ease;
 }
+
+.save-btn {
+    background-color: #28a745; /* Green for Save */
+    color: white;
+}
+.save-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn {
+    background-color: #6c757d; /* Gray for Cancel */
+    color: white;
+}
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
 
 /* Animations */
-@keyframes fadeIn {
+@keyframes modalFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-@keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Responsive Design */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-    
-    .main-content {
-        margin-left: 200px;
-    }
-
-    .search-bar input {
-        width: 200px;
-    }
-
-    .users-table {
-        font-size: 14px;
-    }
-
-    .modal-content {
-        width: 95%;
-        margin: 20px auto;
-    }
-    
-    .page-header {
+    .manage-users-header {
         flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
+        align-items: flex-start;
+    }
+     .header-actions {
+        width: 100%; /* Make actions take full width */
+        justify-content: flex-start; /* Align actions to the left on small screens */
+        gap: 0.8rem;
+     }
+    .search-box {
+        margin-left: 0; /* Remove auto margin */
+        flex-grow: 1; /* Allow search box to grow */
+    }
+    .search-box input[type="text"] {
+        width: 100%; /* Input takes full width of its container */
+    }
+    .modal-content {
+        padding: 1.5rem;
+    }
+    .form-row input, .form-row select, .save-btn, .cancel-btn {
+        font-size: 0.95rem;
     }
 }

@@ -1,20 +1,130 @@
-{% extends "admin_panel/dashboard.html" %}
+{% extends 'contractor_panel/base.html' %}
 {% load static %}
 
-{% block title %}Contractor Dashboard{% endblock %}
+{% block title %}Contractor Dashboard - Home{% endblock %}
 
-{% block page_title %}
-<div class="page-header">
-    <h1 class="page-title">Contractor Dashboard</h1>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contractor_dashboard.css' %}">
 {% endblock %}
 
+{% block page_title %}Dashboard Home{% endblock %}
+
 {% block content %}
-<div class="welcome-container">
-    <div class="welcome-card">
-        <i class="fas fa-hard-hat welcome-icon"></i>
-        <h2>Welcome, {{ user.employee_number }}</h2>
-        <p>Contractor Portal - SLT Fiber Development</p>
+<div class="dashboard-container">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-clickable" data-task-type="total">
+                <div class="stat-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total Tasks</h3>
+                    <p class="stat-number">24</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-clickable" data-task-type="pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Pending Tasks</h3>
+                    <p class="stat-number">8</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-clickable" data-task-type="completed">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Completed Tasks</h3>
+                    <p class="stat-number">16</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-clickable" data-task-type="overdue">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Overdue Tasks</h3>
+                    <p class="stat-number">2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tasks Section -->
+    <div class="recent-tasks">
+        <div class="section-header">
+            <h2>Recent Tasks</h2>
+            <a href="{% url 'contractor_panel:tasks' %}" class="view-all-btn">View All Tasks</a>
+        </div>
+        
+        <div class="tasks-table-container">
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Project</th>
+                        <th>Description</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#TASK001</td>
+                        <td>Fiber Deployment - Zone A</td>
+                        <td>Installation of fiber cables in Zone A</td>
+                        <td>2024-03-15</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td><span class="priority-badge priority-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>#TASK002</td>
+                        <td>Network Maintenance</td>
+                        <td>Regular maintenance of existing network</td>
+                        <td>2024-03-10</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                        <td><span class="priority-badge priority-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>#TASK003</td>
+                        <td>Equipment Upgrade</td>
+                        <td>Upgrade network equipment in Sector B</td>
+                        <td>2024-03-05</td>
+                        <td><span class="status-badge status-overdue">Overdue</span></td>
+                        <td><span class="priority-badge priority-high">High</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<!-- Task Details Modal -->
+<div id="taskDetailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2 id="modalTitle">Task Details</h2>
+        <div id="modalContent">
+            <!-- Task details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/contractor_dashboard.js' %}"></script>
 {% endblock %}

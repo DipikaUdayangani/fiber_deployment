@@ -1,0 +1,81 @@
+{% extends 'contractor_panel/base.html' %}
+{% load static %}
+
+{% block title %}Contractor Panel - Tasks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contractor_tasks.css' %}">
+{% endblock %}
+
+{% block page_title %}My Tasks{% endblock %}
+
+{% block content %}
+<div class="tasks-container">
+    <h2>My Assigned Tasks</h2>
+
+    <div class="task-list-container">
+        <table id="contractorTasksTable" class="tasks-table">
+            <thead>
+                <tr>
+                    <th>Task ID</th>
+                    <th>Project</th>
+                    <th>Description</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Task rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Attachment Modal -->
+<div id="attachmentModal" class="modal">
+    <div class="modal-content attachment-modal">
+        <span class="close-button">&times;</span>
+        <h2 id="attachmentModalTitle">Upload Attachments</h2>
+        <div id="attachmentModalContent">
+            <div class="attachment-header">
+                <p>Uploading attachments for task: <strong id="currentTaskID"></strong></p>
+            </div>
+            
+            <div class="attachment-upload-section">
+                <div class="file-upload-area">
+                    <input type="file" id="attachmentFile" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <div class="upload-placeholder">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop files here or click to browse</p>
+                        <span class="file-types">Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</span>
+                    </div>
+                </div>
+                <button id="uploadAttachmentButton" class="upload-btn">
+                    <i class="fas fa-upload"></i> Upload Files
+                </button>
+            </div>
+
+            <div class="upload-status-section">
+                <div id="uploadStatus" class="upload-status"></div>
+                <div id="uploadProgress" class="upload-progress">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="current-attachments-section">
+                <h3>Current Attachments</h3>
+                <div id="currentAttachments" class="attachments-list">
+                    <!-- Attachments will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/contractor_tasks.js' %}"></script>
+{% endblock %} 

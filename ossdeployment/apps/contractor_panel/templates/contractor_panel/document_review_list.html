@@ -1,0 +1,229 @@
+{% extends "contractor_panel/base.html" %}
+{% load static %}
+
+{% block title %}Document Review List{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-header">
+        <h1>Documents Pending Review</h1>
+    </div>
+
+    <div class="content">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if notifications %}
+        <div class="document-list">
+            {% for notification in notifications %}
+            <div class="document-card">
+                <div class="document-header">
+                    <h3>{{ notification.document.name }}</h3>
+                    <span class="badge badge-{{ notification.document.status }}">
+                        {{ notification.document.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="document-details">
+                    <div class="detail-row">
+                        <span class="label">Task ID:</span>
+                        <span class="value">{{ notification.document.task.task_id }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Project:</span>
+                        <span class="value">{{ notification.document.task.project.name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Uploaded by:</span>
+                        <span class="value">{{ notification.document.uploaded_by.get_full_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Upload date:</span>
+                        <span class="value">{{ notification.document.upload_date|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Notification sent:</span>
+                        <span class="value">{{ notification.notification_sent|date:"M d, Y H:i" }}</span>
+                    </div>
+                </div>
+
+                <div class="document-actions">
+                    <a href="{% url 'contractor_panel:document_review' notification.document.id %}" 
+                       class="btn btn-primary">
+                        Review Document
+                    </a>
+                    <a href="{{ notification.document.file.url }}" 
+                       class="btn btn-secondary" 
+                       target="_blank">
+                        View Document
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-documents">
+            <p>No documents pending review.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.document-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.document-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.document-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.document-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.document-details {
+    margin-bottom: 1.5rem;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.detail-row .label {
+    font-weight: 600;
+    color: #666;
+    width: 120px;
+}
+
+.detail-row .value {
+    color: #2c3e50;
+}
+
+.document-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.btn-secondary:hover {
+    background-color: #bdc3c7;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.badge-pending {
+    background-color: #f1c40f;
+    color: #fff;
+}
+
+.badge-approved {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.badge-rejected {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+.no-documents {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+    .document-list {
+        grid-template-columns: 1fr;
+    }
+
+    .document-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %} 

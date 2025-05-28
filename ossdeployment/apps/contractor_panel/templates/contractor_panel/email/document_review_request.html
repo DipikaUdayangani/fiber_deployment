@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Document Review Required</h2>
+    </div>
+    
+    <div class="content">
+        <p>Dear {{ slt_employee.get_full_name }},</p>
+        
+        <p>A new document requires your review:</p>
+        
+        <ul>
+            <li><strong>Document:</strong> {{ document.name }}</li>
+            <li><strong>Task:</strong> {{ task.id }} - {{ task.description }}</li>
+            <li><strong>Uploaded by:</strong> {{ task.assigned_to.get_full_name }}</li>
+            <li><strong>Upload date:</strong> {{ document.upload_date|date:"F j, Y" }}</li>
+        </ul>
+
+        <p>Please review this document at your earliest convenience. You can access the document through the link below:</p>
+        
+        <p style="text-align: center;">
+            <a href="{{ review_url }}" class="button">Review Document</a>
+        </p>
+
+        <p>After reviewing, you can either approve or reject the document. If rejected, please provide a reason for the rejection.</p>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated message from the Fiber Deployment Management System.</p>
+        <p>Please do not reply to this email.</p>
+    </div>
+</body>
+</html> 

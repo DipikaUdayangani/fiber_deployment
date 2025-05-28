@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: {% if status == 'approved' %}#2ecc71{% elif status == 'rejected' %}#e74c3c{% else %}#3498db{% endif %};
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .status-approved {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Document Review Update</h2>
+    </div>
+    
+    <div class="content">
+        <p>Dear {{ task.assigned_to.get_full_name }},</p>
+        
+        <p>Your document has been reviewed:</p>
+        
+        <ul>
+            <li><strong>Document:</strong> {{ document.name }}</li>
+            <li><strong>Task:</strong> {{ task.id }} - {{ task.description }}</li>
+            <li><strong>Status:</strong> 
+                <span class="status-{{ status }}">{{ status|title }}</span>
+            </li>
+            <li><strong>Reviewed by:</strong> {{ reviewer.get_full_name }}</li>
+            <li><strong>Review date:</strong> {{ document.review_date|date:"F j, Y" }}</li>
+            {% if status == 'rejected' and rejection_reason %}
+            <li><strong>Rejection reason:</strong> {{ rejection_reason }}</li>
+            {% endif %}
+        </ul>
+
+        {% if status == 'rejected' %}
+        <p>Your document has been rejected. Please review the rejection reason and upload a revised version if necessary.</p>
+        {% elif status == 'approved' %}
+        <p>Your document has been approved. No further action is required.</p>
+        {% endif %}
+
+        <p>You can view the task details through the link below:</p>
+        
+        <p style="text-align: center;">
+            <a href="{{ task_url }}" class="button">View Task Details</a>
+        </p>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated message from the Fiber Deployment Management System.</p>
+        <p>Please do not reply to this email.</p>
+    </div>
+</body>
+</html> 

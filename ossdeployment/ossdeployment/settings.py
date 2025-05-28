@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.admin_panel',
     'apps.accounts',
     'apps.employee_panel',
+    'apps.contractor_panel',
 ]
 
 MIDDLEWARE = [
@@ -131,12 +132,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# This is the directory where Django will collect all static files for deployment.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# This is a list of directories where Django will look for static files
+# in addition to the static/ subdirectories of installed apps.
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    BASE_DIR / 'apps' / 'accounts' / 'static',
 ]
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -150,16 +159,19 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = 'admin_panel.User'
 
-# Add login URLs
-LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'accounts:dashboard'
-
-STATIC_URL = '/static/'
-
-# Optional if using a global static folder:
-STATICFILES_DIRS = [BASE_DIR / "static"]
-
 # Authentication settings
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with your app password
+DEFAULT_FROM_EMAIL = 'Fiber Deployment System <your-email@gmail.com>'
+
+# Site URL for email links
+SITE_URL = 'http://localhost:8000'  # Change in production

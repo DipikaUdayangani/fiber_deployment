@@ -1,0 +1,587 @@
+/* Overall container for the task management page */
+.task-management-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 1.5rem;
+    margin: 1.5rem; /* Reduced margin, or use auto + max-width */
+    max-width: 1200px; /* Example max width */
+    margin-left: auto;
+    margin-right: auto; /* Center the container */
+    width: calc(100% - 3rem); /* Fill width minus margins */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Header with title, search, and add button */
+.task-management-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.task-management-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Search box styles */
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-box input[type="text"] {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #d0d7de;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    width: 100%; /* Ensure input is flexible */
+    box-sizing: border-box;
+}
+
+.search-box input[type="text"]:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+}
+
+.search-box button {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-box button:hover {
+    background: #bdbdbd;
+}
+
+.search-box button i {
+    color: #333;
+}
+
+/* Add New Task button style */
+.add-btn {
+    background: #28a745; /* Green color */
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #218838; /* Darker green on hover */
+}
+
+/* Stat cards flex container */
+.task-stats-flex {
+    display: flex;
+    gap: 2rem;
+    justify-content: flex-start; /* Align to the left */
+    margin: 1rem 0 2rem 0; /* Adjust top margin */
+    flex-wrap: wrap;
+}
+
+/* Stat card styles (reused from dashboard if similar) */
+.stat-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 1.5rem 2rem;
+    min-width: 180px; /* Slightly smaller cards */
+    flex: 1 1 0; /* Allow cards to grow and shrink */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align content to the left */
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    box-sizing: border-box;
+}
+
+.stat-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    transform: translateY(-4px);
+}
+
+.stat-card .stat-icon {
+    font-size: 2rem;
+    color: #1976d2; /* Consistent icon color */
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.2rem;
+}
+
+.stat-card .stat-label {
+    font-size: 1rem;
+    color: #555;
+    font-weight: 500;
+}
+
+/* Tabs styles */
+.task-tabs {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tab-link {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+
+.tab-link:hover {
+    color: #1976d2;
+}
+
+.tab-link.active {
+    color: #1976d2;
+    border-bottom-color: #1976d2;
+    font-weight: 600;
+}
+
+/* Table container for overflow */
+.task-table-container {
+    overflow-x: auto; /* Enable horizontal scrolling on small screens */
+    width: 100%; /* Ensure container takes full width */
+    box-sizing: border-box;
+    margin: 0; /* Remove any margin */
+    padding: 0; /* Remove any padding */
+    max-width: 100%; /* Ensure it doesn't overflow the parent */
+}
+
+/* Task Table Styles */
+.tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: fixed; /* Use fixed table layout */
+}
+
+.tasks-table th,
+.tasks-table td {
+    padding: 0.6rem 0.8rem; /* Reduced padding */
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 0.9rem; /* Slightly smaller font */
+    vertical-align: middle;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+}
+
+.tasks-table th {
+    background: #f5f7fa;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.tasks-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Adjust column widths to be more proportional */
+.tasks-table th:nth-child(1), .tasks-table td:nth-child(1) { width: 8%; } /* Task ID */
+.tasks-table th:nth-child(2), .tasks-table td:nth-child(2) { width: 20%; } /* Task Name */
+.tasks-table th:nth-child(3), .tasks-table td:nth-child(3) { width: 12%; } /* Assigned To */
+.tasks-table th:nth-child(4), .tasks-table td:nth-child(4) { width: 12%; } /* Workgroup */
+.tasks-table th:nth-child(5), .tasks-table td:nth-child(5) { width: 12%; } /* RTOM */
+.tasks-table th:nth-child(6), .tasks-table td:nth-child(6) { width: 12%; } /* Deadline */
+.tasks-table th:nth-child(7), .tasks-table td:nth-child(7) { width: 8%; text-align: center; } /* Attachment */
+.tasks-table th:nth-child(8), .tasks-table td:nth-child(8) { width: 8%; } /* Status */
+.tasks-table th:nth-child(9), .tasks-table td:nth-child(9) { width: 8%; text-align: center; } /* Actions */
+
+/* Attachment icon style */
+.attachment-icon i {
+    color: #1976d2;
+    font-size: 1.2rem;
+}
+
+.attachment-icon i:hover {
+    color: #125ea2;
+}
+
+/* Status Badge Styles (reused) */
+.status-badge {
+    padding: 0.3em 0.9em;
+    border-radius: 12px;
+    font-size: 0.9em;
+    color: #fff;
+    font-weight: 500;
+    display: inline-block;
+    text-align: center;
+}
+
+.status-Pending { background: #ff9800; } /* Amber for Pending */
+.status-In\ Progress { background: #2196f3; } /* Blue for In Progress */
+.status-Completed { background: #4caf50; } /* Green for Completed */
+
+/* Action Buttons in table */
+.action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.85rem; /* Reduced from 1.1rem */
+    margin: 0 0.25rem; /* Reduced margin */
+    padding: 0.25rem; /* Reduced padding */
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; /* Fixed width */
+    height: 24px; /* Fixed height */
+    color: #666; /* Default color */
+}
+
+/* Edit button style */
+.action-btn.edit {
+    color: #2196F3; /* Modern blue */
+    background-color: rgba(33, 150, 243, 0.1); /* Light blue background */
+}
+
+.action-btn.edit:hover {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #1976D2; /* Darker blue on hover */
+    transform: translateY(-1px);
+}
+
+/* Delete button style */
+.action-btn.delete {
+    color: #F44336; /* Modern red */
+    background-color: rgba(244, 67, 54, 0.1); /* Light red background */
+}
+
+.action-btn.delete:hover {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #D32F2F; /* Darker red on hover */
+    transform: translateY(-1px);
+}
+
+/* Remove margin for the last button */
+.action-btn:last-child {
+    margin-right: 0;
+}
+
+/* Add tooltip styles */
+.action-btn {
+    position: relative;
+}
+
+.action-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    margin-bottom: 4px;
+}
+
+.action-btn:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Add a small arrow to the tooltip */
+.action-btn::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Styles */
+.custom-modal {
+    display: none !important; /* Use !important to override potential conflicts */
+    position: fixed;
+    z-index: 9999 !important; /* Very high z-index to be on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Slightly darker background */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none; /* Prevent interaction when hidden */
+}
+
+.custom-modal.active {
+    display: flex !important; /* Use !important */
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto; /* Allow interaction when active */
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 2rem;
+    position: relative;
+    width: 95%;
+    max-width: 500px;
+    margin: 1.75rem auto;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    box-sizing: border-box; /* Ensure padding is included */
+}
+
+.custom-modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.modal-header-flex h2 {
+     margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.8rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: #dc3545;
+}
+
+.form-row {
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row label {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.form-row input[type="text"],
+.form-row input[type="email"],
+.form-row input[type="date"],
+.form-row select,
+.form-row textarea {
+    padding: 0.7rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    width: 100%; /* Ensure form inputs are flexible */
+    box-sizing: border-box;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.save-btn, .cancel-btn {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.save-btn {
+    background-color: #28a745;
+    color: white;
+}
+.save-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .tasks-table th,
+    .tasks-table td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .tasks-table th:nth-child(1), .tasks-table td:nth-child(1) { width: 10%; } /* Task ID */
+    .tasks-table th:nth-child(2), .tasks-table td:nth-child(2) { width: 25%; } /* Task Name */
+    .tasks-table th:nth-child(3), .tasks-table td:nth-child(3) { width: 15%; } /* Assigned To */
+    .tasks-table th:nth-child(4), .tasks-table td:nth-child(4) { width: 15%; } /* Workgroup */
+    .tasks-table th:nth-child(5), .tasks-table td:nth-child(5) { width: 15%; } /* RTOM */
+    .tasks-table th:nth-child(6), .tasks-table td:nth-child(6) { width: 10%; } /* Deadline */
+    .tasks-table th:nth-child(7), .tasks-table td:nth-child(7) { width: 5%; } /* Attachment */
+    .tasks-table th:nth-child(8), .tasks-table td:nth-child(8) { width: 5%; } /* Status */
+    .tasks-table th:nth-child(9), .tasks-table td:nth-child(9) { width: 5%; } /* Actions */
+}
+
+@media (max-width: 768px) {
+    .task-table-container {
+        margin: 0 -1rem; /* Negative margin to allow full width */
+        width: calc(100% + 2rem); /* Compensate for parent padding */
+    }
+    
+    .tasks-table {
+        font-size: 0.8rem;
+    }
+    
+    .tasks-table th,
+    .tasks-table td {
+        padding: 0.4rem 0.5rem;
+    }
+    
+    /* Hide less important columns on mobile */
+    .tasks-table th:nth-child(4),
+    .tasks-table td:nth-child(4),
+    .tasks-table th:nth-child(5),
+    .tasks-table td:nth-child(5) {
+        display: none;
+    }
+    
+    /* Adjust remaining column widths */
+    .tasks-table th:nth-child(1), .tasks-table td:nth-child(1) { width: 15%; }
+    .tasks-table th:nth-child(2), .tasks-table td:nth-child(2) { width: 35%; }
+    .tasks-table th:nth-child(3), .tasks-table td:nth-child(3) { width: 20%; }
+    .tasks-table th:nth-child(6), .tasks-table td:nth-child(6) { width: 15%; }
+    .tasks-table th:nth-child(7), .tasks-table td:nth-child(7) { width: 5%; }
+    .tasks-table th:nth-child(8), .tasks-table td:nth-child(8) { width: 5%; }
+    .tasks-table th:nth-child(9), .tasks-table td:nth-child(9) { width: 5%; }
+}
+
+@media (max-width: 768px) {
+    .task-management-container {
+        margin: 1rem; /* Smaller margin on smaller screens */
+        width: calc(100% - 2rem);
+        padding: 1rem;
+    }
+    .task-management-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+     .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 0.8rem;
+     }
+    .search-box {
+        flex-grow: 1;
+    }
+    .search-box input[type="text"] {
+        width: 100%;
+    }
+    .stat-card {
+        min-width: 150px;
+        padding: 1.2rem 1.5rem;
+    }
+    .task-tabs {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .tab-link {
+        padding: 0.5rem 1rem;
+    }
+    .modal-content {
+        padding: 1.5rem;
+    }
+    .form-row input, .form-row select, .form-row textarea,
+    .save-btn, .cancel-btn {
+        font-size: 0.95rem;
+    }
+} 

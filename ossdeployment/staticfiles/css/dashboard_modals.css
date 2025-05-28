@@ -1,0 +1,187 @@
+/* Flex container for stat cards */
+.dashboard-stats-flex {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin: 2.5rem 0 2rem 0;
+}
+
+/* Stat Card Styles */
+.stat-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 2.2rem 2.5rem 2rem 2.5rem;
+    min-width: 220px;
+    max-width: 320px;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+}
+.stat-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    transform: translateY(-4px) scale(1.03);
+}
+.stat-icon {
+    font-size: 2.8rem;
+    margin-bottom: 1.1rem;
+    color: #1976d2;
+}
+.stat-icon.users { color: #2196f3; }
+.stat-icon.tasks { color: #ff9800; }
+.stat-icon.projects { color: #43a047; }
+.stat-details h3 {
+    font-size: 1.18rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: #222;
+    text-align: center;
+}
+.stat-number {
+    font-size: 2.1rem;
+    font-weight: bold;
+    color: #1976d2;
+    text-align: center;
+}
+
+/* Modal Styles */
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0; width: 100vw; height: 100vh;
+    background: rgba(30, 41, 59, 0.45);
+    justify-content: center;
+    align-items: center;
+}
+.custom-modal.active {
+    display: flex;
+}
+.modal-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    min-width: 320px;
+    max-width: 90vw;
+    position: relative;
+    animation: modalIn 0.25s cubic-bezier(.4,2,.6,1) both;
+}
+@keyframes modalIn {
+    from { transform: translateY(40px) scale(0.95); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.close-btn {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-btn:hover {
+    color: #e74c3c;
+} 
+
+/* Modal header with flex */
+.modal-header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+.add-btn {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.add-btn:hover {
+    background: #125ea2;
+}
+.projects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+.projects-table th, .projects-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 1rem;
+}
+.projects-table th {
+    background: #f5f7fa;
+    font-weight: 600;
+}
+.status-badge {
+    padding: 0.3em 0.9em;
+    border-radius: 12px;
+    font-size: 0.95em;
+    color: #fff;
+    font-weight: 500;
+    display: inline-block;
+}
+.status-pending { background: #f1c40f; }
+.status-ongoing { background: #3498db; }
+.status-finished { background: #2ecc71; }
+.form-row {
+    margin-bottom: 1.1rem;
+    display: flex;
+    flex-direction: column;
+}
+.form-row label {
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+.form-row input[type="text"], .form-row input[type="file"] {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+.required {
+    color: #e74c3c;
+    font-size: 1.1em;
+}
+.save-btn {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1rem;
+    transition: background 0.2s;
+}
+.save-btn:hover {
+    background: #125ea2;
+}
+.cancel-btn {
+    background: #eee;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.cancel-btn:hover {
+    background: #ccc;
+}

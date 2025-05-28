@@ -1,0 +1,365 @@
+{% extends "contractor_panel/base.html" %}
+{% load static %}
+
+{% block title %}Review Document - {{ document.name }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-header">
+        <h1>Review Document</h1>
+        <a href="{% url 'contractor_panel:document_review_list' %}" class="back-link">
+            ← Back to Review List
+        </a>
+    </div>
+
+    <div class="content">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="review-container">
+            <div class="document-info">
+                <div class="info-card">
+                    <h2>{{ document.name }}</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="label">Task ID:</span>
+                            <span class="value">{{ task.task_id }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Project:</span>
+                            <span class="value">{{ task.project.name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Uploaded by:</span>
+                            <span class="value">{{ document.uploaded_by.get_full_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Upload date:</span>
+                            <span class="value">{{ document.upload_date|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Status:</span>
+                            <span class="badge badge-{{ document.status }}">
+                                {{ document.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="document-preview">
+                    <h3>Document Preview</h3>
+                    <div class="preview-container">
+                        {% if document.file.name|lower|endswith:'.pdf' %}
+                            <iframe src="{{ document.file.url }}" width="100%" height="600px"></iframe>
+                        {% else %}
+                            <div class="preview-placeholder">
+                                <p>Preview not available for this file type.</p>
+                                <a href="{{ document.file.url }}" class="btn btn-secondary" target="_blank">
+                                    Download Document
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-form">
+                <form method="post" class="review-card">
+                    {% csrf_token %}
+                    <h3>Review Decision</h3>
+                    
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="status" value="approved" required>
+                                <span class="radio-text">Approve</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="status" value="rejected" required>
+                                <span class="radio-text">Reject</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group rejection-reason" style="display: none;">
+                        <label for="rejection_reason">Rejection Reason:</label>
+                        <textarea id="rejection_reason" 
+                                  name="rejection_reason" 
+                                  rows="4" 
+                                  placeholder="Please provide a reason for rejection..."
+                                  required></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                        <a href="{% url 'contractor_panel:document_review_list' %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.content-wrapper {
+    padding: 2rem;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    color: #333;
+}
+
+.review-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.document-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.info-card h2 {
+    margin: 0 0 1.5rem 0;
+    color: #2c3e50;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-item .label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.info-item .value {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.document-preview {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.document-preview h3 {
+    margin: 0 0 1rem 0;
+    color: #2c3e50;
+}
+
+.preview-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.preview-placeholder {
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+}
+
+.review-form {
+    position: sticky;
+    top: 2rem;
+}
+
+.review-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.review-card h3 {
+    margin: 0 0 1.5rem 0;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.radio-text {
+    color: #2c3e50;
+}
+
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.btn-secondary:hover {
+    background-color: #bdc3c7;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.badge-pending {
+    background-color: #f1c40f;
+    color: #fff;
+}
+
+.badge-approved {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.badge-rejected {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+@media (max-width: 1024px) {
+    .review-container {
+        grid-template-columns: 1fr;
+    }
+
+    .review-form {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 1rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusRadios = document.querySelectorAll('input[name="status"]');
+    const rejectionReason = document.querySelector('.rejection-reason');
+    const rejectionTextarea = document.getElementById('rejection_reason');
+
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'rejected') {
+                rejectionReason.style.display = 'block';
+                rejectionTextarea.required = true;
+            } else {
+                rejectionReason.style.display = 'none';
+                rejectionTextarea.required = false;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

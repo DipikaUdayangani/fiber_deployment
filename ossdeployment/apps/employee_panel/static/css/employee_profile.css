@@ -1,0 +1,113 @@
+.profile-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.profile-section h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.detail-item {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.detail-item strong {
+    color: #555;
+    display: inline-block;
+    width: 100px; /* Adjust as needed for alignment */
+}
+
+.profile-image .image-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-image img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+.profile-image .upload-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-image input[type="file"] {
+    display: none; /* Hide the default file input */
+}
+
+.profile-image .upload-button,
+.save-button {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.profile-image .upload-button:hover,
+.save-button:hover {
+    background-color: #0056b3;
+}
+
+.save-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.change-credentials .form-group {
+    margin-bottom: 15px;
+}
+
+.change-credentials label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: bold;
+}
+
+.change-credentials input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.change-credentials button[type="submit"] {
+    display: block;
+    width: auto; /* Adjust width */
+    margin-top: 20px;
+} 

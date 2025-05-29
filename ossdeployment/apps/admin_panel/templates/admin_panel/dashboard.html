@@ -21,14 +21,14 @@
 
         <!-- Total Users Card -->
         <div class="stat-card" id="usersCard">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-icon users"><i class="fas fa-users"></i></div>
             <div class="stat-value">50</div> {# Dummy Data #}
             <div class="stat-label">Total Users</div>
         </div>
 
         <!-- Active Tasks Card -->
         <div class="stat-card" id="tasksCard">
-            <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+            <div class="stat-icon tasks"><i class="fas fa-tasks"></i></div>
             <div class="stat-value">35</div> {# Dummy Data #}
             <div class="stat-label">Active Tasks</div>
         </div>
@@ -38,13 +38,15 @@
 
     <!-- Projects List Modal -->
     <div id="projectsModal" class="custom-modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content" style="max-width: 900px;"> {# Increased max-width #}
             <div class="modal-header-flex">
-                <h2>Project Details</h2>
-                 <button class="add-btn" id="openAddProjectModalBtn">+ Add New Project</button>
+                <div class="header-title-group"> {# New wrapper div #}
+                    <h2>Project Details</h2>
+                    <button class="add-btn" id="openAddProjectModalBtn">+ Add New Project</button>
+                </div>
                 <span class="close-btn" onclick="closeModal('projectsModal')">&times;</span>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> {# Added max-height and overflow #}
                 <table class="projects-table">
                     <thead>
                         <tr>
@@ -68,44 +70,35 @@
 
     <!-- Add Project Modal -->
     <div id="addProjectModal" class="custom-modal">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width: 400px;"> {# Reduced max-width #}
              <div class="modal-header-flex">
                 <h2>Add New Project</h2>
                 <span class="close-btn" onclick="closeModal('addProjectModal')">&times;</span>
              </div>
             <form id="addProjectForm" autocomplete="off">
                 <div class="form-row">
-                    <label for="project_name">Project Name</label>
+                    <label for="project_name">Project Name <span class="required">*</span></label>
                     <input type="text" id="project_name" name="project_name" required>
                 </div>
                  <div class="form-row">
-                    <label for="slt_ref_no">SLT Ref No</label>
-                    <input type="text" id="slt_ref_no" name="slt_ref_no">
+                    <label for="slt_ref_no">SLT Ref No <span class="required">*</span></label>
+                    <input type="text" id="slt_ref_no" name="slt_ref_no" required>
                 </div>
                 <div class="form-row">
                     <label for="pe_nos">PE No(s)</label>
                     <input type="text" id="pe_nos" name="pe_nos">
                 </div>
                 <div class="form-row">
-                    <label for="contract_no">CONTRACT NO</label>
-                    <input type="text" id="contract_no" name="contract_no">
+                    <label for="contract_no">CONTRACT NO <span class="required">*</span></label>
+                    <input type="text" id="contract_no" name="contract_no" required>
                 </div>
                  <div class="form-row">
-                    <label for="project_no">PROJECT NO</label>
-                    <input type="text" id="project_no" name="project_no">
+                    <label for="project_no">PROJECT NO <span class="required">*</span></label>
+                    <input type="text" id="project_no" name="project_no" required>
                 </div>
                  <div class="form-row">
                     <label for="invoice">INVOICE</label>
                     <input type="text" id="invoice" name="invoice">
-                </div>
-                <div class="form-row">
-                    <label for="status">Status</label>
-                    <select id="status" name="status" required>
-                        <option value="">Select Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Ongoing">Ongoing</option>
-                        <option value="Finished">Finished</option>
-                    </select>
                 </div>
                  <div class="form-row">
                      <label for="project_attachment">Project Attachment (PDF or other files)</label>
@@ -114,19 +107,88 @@
 
                 <div class="form-row" style="margin-top: 1.5rem;">
                     <button type="submit" class="save-btn">Save Project</button>
-                    <button type="button" class="cancel-btn" onclick="closeModal('addProjectModal')">Cancel</button>
+                    <button type="button" class="cancel-btn" id="cancelAddProjectBtn">Cancel</button> {# Added ID for JS handler #}
                 </div>
             </form>
         </div>
     </div>
 
-    {# Users List Modal (if needed here, otherwise remove) #}
-    {# Assuming user list is on manage_users page, this modal can be removed if not used on dashboard #}
-    {# If needed for dashboard, content goes here #}
+    <!-- Users List Modal -->
+    <div id="usersModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header-flex">
+                <h2>User Details</h2>
+                {# Add New User button here if needed on dashboard #}
+                <span class="close-btn" onclick="closeModal('usersModal')">&times;</span>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>User ID</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            {# Add more user details columns if needed #}
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        {# User data will be loaded here by JS #}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    {# Tasks List Modal (if needed here, otherwise remove) #}
-    {# Assuming tasks list is on tasks page, this modal can be removed if not used on dashboard #}
-    {# If needed for dashboard, content goes here #}
+    <!-- Tasks List Modal -->
+    <div id="tasksModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header-flex">
+                <div class="header-title-group"> {# New wrapper div #}
+                    <h2>Active Task Details</h2>
+                    <button class="add-btn" id="addNewTaskBtn">+ Add New Task</button>
+                </div>
+                <span class="close-btn" onclick="closeModal('tasksModal')">&times;</span>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                 <table class="tasks-table">
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Project</th> {# Highlight project name #}
+                            <th>Assigned To</th>
+                            <th>Workgroup</th>
+                            <th>RTOM</th>
+                            <th>Status</th>
+                            {# Add more task details columns if needed #}
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTableBody">
+                        {# Task data will be loaded here by JS #}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px;"> {# Set a max-width for the modal #}
+             <div class="modal-header-flex">
+                <h2>Add New Task</h2>
+                <span class="close-btn" onclick="closeModal('addTaskModal')">&times;</span>
+             </div>
+            <form id="addTaskForm" autocomplete="off">
+                {# Placeholder for Task Form Fields - Add your fields here later #}
+                <p>Task form fields will go here.</p>
+
+                <div class="form-row" style="margin-top: 1.5rem;">
+                    <button type="submit" class="save-btn">Save Task</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('addTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 {% endblock %}
 

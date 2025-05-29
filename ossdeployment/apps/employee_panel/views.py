@@ -9,24 +9,20 @@ def login_view(request):
 
 @login_required
 def dashboard_view(request):
-    return render(request, 'employee_panel/dashboard.html', {
-        'active_tab': 'dashboard'
-    })
+    return render(request, 'employee_panel/dashboard.html')
 
 @login_required
 def projects_view(request):
-    return render(request, 'employee_panel/projects.html', {
-        'active_tab': 'projects'
-    })
+    return render(request, 'employee_panel/projects.html')
 
 @login_required
 def tasks_view(request):
-    return render(request, 'employee_panel/tasks.html', {
-        'active_tab': 'tasks'
-    })
+    return render(request, 'employee_panel/tasks.html')
 
 @login_required
 def profile_view(request):
-    return render(request, 'employee_panel/profile.html', {
-        'active_tab': 'profile'
-    })
+    # In a real application, fetch logged-in user's profile data
+    context = {
+        'user': request.user # Example of passing user object
+    }
+    return render(request, 'employee_panel/profile.html', context)

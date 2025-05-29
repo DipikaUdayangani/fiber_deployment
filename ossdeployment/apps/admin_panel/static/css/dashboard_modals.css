@@ -57,6 +57,7 @@
     background: rgba(30, 41, 59, 0.45);
     justify-content: center;
     align-items: center;
+    overflow-y: auto; /* Allow scrolling for modal background if content is very tall */
 }
 .custom-modal.active {
     display: flex;
@@ -70,6 +71,7 @@
     max-width: 90vw;
     position: relative;
     animation: modalIn 0.25s cubic-bezier(.4,2,.6,1) both;
+    box-sizing: border-box; /* Include padding in width */
 }
 @keyframes modalIn {
     from { transform: translateY(40px) scale(0.95); opacity: 0; }
@@ -86,7 +88,7 @@
 }
 .close-btn:hover {
     color: #e74c3c;
-} 
+}
 
 /* Modal header with flex */
 .modal-header-flex {
@@ -96,7 +98,22 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
     position: relative;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
+
+.header-title-group { /* New class for grouping heading and button */
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between heading and button */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.modal-header-flex h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #333;
+}
+
 .add-btn {
     background: #1976d2;
     color: #fff;
@@ -111,21 +128,41 @@
 .add-btn:hover {
     background: #125ea2;
 }
-.projects-table {
+
+.modal-body {
+    /* max-height and overflow handled inline in HTML for specific modals */
+    padding-top: 0;
+}
+
+/* Table Styles */
+.projects-table, .users-table, .tasks-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1.5rem;
 }
-.projects-table th, .projects-table td {
-    padding: 0.7rem 1rem;
+.projects-table th, .projects-table td, 
+.users-table th, .users-table td, 
+.tasks-table th, .tasks-table td {
+    padding: 0.8rem 1rem; /* Slightly more padding */
     border-bottom: 1px solid #eee;
     text-align: left;
     font-size: 1rem;
 }
-.projects-table th {
+
+.projects-table th, .users-table th, .tasks-table th {
     background: #f5f7fa;
     font-weight: 600;
+    position: sticky; /* Make headers sticky */
+    top: 0; /* Stick to the top */
+    z-index: 1; /* Ensure headers are above scrolling content */
 }
+
+.tasks-table .project-name-cell {
+    font-weight: bold; /* Highlight project name */
+    color: #1976d2; /* Example color */
+}
+
+/* Status Badge Styles */
 .status-badge {
     padding: 0.3em 0.9em;
     border-radius: 12px;
@@ -137,6 +174,11 @@
 .status-pending { background: #f1c40f; }
 .status-ongoing { background: #3498db; }
 .status-finished { background: #2ecc71; }
+.status-high-priority { background: #e74c3c; }
+.status-due-today { background: #f39c12; }
+.status-in-progress { background: #3498db; }
+
+/* Form Styles */
 .form-row {
     margin-bottom: 1.1rem;
     display: flex;
@@ -146,16 +188,29 @@
     font-weight: 500;
     margin-bottom: 0.3rem;
 }
-.form-row input[type="text"], .form-row input[type="file"] {
+.form-row input[type="text"],
+.form-row input[type="file"],
+.form-row select,
+.form-row textarea {
     padding: 0.6rem 0.8rem;
     border: 1px solid #d0d7de;
     border-radius: 6px;
     font-size: 1rem;
+    width: 100%; /* Make form elements full width */
+    box-sizing: border-box; /* Include padding in width */
 }
+
+.form-row textarea {
+    min-height: 80px; /* Min height for textareas */
+    resize: vertical; /* Allow vertical resizing */
+}
+
 .required {
     color: #e74c3c;
     font-size: 1.1em;
+    margin-left: 4px; /* Space after label */
 }
+
 .save-btn {
     background: #1976d2;
     color: #fff;
@@ -184,4 +239,29 @@
 }
 .cancel-btn:hover {
     background: #ccc;
+}
+
+/* Responsive adjustments for modals */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 1.5rem;
+    }
+    .modal-header-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    .modal-header-flex h2 {
+        font-size: 1.5rem;
+    }
+    .add-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+    .projects-table th, .projects-table td,
+    .users-table th, .users-table td,
+    .tasks-table th, .tasks-table td {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
 }

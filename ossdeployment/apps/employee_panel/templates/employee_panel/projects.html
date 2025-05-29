@@ -1,13 +1,51 @@
-{% extends 'employee_panel/base.html' %}
+{% extends "employee_panel/base.html" %}
 {% load static %}
 
 {% block title %}Employee Projects{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/employee_projects.css" %}">
+{% endblock %}
+
 {% block page_title %}Projects{% endblock %}
 
 {% block content %}
-<div class="projects-content">
-    <h2>Employee Projects</h2>
-    <p>Content for employee projects will go here.</p>
+<div class="employee-panel-projects-container">
+    <h2>All Projects</h2>
+
+    <div class="projects-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Project No</th>
+                    <th>PE No</th>
+                    <th>Contractor No</th>
+                    <th>Status</th>
+                    <th></th> <!-- For expand/collapse icon -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Project rows will be added here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for task details -->
+    <div id="taskModal" class="task-modal">
+        <div class="task-modal-content">
+            <div class="task-modal-header">
+                <h3>Task Details</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="task-modal-body">
+                <!-- Task details will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/employee_projects.js" %}"></script>
 {% endblock %} 

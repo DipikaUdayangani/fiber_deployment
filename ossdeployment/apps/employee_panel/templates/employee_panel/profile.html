@@ -1,13 +1,64 @@
-{% extends 'employee_panel/base.html' %}
+{% extends "employee_panel/base.html" %}
 {% load static %}
 
-{% block title %}Employee Profile{% endblock %}
+{% block title %}My Profile{% endblock %}
 
-{% block page_title %}Profile{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/employee_profile.css" %}">
+{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
 
 {% block content %}
-<div class="profile-content">
+<div class="profile-container">
     <h2>Employee Profile</h2>
-    <p>Content for employee profile will go here.</p>
+
+    <div class="profile-section user-details">
+        <h3>User Details</h3>
+        <div class="detail-item">
+            <strong>Name:</strong> <span id="userName">Loading...</span>
+        </div>
+        <div class="detail-item">
+            <strong>User ID:</strong> <span id="userId">Loading...</span>
+        </div>
+        <div class="detail-item">
+            <strong>Email:</strong> <span id="userEmail">Loading...</span>
+        </div>
+    </div>
+
+    <div class="profile-section profile-image">
+        <h3>Profile Image</h3>
+        <div class="image-upload-area">
+            <img id="profileImageView" src="{% static "images/default_profile.png" %}" alt="Profile Image">
+            <div class="upload-controls">
+                <input type="file" id="profileImageInput" accept="image/*">
+                <label for="profileImageInput" class="upload-button">Browse Photo</label>
+                <button id="saveImageButton" class="save-button" disabled>Save Image</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-section change-credentials">
+        <h3>Change Login Credentials</h3>
+        <form id="changePasswordForm">
+            <div class="form-group">
+                <label for="currentPassword">Current Password:</label>
+                <input type="password" id="currentPassword" name="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit" class="save-button">Change Password</button>
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/employee_profile.js" %}"></script>
 {% endblock %} 

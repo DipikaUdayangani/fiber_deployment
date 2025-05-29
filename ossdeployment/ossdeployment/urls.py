@@ -18,14 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import RedirectView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('employee/', include('apps.employee_panel.urls')),
+    path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('admin-panel/', include('apps.admin_panel.urls', namespace='admin_panel')),
-    path('contractor/', include('apps.contractor_panel.urls', namespace='contractor_panel')),
-    path('', include('apps.accounts.urls')),
+    path('contractor-panel/', include('apps.contractor_panel.urls', namespace='contractor_panel')),
+    path('employee-panel/', include('apps.employee_panel.urls', namespace='employee_panel')),
+    path('', RedirectView.as_view(pattern_name='accounts:login', permanent=False)), # Redirect root to login
 ]
 
 # Serve static files during development

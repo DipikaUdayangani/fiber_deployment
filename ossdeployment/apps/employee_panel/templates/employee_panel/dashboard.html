@@ -1,20 +1,137 @@
-{% extends "admin_panel/dashboard.html" %}
+{% extends 'employee_panel/base.html' %}
 {% load static %}
 
 {% block title %}Employee Dashboard{% endblock %}
 
-{% block page_title %}
-<div class="page-header">
-    <h1 class="page-title">Employee Dashboard</h1>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/employee_dashboard.css' %}">
 {% endblock %}
 
+{% block page_title %}Dashboard{% endblock %}
+
 {% block content %}
-<div class="welcome-container">
-    <div class="welcome-card">
-        <i class="fas fa-user-tie welcome-icon"></i>
-        <h2>Welcome, {{ user.employee_number }}</h2>
-        <p>Employee Portal - SLT Fiber Development</p>
+<div class="dashboard-container">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card" data-type="total-projects">
+            <div class="stat-card-clickable">
+                 <div class="stat-info">
+                    <h3>TOTAL PROJECTS</h3>
+                    <p class="stat-number">0</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card" data-type="completed-projects">
+            <div class="stat-card-clickable">
+                <div class="stat-info">
+                    <h3>COMPLETED PROJECTS</h3>
+                    <p class="stat-number">0</p>
+                </div>
+                <div class="stat-icon">
+                     <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card" data-type="in-progress-projects">
+            <div class="stat-card-clickable">
+                 <div class="stat-info">
+                    <h3>IN PROGRESS PROJECTS</h3>
+                    <p class="stat-number">0</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card" data-type="pending-tasks">
+            <div class="stat-card-clickable">
+                <div class="stat-info">
+                    <h3>PENDING TASKS</h3>
+                    <p class="stat-number">0</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Projects Section -->
+    <div class="recent-projects">
+        <div class="section-header">
+            <h2>Recent Projects</h2>
+            <a href="{% url 'employee_panel:projects' %}" class="view-all-btn">View All</a>
+        </div>
+
+        <div class="projects-table-container">
+            <table class="projects-table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Work Group</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Recent project rows will be populated by JavaScript -->
+                     <tr>
+                         <td colspan="5" style="text-align: center;">No recent projects found</td>
+                     </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Team Members Section -->
+    <div class="team-members">
+        <div class="section-header">
+            <h2>Team Members</h2>
+            <a href="#" class="view-all-btn">View All</a>
+        </div>
+
+        <div class="team-members-table-container">
+            <table class="team-members-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Role</th>
+                        <th>Work Group</th>
+                        <th>Tasks</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                     <!-- Team member rows will be populated by JavaScript -->
+                     <tr>
+                         <td colspan="5" style="text-align: center;">No team members found</td>
+                     </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<!-- Details Modal -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2 id="modalTitle">Details</h2>
+        <div id="modalContent">
+            <!-- Details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/employee_dashboard.js' %}"></script>
 {% endblock %}

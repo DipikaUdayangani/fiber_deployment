@@ -161,11 +161,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const addUserForm = document.getElementById('addUserForm');
     if (addUserForm) {
         addUserForm.onsubmit = function(e) {
-            e.preventDefault();
+        e.preventDefault();
             e.stopPropagation();
 
             // Get form data
-            const formData = new FormData(this);
+        const formData = new FormData(this);
             const newUser = {
                 employee_id: formData.get('employee_id'),
                 email: formData.get('email'),

@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Panel{% endblock %}</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Employee Base CSS -->
+    <link rel="stylesheet" href="{% static 'css/employee_base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="employee-container">
+        <!-- Side Navigation -->
+        <nav class="employee-sidebar">
+            <div class="sidebar-header">
+                 <img src="{% static 'images/slt_logo.png' %}" alt="SLT Logo" class="logo">
+                <h2>Employee Panel</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item {% if request.resolver_match.url_name == 'employee_panel:dashboard' %}active{% endif %}">
+                    <a href="{% url 'employee_panel:dashboard' %}">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                 <li class="menu-item {% if request.resolver_match.url_name == 'employee_panel:projects' %}active{% endif %}">
+                    <a href="{% url 'employee_panel:projects' %}">
+                        <i class="fas fa-boxes"></i>
+                        <span>Projects</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if request.resolver_match.url_name == 'employee_panel:tasks' %}active{% endif %}">
+                    <a href="{% url 'employee_panel:tasks' %}">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tasks</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <span>Account</span>
+                     <ul class="submenu">
+                         <li class="menu-item {% if request.resolver_match.url_name == 'employee_panel:profile' %}active{% endif %}">
+                            <a href="{% url 'employee_panel:profile' %}">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </a>
+                         </li>
+                         <li class="menu-item">
+                             <form action="{% url 'accounts:logout' %}" method="post" id="logout-form">
+                                {% csrf_token %}
+                                <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();" class="logout-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </form>
+                         </li>
+                     </ul>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="employee-main">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1>{% block page_title %}Employee Dashboard{% endblock %}</h1>
+                </div>
+            </header>
+
+            <div class="main-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Employee Base JavaScript -->
+    <script src="{% static 'js/employee_base.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -17,28 +16,31 @@
         <!-- Side Navigation -->
         <nav class="contractor-sidebar">
             <div class="sidebar-header">
-                <img src="{% static 'images/slt-logo.png' %}" alt="SLT Logo" class="logo">
+                <img src="{% static 'images/slt_logo.png' %}" alt="SLT Logo" class="logo">
                 <h2>Contractor Panel</h2>
             </div>
             
             <ul class="sidebar-menu">
-                <li class="menu-item {% if request.resolver_match.url_name == 'contractor_dashboard' %}active{% endif %}">
+                <li class="menu-item {% if request.resolver_match.url_name == 'contractor_panel:dashboard' %}active{% endif %}">
                     <a href="{% url 'contractor_panel:dashboard' %}">
                         <i class="fas fa-home"></i>
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="menu-item {% if request.resolver_match.url_name == 'contractor_tasks' %}active{% endif %}">
+                <li class="menu-item {% if request.resolver_match.url_name == 'contractor_panel:tasks' %}active{% endif %}">
                     <a href="{% url 'contractor_panel:tasks' %}">
                         <i class="fas fa-tasks"></i>
                         <span>Tasks</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="{% url 'accounts:logout' %}" class="logout-link">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Sign Out</span>
-                    </a>
+                    <form action="{% url 'accounts:logout' %}" method="post" id="logout-form">
+                        {% csrf_token %}
+                        <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();" class="logout-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Sign Out</span>
+                        </a>
+                    </form>
                 </li>
             </ul>
 

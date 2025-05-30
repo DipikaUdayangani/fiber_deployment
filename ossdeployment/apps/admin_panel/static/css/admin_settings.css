@@ -1,0 +1,165 @@
+/* General container for the settings page */
+.settings-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px); /* Adjust based on header/footer height */
+    font-family: 'Arial', sans-serif; /* Example font */
+}
+
+.settings-container h1 {
+    color: #343a40;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* Section styling */
+.profile-section,
+.password-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-section h2,
+.password-section h2 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 22px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Profile Info */
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.profile-avatar {
+    position: relative;
+    width: 100px; /* Size of the avatar container */
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Prevent avatar from shrinking */
+}
+
+.profile-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover the container */
+    border-radius: 50%;
+}
+
+.profile-avatar .upload-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 123, 255, 0.7); /* Blue with transparency */
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.profile-avatar .upload-icon:hover {
+    background-color: rgba(0, 123, 255, 1);
+}
+
+.profile-avatar input[type="file"] {
+    display: none; /* Hide the actual file input */
+}
+
+.user-details {
+    flex-grow: 1;
+}
+
+.user-details p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.user-details strong {
+    color: #333;
+    margin-right: 5px;
+}
+
+/* Password Change Form */
+#passwordChangeForm .form-row {
+    margin-bottom: 15px;
+}
+
+#passwordChangeForm .form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+#passwordChangeForm .form-row input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in element's total width */
+    font-size: 1rem;
+}
+
+#passwordChangeForm button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 15px;
+    transition: background-color 0.2s ease;
+}
+
+#passwordChangeForm button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 15px;
+    }
+    .profile-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+    .profile-avatar .upload-icon {
+        font-size: 1rem;
+        padding: 4px;
+    }
+    .user-details p {
+        font-size: 0.95rem;
+    }
+    #passwordChangeForm .form-row input[type="password"],
+    #passwordChangeForm button[type="submit"] {
+         font-size: 0.95rem;
+         padding: 8px 15px;
+    }
+} 

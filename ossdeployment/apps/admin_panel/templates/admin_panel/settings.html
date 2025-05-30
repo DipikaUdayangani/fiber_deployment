@@ -1,11 +1,61 @@
-{% extends "admin_panel/dashboard.html" %}
+{% extends "admin_panel/base.html" %}
+{% load static %}
 
-{% block title %}Settings{% endblock %}
-{% block page_title %}System Settings{% endblock %}
+{% block title %}Admin Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/admin_settings.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="settings-container">
-    <h2>Settings</h2>
-    <!-- Add settings content here -->
+    <h1>Admin Settings</h1>
+
+    <div class="profile-section">
+        <h2>Profile Details</h2>
+        <div class="profile-info">
+            <div class="profile-avatar">
+                 {# Placeholder for profile image #}
+                <img id="profileImagePreview" src="{% static 'images/default_avatar.png' %}" alt="Profile Avatar">
+                <label for="profileImageUpload" class="upload-icon"><i class="fas fa-camera"></i></label>
+                <input type="file" id="profileImageUpload" accept="image/*">
+            </div>
+            <div class="user-details">
+                <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+                <p><strong>Employee ID:</strong> <span id="employeeId">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+                {# Add other relevant user details here #}
+            </div>
+        </div>
+        {# Optional: Add a save button for profile details if editable #}
+        {# <button class="save-btn">Save Profile</button> #}
+    </div>
+
+    <div class="password-section">
+        <h2>Change Password</h2>
+        <form id="passwordChangeForm">
+            <div class="form-row">
+                <label for="currentPassword">Current Password:</label>
+                <input type="password" id="currentPassword" name="currentPassword" required>
+            </div>
+            <div class="form-row">
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+            </div>
+            <div class="form-row">
+                <label for="confirmNewPassword">Confirm New Password:</label>
+                <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+            </div>
+            <button type="submit" class="save-btn">Change Password</button>
+        </form>
+    </div>
+
+    {# Optional: Add other settings sections here #}
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/admin_settings.js' %}" defer></script>
 {% endblock %}

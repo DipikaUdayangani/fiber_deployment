@@ -3,35 +3,41 @@ function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
     
-    // First set display to flex
     modal.style.display = 'flex';
-    
-    // Force a reflow
-    modal.offsetHeight;
-    
-    // Then add active class
-    modal.classList.add('active');
-    
-    // Prevent body scrolling
-    document.body.style.overflow = 'hidden';
+    // Use a slight delay to allow display: flex to take effect before adding active class for transition
+    setTimeout(() => {
+        modal.classList.add('active');
+         // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
+    }, 10);
 }
 
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
     
-    // Remove active class first
     modal.classList.remove('active');
-    
-    // Wait for transition to complete before hiding
-    setTimeout(() => {
+
+    // Wait for the CSS transition to complete before setting display to none
+    modal.addEventListener('transitionend', function handler() {
+         // Check if the modal is actually not active before hiding to prevent issues if opened again quickly
         if (!modal.classList.contains('active')) {
             modal.style.display = 'none';
+             // Restore body scrolling
+            document.body.style.overflow = 'auto';
         }
-    }, 300);
-    
-    // Restore body scrolling
-    document.body.style.overflow = 'auto';
+        // Remove the event listener after it runs once
+        modal.removeEventListener('transitionend', handler);
+    });
+
+     // Fallback in case transitionend doesn't fire (e.g., no transition defined or js error)
+    // If modal is not active after a short delay, hide it and restore scroll
+     setTimeout(() => {
+         if (!modal.classList.contains('active')) {
+             modal.style.display = 'none';
+             document.body.style.overflow = 'auto';
+         }
+     }, 300); // Match or exceed your CSS transition duration
 }
 
 // Separate click handler for modal background
@@ -41,15 +47,14 @@ function modalClickHandler(e) {
     }
 }
 
-// Dummy users data
-let users = [
-    { employee_id: 'EMP001', email: 'user1@slt.lk', workgroup: 'NET-PLAN-TX', rtom: 'RTOM 1', status: 'Active' },
-    { employee_id: 'EMP002', email: 'user2@slt.lk', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM 2', status: 'Inactive' },
-    { employee_id: 'EMP003', email: 'user3@slt.lk', workgroup: 'NET-PLAN-ACC', rtom: 'RTOM 3', status: 'Active' },
-    { employee_id: 'EMP004', email: 'user4@slt.lk', workgroup: 'XXX-RTOM', rtom: 'RTOM 1', status: 'Active' },
+// Dummy data
+let dummyUsers = [
+    { id: 1, employeeId: 'EMP001', name: 'Admin User', email: 'admin.user@example.com', workgroup: 'NET-PLAN-TX', rtom: 'RTOM 1', status: 'Active' },
+    { id: 2, employeeId: 'EMP002', name: 'Contractor A', email: 'contractor.a@example.com', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM 2', status: 'Active' },
+    { id: 3, employeeId: 'EMP003', name: 'Employee 1', email: 'employee.1@example.com', workgroup: 'NET-PLAN-ACC', rtom: 'RTOM 3', status: 'Inactive' },
+    { id: 4, employeeId: 'SLTM001', name: 'SLT Manager', email: 'slt.manager@example.com', workgroup: 'XXX-RTOM', rtom: 'RTOM 1', status: 'Active' },
 ];
 
-// Dummy lists for dropdowns
 const workgroupsList = [
     'NET-PLAN-TX',
     'LEA-MNG-OPMC',
@@ -68,46 +73,31 @@ const rtomsList = [
     'RTOM 4',
 ];
 
-// Function to render the users table
-function renderUsersTable(usersToRender = users) {
-    const tbody = document.getElementById('usersTableBody');
-    if (!tbody) return;
+// Get modal elements
+const userModal = document.getElementById('userModal');
+const modalTitle = document.getElementById('modalTitle');
+const userForm = document.getElementById('userForm');
+const userIdInput = document.getElementById('userId');
+const employeeIdInput = document.getElementById('employeeId');
+const userNameInput = document.getElementById('userName');
+const userEmailInput = document.getElementById('userEmail');
+const userWorkgroupSelect = document.getElementById('userWorkgroup');
+const userRtomSelect = document.getElementById('userRtom');
+// const userStatusSelect = document.getElementById('userStatus'); // Uncomment if adding status to modal
 
-    tbody.innerHTML = ''; // Clear existing rows
+// Get button to open add modal
+const addNewUserBtn = document.getElementById('addNewUserBtn');
 
-    if (usersToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No users found.</td></tr>';
-        return;
-    }
-    
-    usersToRender.forEach((user, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${user.employee_id}</td>
-            <td>${user.name || 'N/A'}</td>
-            <td>${user.email}</td>
-            <td>${user.workgroup || 'N/A'}</td>
-            <td>${user.rtom || 'N/A'}</td>
-            <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
-            <td>
-                <button class="action-btn edit" data-index="${idx}" data-tooltip="Edit User">
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="action-btn delete" data-index="${idx}" data-tooltip="Delete User">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
+// Get table body
+const usersTableBody = document.getElementById('usersTableBody');
 
-// Function to populate dropdown options
-function populateDropdown(selectElementId, optionsList) {
-    const selectElement = document.getElementById(selectElementId);
-    if (!selectElement) return;
-
-    selectElement.innerHTML = '<option value="">Select ' + selectElement.name.replace('add_user_', '').replace('_', ' ') + '</option>';
+// Function to populate dropdowns
+function populateDropdown(selectElement, optionsList) {
+    selectElement.innerHTML = ''; // Clear existing options
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = `Select ${selectElement.id.replace('user', '').replace('Select', '')}`; // Generate placeholder text
+    selectElement.appendChild(defaultOption);
 
     optionsList.forEach(optionValue => {
         const option = document.createElement('option');
@@ -117,173 +107,189 @@ function populateDropdown(selectElementId, optionsList) {
     });
 }
 
-// Initialize everything when the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Initial render of the users table
-    renderUsersTable();
+// Function to render the users table
+function renderUsersTable() {
+    usersTableBody.innerHTML = ''; // Clear existing rows
+    dummyUsers.forEach(user => {
+        const row = usersTableBody.insertRow();
+        row.innerHTML = `
+            <td>${user.employeeId}</td>
+            <td>${user.email}</td>
+            <td>${user.workgroup}</td>
+            <td>${user.rtom}</td>
+            <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+            <td class="action-buttons">
+                <button class="edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+    });
 
-    // Add event delegation for edit and delete buttons
-    document.getElementById('usersTableBody').addEventListener('click', function(e) {
-        const target = e.target.closest('.action-btn');
-        if (!target) return;
+    // Add event listeners to the new edit and delete buttons
+    usersTableBody.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', handleEditButtonClick);
+    });
 
-        const index = target.getAttribute('data-index');
-        if (!index) return;
+    usersTableBody.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', handleDeleteButtonClick);
+    });
+}
 
-        if (target.classList.contains('edit')) {
-            openEditUserModal(parseInt(index));
-        } else if (target.classList.contains('delete')) {
-            deleteUser(parseInt(index));
+// Handle click on Add New User button
+addNewUserBtn.addEventListener('click', () => {
+    modalTitle.textContent = 'Add New User';
+    userForm.reset();
+    userIdInput.value = ''; // Clear hidden ID
+    // Populate dropdowns for add form
+    populateDropdown(userWorkgroupSelect, workgroupsList);
+    populateDropdown(userRtomSelect, rtomsList);
+    // if (userStatusSelect) userStatusSelect.value = ''; // Reset status if in modal
+    openModal('userModal');
+});
+
+// Handle click on Edit button
+function handleEditButtonClick(event) {
+    const userId = parseInt(event.currentTarget.dataset.id);
+    const userToEdit = dummyUsers.find(user => user.id === userId);
+
+    if (userToEdit) {
+        modalTitle.textContent = 'Edit User';
+        userIdInput.value = userToEdit.id;
+        employeeIdInput.value = userToEdit.employeeId;
+        userNameInput.value = userToEdit.name;
+        userEmailInput.value = userToEdit.email;
+        // Populate dropdowns and set current value
+        populateDropdown(userWorkgroupSelect, workgroupsList);
+        userWorkgroupSelect.value = userToEdit.workgroup;
+        populateDropdown(userRtomSelect, rtomsList);
+        userRtomSelect.value = userToEdit.rtom;
+        // if (userStatusSelect) userStatusSelect.value = userToEdit.status; // Set status if in modal
+        openModal('userModal');
+    }
+}
+
+// Handle click on Delete button
+function handleDeleteButtonClick(event) {
+    const userId = parseInt(event.currentTarget.dataset.id);
+    if (confirm('Are you sure you want to delete this user?')) {
+        dummyUsers = dummyUsers.filter(user => user.id !== userId);
+        renderUsersTable(); // Re-render table after deletion
+        console.log(`User with ID ${userId} deleted.`);
+    }
+}
+
+// Handle form submission (Add/Edit User)
+userForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const userId = userIdInput.value;
+    const employeeId = employeeIdInput.value.trim();
+    const userName = userNameInput.value.trim();
+    const userEmail = userEmailInput.value.trim();
+    const userWorkgroup = userWorkgroupSelect.value;
+    const userRtom = userRtomSelect.value;
+    // const userStatus = userStatusSelect ? userStatusSelect.value : 'Active'; // Get status if in modal, default to Active
+    const userStatus = 'Active'; // Default status if not in modal form
+
+    if (!employeeId || !userName || !userEmail || !userWorkgroup || !userRtom) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+
+    if (userId) { // Editing existing user
+        dummyUsers = dummyUsers.map(user =>
+            user.id === parseInt(userId) ? { ...user, employeeId, name: userName, email: userEmail, workgroup: userWorkgroup, rtom: userRtom, status: userStatus } : user
+        );
+        console.log(`User with ID ${userId} updated.`);
+    } else { // Adding new user
+        // Simple check for unique employee ID for dummy data
+        if (dummyUsers.some(user => user.employeeId === employeeId)) {
+            alert(`User with Employee ID ${employeeId} already exists.`);
+            return;
         }
-    });
-
-    // Add New User button click handler
-    const openAddUserModalBtn = document.getElementById('openAddUserModalBtn');
-    if (openAddUserModalBtn) {
-        openAddUserModalBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Reset and prepare the form
-            const form = document.getElementById('addUserForm');
-            if (form) {
-                form.reset();
-                populateDropdown('add_user_workgroup', workgroupsList);
-                populateDropdown('add_user_rtom', rtomsList);
-            }
-            
-            // Open the modal
-            openModal('addUserModal');
+        const newUser = {
+            id: Date.now(), // Simple unique ID
+            employeeId,
+            name: userName,
+            email: userEmail,
+            workgroup: userWorkgroup,
+            rtom: userRtom,
+            status: userStatus,
         };
+        dummyUsers.push(newUser);
+        console.log('New user added:', newUser);
     }
 
-    // Add User form submission handler
-    const addUserForm = document.getElementById('addUserForm');
-    if (addUserForm) {
-        addUserForm.onsubmit = function(e) {
-        e.preventDefault();
-            e.stopPropagation();
+    renderUsersTable(); // Re-render table after add/edit
+    closeModal('userModal');
+});
 
-            // Get form data
-        const formData = new FormData(this);
-            const newUser = {
-                employee_id: formData.get('employee_id'),
-                email: formData.get('email'),
-                workgroup: formData.get('workgroup'),
-                rtom: formData.get('rtom'),
-                status: formData.get('status')
-            };
-
-            // Basic validation
-            if (!newUser.workgroup) {
-                alert('Please select a Workgroup.');
-                return false;
-            }
-            if (!newUser.rtom) {
-                alert('Please select an RTOM.');
-                return false;
-            }
-
-            // Add the new user
-            users.push(newUser);
-            renderUsersTable();
-            
-            // Close modal after successful submission
-            closeModal('addUserModal');
-            alert('New user added successfully!');
-            return false;
-        };
-    }
-
-    // Close button handlers
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const modal = this.closest('.custom-modal');
-            if (modal) {
-                closeModal(modal.id);
-            }
-        };
-    });
-
-    // Cancel button handler
-    const cancelAddUserBtn = document.getElementById('cancelAddUserBtn');
-    if (cancelAddUserBtn) {
-        cancelAddUserBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeModal('addUserModal');
-        };
-    }
-
-    // Close modal when clicking outside
-    document.querySelectorAll('.custom-modal').forEach(modal => {
-        modal.onclick = function(e) {
-            if (e.target === this) {
-                closeModal(this.id);
-            }
-        };
-    });
-
-    // Prevent clicks inside modal content from closing the modal
-    document.querySelectorAll('.modal-content').forEach(content => {
-        content.onclick = function(e) {
-            e.stopPropagation();
-        };
-    });
-
-    // Search functionality
-    const userSearchInput = document.getElementById('userSearchInput');
-    if (userSearchInput) {
-        userSearchInput.oninput = function() {
-            const searchText = this.value.toLowerCase();
-            const filteredUsers = users.filter(user =>
-                user.employee_id.toLowerCase().includes(searchText) ||
-                user.email.toLowerCase().includes(searchText) ||
-                user.workgroup.toLowerCase().includes(searchText) ||
-                user.rtom.toLowerCase().includes(searchText) ||
-                user.status.toLowerCase().includes(searchText)
-            );
-            renderUsersTable(filteredUsers);
-        };
+// Close modal when clicking outside the modal content
+userModal.addEventListener('click', (event) => {
+    if (event.target === userModal) {
+        closeModal('userModal');
     }
 });
 
-// Edit user modal handler
-function openEditUserModal(idx) {
-    const user = users[idx];
-    if (!user) return;
+// Initial render of the table when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    renderUsersTable();
+    // Populate dropdowns initially if the modal is present on page load (though it's hidden)
+    // populateDropdown(userWorkgroupSelect, workgroupsList);
+    // populateDropdown(userRtomSelect, rtomsList);
 
-    const form = document.getElementById('editUserForm');
-    if (!form) return;
-
-    // Populate form fields
-    form.employee_id.value = user.employee_id;
-    form.email.value = user.email;
-    form.workgroup.value = user.workgroup || '';
-    form.rtom.value = user.rtom || '';
-    form.status.value = user.status;
-
-    // Store the index
-    form.setAttribute('data-user-index', idx);
-
-    // Populate dropdowns
-    populateDropdown('edit_user_workgroup', workgroupsList);
-    populateDropdown('edit_user_rtom', rtomsList);
-
-    // Show the modal
-    openModal('editUserModal');
-}
-
-// Delete user handler
-function deleteUser(idx) {
-    const user = users[idx];
-    if (!user) return;
-
-    if (confirm(`Are you sure you want to delete user ${user.employee_id}?`)) {
-        users.splice(idx, 1);
-        renderUsersTable();
-        alert('User deleted successfully!');
+    // Add event listener to stop propagation on modal content clicks
+    const modalContent = userModal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent clicks inside content from bubbling up
+        });
     }
+});
+
+// Basic Search functionality (Optional)
+const userSearchInput = document.getElementById('userSearchInput');
+const searchUsersBtn = document.getElementById('searchUsersBtn');
+
+function performSearch() {
+    const searchTerm = userSearchInput.value.toLowerCase();
+    const filteredUsers = dummyUsers.filter(user =>
+        user.employeeId.toLowerCase().includes(searchTerm) ||
+        user.name.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm) ||
+        user.workgroup.toLowerCase().includes(searchTerm) ||
+        user.rtom.toLowerCase().includes(searchTerm) ||
+        user.status.toLowerCase().includes(searchTerm)
+    );
+    renderUsersTableFiltered(filteredUsers);
 }
+
+function renderUsersTableFiltered(filteredUsers) {
+     usersTableBody.innerHTML = ''; // Clear existing rows
+    filteredUsers.forEach(user => {
+        const row = usersTableBody.insertRow();
+        row.innerHTML = `
+            <td>${user.employeeId}</td>
+            <td>${user.email}</td>
+            <td>${user.workgroup}</td>
+            <td>${user.rtom}</td>
+            <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+            <td class="action-buttons">
+                <button class="edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+    });
+
+    // Add event listeners to the new edit and delete buttons on filtered results
+    usersTableBody.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', handleEditButtonClick);
+    });
+
+    usersTableBody.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', handleDeleteButtonClick);
+    });
+}
+
+searchUsersBtn.addEventListener('click', performSearch);
+userSearchInput.addEventListener('input', performSearch); // Live search as user types

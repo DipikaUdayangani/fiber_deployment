@@ -1,4 +1,4 @@
-{% extends "admin_panel/dashboard.html" %}
+{% extends "admin_panel/base.html" %}
 {% load static %}
 
 {% block title %}Manage Users{% endblock %}
@@ -10,110 +10,84 @@
 
 {% block content %}
 <div class="manage-users-container">
-    <div class="manage-users-header">
+    <div class="page-header">
         <h1>Manage Users</h1>
         <div class="header-actions">
-            <button class="add-btn" id="openAddUserModalBtn">+ Add New User</button>
-            <div class="search-box">
+            <div class="search-bar">
                 <input type="text" id="userSearchInput" placeholder="Search users...">
-                <button id="userSearchBtn"><i class="fas fa-search"></i></button>
+                <button id="searchUsersBtn"><i class="fas fa-search"></i></button>
             </div>
+            <button id="addNewUserBtn" class="add-btn">+ Add New User</button>
         </div>
     </div>
-    <table class="users-table">
-        <thead>
-            <tr>
-                <th>Employee ID</th>
-                <th>Email</th>
-                <th>Workgroup</th>
-                <th>RTOM</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="usersTableBody">
-            <!-- JS will populate dummy data here -->
-        </tbody>
-    </table>
-</div>
 
-<!-- Edit User Modal -->
-<div id="editUserModal" class="custom-modal">
-    <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header-flex">
-            <h2>Edit User</h2>
-            <span class="close-btn" onclick="closeModal('editUserModal')">&times;</span>
-        </div>
-        <form id="editUserForm" autocomplete="off">
-            <div class="form-row">
-                <label>Employee ID</label>
-                <input type="text" name="employee_id" required readonly>
-            </div>
-            <div class="form-row">
-                <label>Email</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="form-row">
-                <label>Workgroup</label>
-                <input type="text" name="workgroup" required>
-            </div>
-            <div class="form-row">
-                <label>RTOM</label>
-                <input type="text" name="rtom" required>
-            </div>
-            <div class="form-row">
-                <label>Status</label>
-                <select name="status" required>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                </select>
-            </div>
-            <div class="form-row" style="margin-top:1.5rem;">
-                <button type="submit" class="save-btn">Save</button>
-                <button type="button" class="cancel-btn" id="cancelEditUserBtn">Cancel</button>
-            </div>
-        </form>
+    <div class="users-table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Email</th>
+                    <th>Workgroup</th>
+                    <th>RTOM</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                {# User data will be loaded here by JS #}
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- Add User Modal -->
-<div id="addUserModal" class="custom-modal">
-    <div class="modal-content" style="max-width: 400px;">
+{# Add/Edit User Modal #}
+<div id="userModal" class="custom-modal">
+    <div class="modal-content">
         <div class="modal-header-flex">
-            <h2>Add New User</h2>
-            <span class="close-btn" onclick="closeModal('addUserModal')">&times;</span>
+            <h2 id="modalTitle">Add New User</h2>
+            <span class="close-btn" onclick="closeModal('userModal')">&times;</span>
         </div>
-        <form id="addUserForm" autocomplete="off">
+        <form id="userForm">
+            <input type="hidden" id="userId" name="id">
             <div class="form-row">
-                <label>Employee ID</label>
-                <input type="text" name="employee_id" required>
+                <label for="employeeId">Employee ID <span class="required">*</span></label>
+                <input type="text" id="employeeId" name="employeeId" required>
             </div>
             <div class="form-row">
-                <label>Email</label>
-                <input type="email" name="email" required>
+                <label for="userName">Employee Name <span class="required">*</span></label>
+                <input type="text" id="userName" name="userName" required>
             </div>
             <div class="form-row">
-                <label>Workgroup</label>
-                <select name="workgroup" id="add_user_workgroup" required>
+                <label for="userEmail">Email <span class="required">*</span></label>
+                <input type="email" id="userEmail" name="userEmail" required>
+            </div>
+            <div class="form-row">
+                <label for="userWorkgroup">Workgroup <span class="required">*</span></label>
+                <select id="userWorkgroup" name="userWorkgroup" required>
                     <option value="">Select Workgroup</option>
+                    {# Options will be populated by JavaScript #}
                 </select>
             </div>
             <div class="form-row">
-                <label>RTOM</label>
-                <select name="rtom" id="add_user_rtom" required>
+                <label for="userRtom">RTOM <span class="required">*</span></label>
+                <select id="userRtom" name="userRtom" required>
                     <option value="">Select RTOM</option>
+                    {# Options will be populated by JavaScript #}
                 </select>
             </div>
-            <div class="form-row">
-                <label>Status</label>
-                <select name="status" required>
+            {# Add Status field if needed in the modal form #}
+            {# <div class="form-row">
+                <label for="userStatus">Status <span class="required">*</span></label>
+                <select id="userStatus" name="userStatus" required>
+                    <option value="">Select Status</option>
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                 </select>
-            </div>
-            <div class="form-row" style="margin-top:1.5rem;">
-                <button type="submit" class="save-btn">Add User</button>
-                <button type="button" class="cancel-btn" id="cancelAddUserBtn">Cancel</button>
+            </div> #}
+
+            <div class="form-actions">
+                <button type="submit" class="save-btn">Save User</button>
+                <button type="button" class="cancel-btn" onclick="closeModal('userModal')">Cancel</button>
             </div>
         </form>
     </div>
@@ -121,5 +95,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/manage_users.js' %}"></script>
+<script src="{% static 'js/manage_users.js' %}" defer></script>
 {% endblock %}

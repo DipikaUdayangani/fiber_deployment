@@ -1,404 +1,263 @@
-/* Container for the entire manage users page content */
+/* General page layout */
 .manage-users-container {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    padding: 2rem;
-    margin: 2rem; /* Adjust margin as needed based on your base template */
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px); /* Adjust based on header/footer height */
 }
 
-/* Header section with title, add button, and search bar */
-.manage-users-header {
+.page-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: space-between; /* Pushes title to left, actions to right */
-    margin-bottom: 1.5rem;
-    gap: 1rem; /* Space between title and actions */
-    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.manage-users-header h1 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #333;
+.page-header h1 {
     margin: 0;
+    font-size: 28px;
+    color: #343a40;
 }
 
-/* New styles for the container grouping button and search */
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 1rem; /* Space between button and search */
-    flex-wrap: wrap; /* Allow button and search to wrap on smaller screens */
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
+/* Search Bar */
+.search-bar {
+    display: flex;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    overflow: hidden;
+}
 
-/* Style for the Add New User button */
-.add-btn {
-    background: #1976d2; /* Primary blue color */
-    color: #fff;
+.search-bar input[type="text"] {
     border: none;
-    border-radius: 6px;
-    padding: 0.6rem 1.2rem;
+    padding: 8px 12px;
     font-size: 1rem;
-    font-weight: 500;
+    outline: none;
+    flex-grow: 1;
+}
+
+.search-bar button {
+    border: none;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background-color 0.2s ease;
+}
+
+.search-bar button:hover {
+    background-color: #0056b3;
+}
+
+/* Add New User Button */
+.add-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .add-btn:hover {
-    background: #125ea2; /* Darker blue on hover */
+    background-color: #218838;
 }
 
-/* Search bar styles */
-.search-box {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+/* Users Table */
+.users-table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow-x: auto; /* Allow horizontal scrolling on small screens */
 }
 
-.search-box input[type="text"] {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    border: 1px solid #d0d7de;
-    font-size: 1rem;
-    transition: border-color 0.2s ease;
-}
-
-.search-box input[type="text"]:focus {
-    outline: none;
-    border-color: #1976d2;
-    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25); /* Focus glow */
-}
-
-.search-box button {
-    background: #e0e0e0; /* Light gray button */
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.search-box button:hover {
-    background: #bdbdbd; /* Darker gray on hover */
-}
-
-.search-box button i {
-    color: #333;
-}
-
-
-/* User Table Styles */
 .users-table {
     width: 100%;
-    border-collapse: collapse; /* Remove space between borders */
-    background: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
-    border-radius: 8px; /* Rounded corners for the table container */
-    overflow: hidden; /* Ensures rounded corners are visible */
+    border-collapse: collapse;
 }
 
 .users-table th,
 .users-table td {
-    padding: 0.8rem 1rem;
-    border-bottom: 1px solid #eee; /* Light border between rows */
+    padding: 12px 15px;
     text-align: left;
-    font-size: 1rem;
+    border-bottom: 1px solid #dee2e6;
 }
 
 .users-table th {
-    background: #f5f7fa; /* Light header background */
-    font-weight: 600;
-    color: #555;
-    text-transform: uppercase;
-    font-size: 0.9rem;
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #495057;
+    position: sticky; /* Keep header visible when scrolling */
+    top: 0;
+    z-index: 1; /* Ensure header is above content */
 }
 
 .users-table tbody tr:hover {
-    background-color: #f8f9fa; /* Highlight row on hover */
+    background-color: #f2f2f2;
 }
 
-/* Status Badge Styles */
-.status-badge {
-    padding: 0.3em 0.9em;
-    border-radius: 12px; /* Pill shape */
-    font-size: 0.95em;
-    color: #fff;
-    font-weight: 500;
-    display: inline-block;
-    text-align: center;
-}
-
-.status-Active { background: #2ecc71; } /* Green for Active */
-.status-Inactive { background: #e74c3c; } /* Red for Inactive */
-
-
-/* Action Buttons in table */
-.action-btn {
-    border: none;
+/* Action Buttons in Table */
+.action-buttons button {
     background: none;
+    border: none;
     cursor: pointer;
-    font-size: 0.85rem; /* Reduced from 1.1rem */
-    margin: 0 0.25rem; /* Reduced margin */
-    padding: 0.25rem; /* Reduced padding */
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px; /* Fixed width */
-    height: 24px; /* Fixed height */
-    color: #666; /* Default color */
+    padding: 5px;
+    font-size: 1rem;
+    margin-right: 5px;
+    transition: color 0.2s ease;
 }
 
-/* Edit button style */
-.action-btn.edit {
-    color: #2196F3; /* Modern blue */
-    background-color: rgba(33, 150, 243, 0.1); /* Light blue background */
-}
-
-.action-btn.edit:hover {
-    background-color: rgba(33, 150, 243, 0.2);
-    color: #1976D2; /* Darker blue on hover */
-    transform: translateY(-1px);
-}
-
-/* Delete button style */
-.action-btn.delete {
-    color: #F44336; /* Modern red */
-    background-color: rgba(244, 67, 54, 0.1); /* Light red background */
-}
-
-.action-btn.delete:hover {
-    background-color: rgba(244, 67, 54, 0.2);
-    color: #D32F2F; /* Darker red on hover */
-    transform: translateY(-1px);
-}
-
-/* Remove margin for the last button */
-.action-btn:last-child {
+.action-buttons button:last-child {
     margin-right: 0;
 }
 
-/* Add tooltip styles */
-.action-btn {
-    position: relative;
+.action-buttons .edit-btn {
+    color: #007bff; /* Blue color for edit */
 }
 
-.action-btn::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+.action-buttons .edit-btn:hover {
+    color: #0056b3;
+}
+
+.action-buttons .delete-btn {
+    color: #dc3545; /* Red color for delete */
+}
+
+.action-buttons .delete-btn:hover {
+    color: #c82333;
+}
+
+/* Status Badge */
+.status-badge {
     padding: 4px 8px;
-    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 12px;
+    font-size: 0.9em;
     color: white;
-    font-size: 0.75rem;
-    border-radius: 4px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-    pointer-events: none;
-    margin-bottom: 4px;
+    font-weight: 500;
 }
 
-.action-btn:hover::after {
-    opacity: 1;
-    visibility: visible;
-}
+.status-active { background-color: #28a745; }
+.status-inactive { background-color: #dc3545; }
 
-/* Add a small arrow to the tooltip */
-.action-btn::before {
-    content: '';
-    position: absolute;
-    bottom: calc(100% - 4px);
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 4px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-}
-
-.action-btn:hover::before {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Modal Styles */
+/* Modal Styles (reusing from dashboard_modals or defining new) */
+/* Define basic modal styles if not already in a common CSS */
 .custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 1050;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.4); /* Black with opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    overflow-y: auto; /* Enable scrolling if content is too long */
 }
 
 .custom-modal.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 1;
-    visibility: visible;
+    display: flex; /* Use flex to center content */
 }
 
 .modal-content {
-    background: #fff;
+    background-color: #fefefe;
+    margin: auto; /* Center the modal */
+    padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 90%; /* Default width */
+    max-width: 500px; /* Max width */
     position: relative;
-    width: 95%;
-    max-width: 500px;
-    margin: 1.75rem auto;
-    transform: translateY(-20px);
-    transition: transform 0.3s ease;
-}
-
-.custom-modal.active .modal-content {
-    transform: translateY(0);
 }
 
 .modal-header-flex {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
-    position: relative; /* For close button positioning */
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .modal-header-flex h2 {
-     margin: 0;
-    font-size: 1.5rem;
-    color: #333;
-    font-weight: 600;
+    margin: 0;
+    font-size: 24px;
 }
-
 
 .close-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    font-size: 1.8rem;
-    color: #888;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
     cursor: pointer;
-    transition: color 0.2s ease;
 }
 
-.close-btn:hover {
-    color: #dc3545; /* Red on hover */
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
 }
 
-/* Form row styling */
+/* Form Styles (reusing from dashboard_modals or defining new) */
 .form-row {
-    margin-bottom: 1.2rem;
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 15px;
 }
 
 .form-row label {
-    font-weight: 500;
-    margin-bottom: 0.4rem;
-    color: #495057;
-    font-size: 1rem;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
 }
 
 .form-row input[type="text"],
 .form-row input[type="email"],
 .form-row select {
-    padding: 0.7rem 1rem;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in element's total width */
     font-size: 1rem;
-    transition: border-color 0.2s ease;
 }
 
-.form-row input:focus,
-.form-row select:focus {
-    outline: none;
-    border-color: #1976d2;
-    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
-}
-
-.required {
-    color: #e74c3c; /* Red asterisk */
-    font-size: 1.1em;
-}
-
-/* Form action buttons */
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 1.5rem;
+    margin-top: 20px;
+    text-align: right;
 }
 
-.save-btn, .cancel-btn {
-    padding: 0.7rem 1.5rem;
+.form-actions button {
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1rem;
-    font-weight: 500;
-    transition: background 0.2s ease;
+    margin-left: 10px;
+    transition: background-color 0.2s ease;
 }
 
 .save-btn {
-    background-color: #28a745; /* Green for Save */
+    background-color: #007bff;
     color: white;
 }
+
 .save-btn:hover {
-    background-color: #218838;
+    background-color: #0056b3;
 }
 
 .cancel-btn {
-    background-color: #6c757d; /* Gray for Cancel */
+    background-color: #6c757d;
     color: white;
 }
+
 .cancel-btn:hover {
     background-color: #5a6268;
 }
 
-
-/* Animations */
-@keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .manage-users-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-     .header-actions {
-        width: 100%; /* Make actions take full width */
-        justify-content: flex-start; /* Align actions to the left on small screens */
-        gap: 0.8rem;
-     }
-    .search-box {
-        margin-left: 0; /* Remove auto margin */
-        flex-grow: 1; /* Allow search box to grow */
-    }
-    .search-box input[type="text"] {
-        width: 100%; /* Input takes full width of its container */
-    }
-    .modal-content {
-        padding: 1.5rem;
-    }
-    .form-row input, .form-row select, .save-btn, .cancel-btn {
-        font-size: 0.95rem;
-    }
+.required {
+    color: #dc3545; /* Red color for required indicator */
+    margin-left: 2px;
 }

@@ -18,6 +18,32 @@ function closeModal(modalId) {
      }
 }
 
+// Function to populate dropdown options
+function populateDropdown(selectElementId, optionsList, valueKey = 'value', textKey = 'text') {
+    const selectElement = document.getElementById(selectElementId);
+    if (!selectElement) return;
+
+    // Clear existing options except the default 'Select...' option
+    selectElement.innerHTML = '';
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = `Select ${selectElement.name.replace('task_', '').replace('assigned_', '').replace('_', ' ')}`;
+    selectElement.appendChild(defaultOption);
+
+    optionsList.forEach(optionData => {
+        const option = document.createElement('option');
+        // Handle both simple arrays (value = text) and array of objects
+        if (typeof optionData === 'object' && optionData !== null) {
+             option.value = optionData[valueKey];
+             option.textContent = optionData[textKey];
+        } else {
+             option.value = optionData;
+             option.textContent = optionData;
+        }
+        selectElement.appendChild(option);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('dashboard_modals.js loaded'); // Log to confirm script loading
 
@@ -32,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtns = document.querySelectorAll('.close-btn'); // Get all close buttons
     const customModals = document.querySelectorAll('.custom-modal'); // Get all modals
     const modalContents = document.querySelectorAll('.modal-content'); // Get all modal content areas
+    const addTaskForm = document.getElementById('addTaskForm'); // Get the Add Task form
+    const openAddUserModalBtn = document.getElementById('openAddUserModalBtn'); // Get the Add New User button
+    const addUserForm = document.getElementById('addUserForm'); // Get the Add User form
 
     if (projectsCard) {
         projectsCard.addEventListener('click', function() { 
@@ -75,6 +104,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addNewTaskBtn) {
         addNewTaskBtn.addEventListener('click', function() {
             closeModal('tasksModal'); // Close the tasks list modal
+
+            // Populate dropdowns in the Add Task modal
+            populateDropdown('assign_to', dummyEmployees, 'userId', 'name');
+            populateDropdown('task_project_name', dummyProjects, 'name', 'name'); // Assuming project name as value and text
+            populateDropdown('task_workgroup', workgroupsList);
+            populateDropdown('task_rtom', rtomsList);
+
+            // Reset the form
+             if (addTaskForm) {
+                addTaskForm.reset();
+             }
+
             openModal('addTaskModal'); // Open the add task modal
              console.log('Add New Task button clicked');
         });
@@ -100,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             newProject.status = 'Pending'; 
 
             dummyProjects.push(newProject);
-            console.log('Simulated Add Project:', newProject);
+            console.log('Simulating Add Project:', newProject);
             closeModal('addProjectModal');
             renderProjectsTable(); // Re-render projects table
             openModal('projectsModal'); // Re-open projects modal
@@ -108,6 +149,43 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Project added (demo only, not saved to backend)');
         });
     }
+
+     // Form submit handler for Add Task (Simulated)
+     if (addTaskForm) {
+         addTaskForm.addEventListener('submit', function(e) {
+             e.preventDefault();
+             const formData = new FormData(this);
+             // Simulate adding task (replace with actual backend call)
+             const newTask = {
+                 id: Date.now(), // Simple unique ID
+                 name: formData.get('task_name'),
+                 project: formData.get('project_name'), // This will be project name, not full object
+                 // Find the full project details based on selected name if needed
+                 assigned_to: formData.get('assigned_to'), // This will be employee ID
+                 // Find the full employee details based on selected ID if needed
+                 workgroup: formData.get('workgroup'),
+                 rtom: formData.get('rtom'),
+                 deadline: formData.get('deadline'),
+                 attachment: formData.get('attachment') ? formData.get('attachment').name : 'N/A', // Dummy attachment name
+                 status: 'Pending' // Default status for new tasks
+                 // Conditions are part of the task logic, not necessarily displayed in the table
+                 // conditions: [] // Add conditions structure if needed for display
+             };
+
+             // Basic validation (add more as needed)
+             if (!newTask.name || !newTask.project || !newTask.assigned_to || !newTask.workgroup || !newTask.rtom || !newTask.deadline || newTask.attachment === 'N/A') {
+                 alert('Please fill in all required fields and attach a PDF.');
+                 return;
+             }
+
+             dummyTasks.push(newTask);
+             console.log('Simulating Add Task:', newTask);
+             closeModal('addTaskModal');
+             renderTasksTable(); // Re-render tasks table
+             alert('Task added (demo only, not saved to backend)');
+             this.reset();
+         });
+     }
 
     // Modal close on background click for all modals
     customModals.forEach(function(modal) {
@@ -137,8 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    // Dummy data
-    const dummyProjects = [
+    // Dummy data (updated based on user requirements)
+    let dummyProjects = [
         { name: 'Metro Fiber Expansion', status: 'ongoing', slt_ref: 'SLT-001', contract: 'C-2024-01', project_no: 'PROJ-001', invoice: 'INV-001', attachment: 'doc1.pdf' },
         { name: 'Rural Area Upgrade', status: 'finished', slt_ref: 'SLT-002', contract: 'C-2024-02', project_no: 'PROJ-002', invoice: 'INV-002', attachment: 'doc2.docx' },
         { name: 'City Backbone', status: 'pending', slt_ref: 'SLT-003', contract: 'C-2024-03', project_no: 'PROJ-003', invoice: 'INV-003', attachment: 'doc3.pdf' },
@@ -153,14 +231,72 @@ document.addEventListener('DOMContentLoaded', function() {
          // Add more dummy users as needed
     ];
 
-     const dummyTasks = [
-         { id: 1, name: 'Install Fiber Optics', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Employee 1', workgroup: 'WG-001', rtom: 'RTOM-01', status: 'In Progress' },
-         { id: 2, name: 'Configure Router', project: 'City Backbone', projectId: 'PROJ-003', assigned_to: 'Contractor A', workgroup: 'WG-002', rtom: 'RTOM-02', status: 'Due Today' },
-         { id: 3, name: 'Site Survey', project: 'Rural Area Upgrade', projectId: 'PROJ-002', assigned_to: 'Employee 2', workgroup: 'WG-001', rtom: 'RTOM-01', status: 'High Priority' },
-          { id: 4, name: 'Test Connectivity', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Contractor B', workgroup: 'WG-003', rtom: 'RTOM-03', status: 'In Progress' },
-          { id: 5, name: 'Deploy Equipment', project: 'City Backbone', projectId: 'PROJ-003', assigned_to: 'Employee 3', workgroup: 'WG-002', rtom: 'RTOM-02', status: 'In Progress' },
-         // Add more dummy tasks as needed
+     let dummyTasks = [
+         // Tasks for NET-PLAN-TX
+         { id: 1, name: 'SPECIFY DESIGN DETAILS', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Employee 1', workgroup: 'NET-PLAN-TX', rtom: 'RTOM-01', status: 'In Progress' },
+         { id: 2, name: 'APPROVE PE', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Employee 1', workgroup: 'NET-PLAN-TX', rtom: 'RTOM-01', status: 'Pending' },
+
+         // Tasks for LEA-MNG-OPMC
+         { id: 3, name: 'SURVEY FIBER ROUTE', project: 'Rural Area Expansion', projectId: 'PROJ-002', assigned_to: 'Employee 2', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM-02', status: 'Completed' },
+
+         // Tasks for NET-PLAN-ACC
+         { id: 4, name: 'ASSIGN WORK', project: 'City Backbone', projectId: 'PROJ-003', assigned_to: 'Admin User', workgroup: 'NET-PLAN-ACC', rtom: 'RTOM-03', status: 'In Progress' },
+
+         // Tasks for DRAW FIBER (NET-PROJ-ACC-CABLE and XXX-MNG-OPMC)
+         { id: 5, name: 'DRAW FIBER', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Contractor A', workgroup: 'NET-PROJ-ACC-CABLE', rtom: 'RTOM-01', status: 'In Progress', condition: 'If Area belongs to Metro' },
+         { id: 6, name: 'DRAW FIBER', project: 'Rural Area Expansion', projectId: 'PROJ-002', assigned_to: 'Employee 2', workgroup: 'XXX-MNG-OPMC', rtom: 'RTOM-02', status: 'Pending', condition: 'If Area belongs to region' },
+
+         // SPLICE & TERMINATE (NET-PROJ-ACC-CABLE and XXX-ENG-NW)
+         { id: 7, name: 'SPLICE & TERMINATE', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Contractor B', workgroup: 'NET-PROJ-ACC-CABLE', rtom: 'RTOM-01', status: 'Pending', condition: 'If Area belongs to Metro' },
+         { id: 8, name: 'SPLICE & TERMINATE', project: 'Rural Area Expansion', projectId: 'PROJ-002', assigned_to: 'Employee 3', workgroup: 'XXX-ENG-NW', rtom: 'RTOM-02', status: 'In Progress', condition: 'If Area belongs to region' },
+
+          // UPLOAD FIBER_IN_OSS (XXX-ENG-NW)
+          { id: 9, name: 'UPLOAD FIBER_IN_OSS', project: 'Rural Area Expansion', projectId: 'PROJ-002', assigned_to: 'Employee 3', workgroup: 'XXX-ENG-NW', rtom: 'RTOM-02', status: 'Pending' },
+
+         // CONDUCT FIBER_PAT (NET-PROJ-ACC-CABLE and XXX-MNG-OPMC)
+         { id: 10, name: 'CONDUCT FIBER_PAT', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Contractor A', workgroup: 'NET-PROJ-ACC-CABLE', rtom: 'RTOM-01', status: 'Pending', condition: 'If Area belongs to Metro' },
+         { id: 11, name: 'CONDUCT FIBER_PAT', project: 'Rural Area Expansion', projectId: 'PROJ-002', assigned_to: 'Employee 2', workgroup: 'XXX-MNG-OPMC', rtom: 'RTOM-02', status: 'In Progress', condition: 'If Area belongs to region' },
+
+         // UPLOAD DRAWING (NET-PROJ-ACC-CABLE)
+         { id: 12, name: 'UPLOAD DRAWING', project: 'Metro Fiber Expansion', projectId: 'PROJ-001', assigned_to: 'Contractor B', workgroup: 'NET-PROJ-ACC-CABLE', rtom: 'RTOM-01', status: 'Completed' },
+
+         // UPDATE MASTER DWG (NET-PLAN-DRAWING)
+         { id: 13, name: 'UPDATE MASTER DWG', project: 'City Backbone', projectId: 'PROJ-003', assigned_to: 'Admin User', workgroup: 'NET-PLAN-DRAWING', rtom: 'RTOM-03', status: 'Pending' },
+
+         // CLOSE EVENT (XXX-RTOM)
+         { id: 14, name: 'CLOSE EVENT', project: 'Rural Area Expansion', projectId: 'PROJ-002', assigned_to: 'SLT Manager', workgroup: 'XXX-RTOM', rtom: 'RTOM-04', status: 'In Progress' },
+
+         // Example of existing tasks (adjust if necessary)
+          { id: 15, name: 'Install Fiber Optics', project: 'City Backbone', projectId: 'PROJ-003', assigned_to: 'Employee 1', workgroup: 'NET-PROJ-ACC-CABLE', rtom: 'RTOM-03', status: 'In Progress' },
+
      ];
+
+     // Assuming these lists are available globally or fetched
+     const workgroupsList = [
+        'NET-PLAN-TX',
+        'LEA-MNG-OPMC',
+        'NET-PLAN-ACC',
+        'NET-PROJ-ACC-CABLE',
+        'XXX-MNG-OPMC',
+        'XXX-ENG-NW',
+        'NET-PLAN-DRAWING',
+        'XXX-RTOM',
+    ];
+
+    const rtomsList = [
+        'RTOM 1',
+        'RTOM 2',
+        'RTOM 3',
+        'RTOM 4',
+    ];
+
+    const dummyEmployees = [
+         { userId: 'EMP001', name: 'John Smith' },
+         { userId: 'EMP002', name: 'Sarah Johnson' },
+         { userId: 'EMP003', name: 'Michael Williams' },
+         
+         // Add more dummy employees as needed
+    ];
 
     // Render dummy users in the table
     function renderUsersTable() {
@@ -188,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
              const tr = document.createElement('tr');
              tr.innerHTML = `
                  <td>${task.name}</td>
-                 <td class="project-name-cell">${task.project} (${task.projectId})</td> {# Highlight project name #}
+                 <td class="project-name-cell">${task.project} (${task.projectId || 'N/A'})</td> {# Highlight project name #}
                  <td>${task.assigned_to}</td>
                  <td>${task.workgroup}</td>
                  <td>${task.rtom}</td>
@@ -222,7 +358,68 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call render functions for initial load if needed (depends on your page load strategy)
     // If these tables are meant to be populated when modals open, keep calls within event listeners.
 
+    // Dummy data (updated based on user requirements)
+    // Declare dummyTasks on window to be accessible by other scripts like admin tasks.js
+    window.dummyTasks = [
+        // ... existing code ...
+    ];
 
+    // Add New User button in users list modal
+    if (openAddUserModalBtn) {
+        openAddUserModalBtn.addEventListener('click', function() {
+            closeModal('usersModal'); // Close the users list modal
+
+            // Populate dropdowns in the Add User modal
+            populateDropdown('user_workgroup', workgroupsList);
+            populateDropdown('user_rtom', rtomsList);
+
+            // Reset the form
+            if (addUserForm) {
+                addUserForm.reset();
+            }
+
+            openModal('addUserModal'); // Open the add user modal
+            console.log('Add New User button clicked');
+        });
+    }
+
+    // Form submit handler for Add User (Simulated)
+    if (addUserForm) {
+        addUserForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            // Simulate adding user (replace with actual backend call)
+            const newUser = {
+                userId: formData.get('user_employee_id'),
+                name: formData.get('user_name'),
+                email: formData.get('user_email'),
+                workgroup: formData.get('user_workgroup'),
+                rtom: formData.get('user_rtom'),
+                role: 'Employee' // Default role, adjust if needed
+            };
+
+            // Basic validation (add more as needed)
+            if (!newUser.userId || !newUser.name || !newUser.email || !newUser.workgroup || !newUser.rtom) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Check if user ID already exists (simple dummy check)
+            const userExists = dummyUsers.some(user => user.userId === newUser.userId);
+            if (userExists) {
+                 alert(`User with Employee ID ${newUser.userId} already exists.`);
+                 return;
+            }
+
+            dummyUsers.push(newUser);
+            console.log('Simulating Add User:', newUser);
+            closeModal('addUserModal');
+            renderUsersTable(); // Re-render users table
+            alert('User added (demo only, not saved to backend)');
+             // Optionally, re-open the users list modal
+            openModal('usersModal');
+        });
+    }
 
 });
 

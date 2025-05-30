@@ -117,8 +117,10 @@
     <div id="usersModal" class="custom-modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header-flex">
-                <h2>User Details</h2>
-                {# Add New User button here if needed on dashboard #}
+                <div class="header-title-group"> {# New wrapper div #}
+                    <h2>User Details</h2>
+                    <button class="add-btn" id="openAddUserModalBtn">+ Add New User</button>
+                </div>
                 <span class="close-btn" onclick="closeModal('usersModal')">&times;</span>
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
@@ -179,12 +181,100 @@
                 <span class="close-btn" onclick="closeModal('addTaskModal')">&times;</span>
              </div>
             <form id="addTaskForm" autocomplete="off">
-                {# Placeholder for Task Form Fields - Add your fields here later #}
-                <p>Task form fields will go here.</p>
+                <div class="form-row">
+                    <label for="task_name">Task Name <span class="required">*</span></label>
+                    <input type="text" id="task_name" name="task_name" required>
+                </div>
+
+                 <div class="form-row">
+                    <label for="assign_to">Assign To <span class="required">*</span></label>
+                    <select id="assign_to" name="assigned_to" required>
+                         <option value="">Select Employee</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+
+                 <div class="form-row">
+                    <label for="project_name">Project Name <span class="required">*</span></label>
+                    <select id="task_project_name" name="project_name" required>
+                         <option value="">Select Project Name</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="task_workgroup">Workgroup <span class="required">*</span></label>
+                    <select id="task_workgroup" name="workgroup" required>
+                         <option value="">Select Workgroup</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="task_rtom">RTOM <span class="required">*</span></label>
+                    <select id="task_rtom" name="rtom" required>
+                         <option value="">Select RTOM</option>
+                         {# Options will be populated by JS #}
+                    </select>
+                </div>
+
+                 <div class="form-row">
+                    <label for="deadline">Deadline <span class="required">*</span></label>
+                    <input type="date" id="deadline" name="deadline" required>
+                 </div>
+
+                 <div class="form-row">
+                     <label for="task_attachment">Attachment (PDF) <span class="required">*</span></label>
+                     <input type="file" id="task_attachment" name="attachment" accept=".pdf" required>
+                     <small>Maximum file size: 5MB</small>
+                </div>
 
                 <div class="form-row" style="margin-top: 1.5rem;">
                     <button type="submit" class="save-btn">Save Task</button>
                     <button type="button" class="cancel-btn" onclick="closeModal('addTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 400px;">
+             <div class="modal-header-flex">
+                <h2>Add New User</h2>
+                <span class="close-btn" onclick="closeModal('addUserModal')">&times;</span>
+             </div>
+            <form id="addUserForm">
+                <div class="form-row">
+                    <label for="user_employee_id">Employee ID:</label>
+                    <input type="text" id="user_employee_id" name="user_employee_id" required>
+                </div>
+                <div class="form-row">
+                    <label for="user_name">Employee Name:</label>
+                    <input type="text" id="user_name" name="user_name" required>
+                </div>
+                <div class="form-row">
+                    <label for="user_email">Email:</label>
+                    <input type="email" id="user_email" name="user_email" required>
+                </div>
+                 <div class="form-row">
+                    <label for="user_workgroup">Workgroup:</label>
+                    <select id="user_workgroup" name="user_workgroup" required>
+                         <option value="">Select Workgroup</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                 </div>
+                 <div class="form-row">
+                    <label for="user_rtom">RTOM:</label>
+                    <select id="user_rtom" name="user_rtom" required>
+                        <option value="">Select RTOM</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                 </div>
+                
+                <div class="form-row" style="margin-top: 1.5rem;">
+                    <button type="submit" class="save-btn">Add User</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('addUserModal')">Cancel</button>
                 </div>
             </form>
         </div>

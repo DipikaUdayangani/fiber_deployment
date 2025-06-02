@@ -25,10 +25,11 @@
         <table class="users-table">
             <thead>
                 <tr>
+                    <th>Employee Name</th>
                     <th>Employee ID</th>
-                    <th>Email</th>
                     <th>Workgroup</th>
                     <th>RTOM</th>
+                    <th>Email</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -45,17 +46,17 @@
     <div class="modal-content">
         <div class="modal-header-flex">
             <h2 id="modalTitle">Add New User</h2>
-            <span class="close-btn" onclick="closeModal('userModal')">&times;</span>
+            <span class="close-btn">&times;</span>
         </div>
         <form id="userForm">
             <input type="hidden" id="userId" name="id">
             <div class="form-row">
-                <label for="employeeId">Employee ID <span class="required">*</span></label>
-                <input type="text" id="employeeId" name="employeeId" required>
+                <label for="employeeName">Employee Name <span class="required">*</span></label>
+                <input type="text" id="employeeName" name="employeeName" required>
             </div>
             <div class="form-row">
-                <label for="userName">Employee Name <span class="required">*</span></label>
-                <input type="text" id="userName" name="userName" required>
+                <label for="employeeId">Employee ID <span class="required">*</span></label>
+                <input type="text" id="employeeId" name="employeeId" required>
             </div>
             <div class="form-row">
                 <label for="userEmail">Email <span class="required">*</span></label>
@@ -75,7 +76,7 @@
                     {# Options will be populated by JavaScript #}
                 </select>
             </div>
-            {# Add Status field if needed in the modal form #}
+            {# Optional: Add Status field if needed in the modal form #}
             {# <div class="form-row">
                 <label for="userStatus">Status <span class="required">*</span></label>
                 <select id="userStatus" name="userStatus" required>
@@ -87,7 +88,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="save-btn">Save User</button>
-                <button type="button" class="cancel-btn" onclick="closeModal('userModal')">Cancel</button>
+                <button type="button" class="cancel-btn" >Cancel</button>
             </div>
         </form>
     </div>
@@ -95,5 +96,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/manage_users.js' %}" defer></script>
+<script src="{% static 'js/manage_users.js' %}"></script>
 {% endblock %}

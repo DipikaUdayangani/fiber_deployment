@@ -3,9 +3,175 @@
     padding: 20px;
     background-color: #f8f9fa;
     min-height: calc(100vh - 80px); /* Adjust based on header/footer height */
+    font-family: 'Arial', sans-serif; /* Example font */
 }
 
-.page-header {
+.settings-container h1 {
+    color: #343a40;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* Section styling */
+.profile-section,
+.password-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-section h2,
+.password-section h2 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 22px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Profile Info */
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.profile-avatar {
+    position: relative;
+    width: 100px; /* Size of the avatar container */
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Prevent avatar from shrinking */
+}
+
+.profile-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover the container */
+    border-radius: 50%;
+}
+
+.profile-avatar .upload-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 123, 255, 0.7); /* Blue with transparency */
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.profile-avatar .upload-icon:hover {
+    background-color: rgba(0, 123, 255, 1);
+}
+
+.profile-avatar input[type="file"] {
+    display: none; /* Hide the actual file input */
+}
+
+.user-details {
+    flex-grow: 1;
+}
+
+.user-details p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.user-details strong {
+    color: #333;
+    margin-right: 5px;
+}
+
+/* Password Change Form */
+#passwordChangeForm .form-row {
+    margin-bottom: 15px;
+}
+
+#passwordChangeForm .form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+#passwordChangeForm .form-row input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in element's total width */
+    font-size: 1rem;
+}
+
+#passwordChangeForm button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 15px;
+    transition: background-color 0.2s ease;
+}
+
+#passwordChangeForm button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 15px;
+    }
+    .profile-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+    .profile-avatar .upload-icon {
+        font-size: 1rem;
+        padding: 4px;
+    }
+    .user-details p {
+        font-size: 0.95rem;
+    }
+    #passwordChangeForm .form-row input[type="password"],
+    #passwordChangeForm button[type="submit"] {
+         font-size: 0.95rem;
+         padding: 8px 15px;
+    }
+}
+
+/* Specific styles for manage_users page */
+.manage-users-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px); /* Adjust based on header/footer height */
+}
+
+.manage-users-container .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -14,13 +180,13 @@
     gap: 15px;
 }
 
-.page-header h1 {
+.manage-users-container .page-header h1 {
     margin: 0;
     font-size: 28px;
     color: #343a40;
 }
 
-.header-actions {
+.manage-users-container .header-actions {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -28,14 +194,14 @@
 }
 
 /* Search Bar */
-.search-bar {
+.manage-users-container .search-bar {
     display: flex;
     border: 1px solid #ced4da;
     border-radius: 5px;
     overflow: hidden;
 }
 
-.search-bar input[type="text"] {
+.manage-users-container .search-bar input[type="text"] {
     border: none;
     padding: 8px 12px;
     font-size: 1rem;
@@ -43,7 +209,7 @@
     flex-grow: 1;
 }
 
-.search-bar button {
+.manage-users-container .search-bar button {
     border: none;
     background-color: #007bff;
     color: white;
@@ -52,12 +218,12 @@
     transition: background-color 0.2s ease;
 }
 
-.search-bar button:hover {
+.manage-users-container .search-bar button:hover {
     background-color: #0056b3;
 }
 
 /* Add New User Button */
-.add-btn {
+.manage-users-container .add-btn {
     background-color: #28a745;
     color: white;
     border: none;
@@ -68,31 +234,31 @@
     transition: background-color 0.2s ease;
 }
 
-.add-btn:hover {
+.manage-users-container .add-btn:hover {
     background-color: #218838;
 }
 
 /* Users Table */
-.users-table-container {
+.manage-users-container .users-table-container {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     overflow-x: auto; /* Allow horizontal scrolling on small screens */
 }
 
-.users-table {
+.manage-users-container .users-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.users-table th,
-.users-table td {
+.manage-users-container .users-table th,
+.manage-users-container .users-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #dee2e6;
 }
 
-.users-table th {
+.manage-users-container .users-table th {
     background-color: #e9ecef;
     font-weight: bold;
     color: #495057;
@@ -101,12 +267,12 @@
     z-index: 1; /* Ensure header is above content */
 }
 
-.users-table tbody tr:hover {
+.manage-users-container .users-table tbody tr:hover {
     background-color: #f2f2f2;
 }
 
 /* Action Buttons in Table */
-.action-buttons button {
+.manage-users-container .action-buttons button {
     background: none;
     border: none;
     cursor: pointer;
@@ -116,28 +282,28 @@
     transition: color 0.2s ease;
 }
 
-.action-buttons button:last-child {
+.manage-users-container .action-buttons button:last-child {
     margin-right: 0;
 }
 
-.action-buttons .edit-btn {
+.manage-users-container .action-buttons .edit-btn {
     color: #007bff; /* Blue color for edit */
 }
 
-.action-buttons .edit-btn:hover {
+.manage-users-container .action-buttons .edit-btn:hover {
     color: #0056b3;
 }
 
-.action-buttons .delete-btn {
+.manage-users-container .action-buttons .delete-btn {
     color: #dc3545; /* Red color for delete */
 }
 
-.action-buttons .delete-btn:hover {
+.manage-users-container .action-buttons .delete-btn:hover {
     color: #c82333;
 }
 
 /* Status Badge */
-.status-badge {
+.manage-users-container .status-badge {
     padding: 4px 8px;
     border-radius: 12px;
     font-size: 0.9em;
@@ -145,12 +311,12 @@
     font-weight: 500;
 }
 
-.status-active { background-color: #28a745; }
-.status-inactive { background-color: #dc3545; }
+.manage-users-container .status-active { background-color: #28a745; }
+.manage-users-container .status-inactive { background-color: #dc3545; }
 
 /* Modal Styles (reusing from dashboard_modals or defining new) */
 /* Define basic modal styles if not already in a common CSS */
-.custom-modal {
+.manage-users-container .custom-modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1000; /* Sit on top */
@@ -161,11 +327,11 @@
     overflow-y: auto; /* Enable scrolling if content is too long */
 }
 
-.custom-modal.active {
+.manage-users-container .custom-modal.active {
     display: flex; /* Use flex to center content */
 }
 
-.modal-content {
+.manage-users-container .modal-content {
     background-color: #fefefe;
     margin: auto; /* Center the modal */
     padding: 25px;
@@ -176,46 +342,46 @@
     position: relative;
 }
 
-.modal-header-flex {
+.manage-users-container .modal-header-flex {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.modal-header-flex h2 {
+.manage-users-container .modal-header-flex h2 {
     margin: 0;
     font-size: 24px;
 }
 
-.close-btn {
+.manage-users-container .close-btn {
     color: #aaa;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
 }
 
-.close-btn:hover,
-.close-btn:focus {
+.manage-users-container .close-btn:hover,
+.manage-users-container .close-btn:focus {
     color: black;
     text-decoration: none;
 }
 
 /* Form Styles (reusing from dashboard_modals or defining new) */
-.form-row {
+.manage-users-container .form-row {
     margin-bottom: 15px;
 }
 
-.form-row label {
+.manage-users-container .form-row label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
     color: #555;
 }
 
-.form-row input[type="text"],
-.form-row input[type="email"],
-.form-row select {
+.manage-users-container .form-row input[type="text"],
+.manage-users-container .form-row input[type="email"],
+.manage-users-container .form-row select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -224,12 +390,12 @@
     font-size: 1rem;
 }
 
-.form-actions {
+.manage-users-container .form-actions {
     margin-top: 20px;
     text-align: right;
 }
 
-.form-actions button {
+.manage-users-container .form-actions button {
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -239,25 +405,25 @@
     transition: background-color 0.2s ease;
 }
 
-.save-btn {
+.manage-users-container .save-btn {
     background-color: #007bff;
     color: white;
 }
 
-.save-btn:hover {
+.manage-users-container .save-btn:hover {
     background-color: #0056b3;
 }
 
-.cancel-btn {
+.manage-users-container .cancel-btn {
     background-color: #6c757d;
     color: white;
 }
 
-.cancel-btn:hover {
+.manage-users-container .cancel-btn:hover {
     background-color: #5a6268;
 }
 
-.required {
+.manage-users-container .required {
     color: #dc3545; /* Red color for required indicator */
     margin-left: 2px;
-}
+} 

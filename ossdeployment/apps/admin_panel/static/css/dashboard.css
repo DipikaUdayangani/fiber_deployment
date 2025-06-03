@@ -15,7 +15,9 @@ body {
     display: flex;
     min-height: 100vh;
 }
-
+.form-group {
+    margin-bottom: 16px;
+}
 /* Sidebar Styles */
 .sidebar {
     width: 250px;

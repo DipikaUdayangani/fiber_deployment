@@ -25,8 +25,8 @@
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
+    max-width: 500px;
+    max-height: 85vh;
     overflow-y: auto;
     transform: translateY(-20px);
     transition: transform 0.3s ease;
@@ -39,7 +39,7 @@
 
 /* Modal Header */
 .modal-header {
-    padding: 20px 24px;
+    padding: 16px 20px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;
     justify-content: space-between;
@@ -51,14 +51,14 @@
 .modal-header h2 {
     margin: 0;
     color: #2c3e50;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
 }
 
 .modal-close {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 20px;
     color: #666;
     cursor: pointer;
     padding: 4px;
@@ -72,32 +72,32 @@
 
 /* Modal Body */
 .modal-body {
-    padding: 24px;
+    padding: 20px;
 }
 
 /* Modal Form */
 .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 12px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #2c3e50;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 input[type="text"],
@@ -106,10 +106,10 @@ input[type="number"],
 select,
 textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -123,27 +123,27 @@ textarea:focus {
 
 textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 80px;
 }
 
 /* Form Actions */
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
-    margin-top: 24px;
+    gap: 10px;
+    margin-top: 20px;
     padding-top: 16px;
     border-top: 1px solid #e0e0e0;
 }
 
 .btn {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 4px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .btn-primary {
@@ -169,18 +169,20 @@ textarea {
     .modal-container {
         width: 95%;
         margin: 10px;
+        max-width: 450px;
     }
 
     .form-row {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .modal-header {
-        padding: 16px 20px;
+        padding: 14px 16px;
     }
 
     .modal-body {
-        padding: 20px;
+        padding: 16px;
     }
 
     .form-actions {

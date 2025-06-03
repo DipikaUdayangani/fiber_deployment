@@ -155,25 +155,26 @@ document.addEventListener('DOMContentLoaded', function() {
          addTaskForm.addEventListener('submit', function(e) {
              e.preventDefault();
              const formData = new FormData(this);
+             
+             // Get the selected task name from the dropdown
+             const taskNameSelect = document.getElementById('task_name');
+             const selectedTaskName = taskNameSelect.value;
+             
              // Simulate adding task (replace with actual backend call)
              const newTask = {
                  id: Date.now(), // Simple unique ID
-                 name: formData.get('task_name'),
-                 project: formData.get('project_name'), // This will be project name, not full object
-                 // Find the full project details based on selected name if needed
-                 assigned_to: formData.get('assigned_to'), // This will be employee ID
-                 // Find the full employee details based on selected ID if needed
+                 name: selectedTaskName,
+                 project: formData.get('project_name'),
+                 assigned_to: formData.get('assigned_to'),
                  workgroup: formData.get('workgroup'),
                  rtom: formData.get('rtom'),
                  deadline: formData.get('deadline'),
-                 attachment: formData.get('attachment') ? formData.get('attachment').name : 'N/A', // Dummy attachment name
+                 attachment: formData.get('attachment') ? formData.get('attachment').name : 'N/A',
                  status: 'Pending' // Default status for new tasks
-                 // Conditions are part of the task logic, not necessarily displayed in the table
-                 // conditions: [] // Add conditions structure if needed for display
              };
 
-             // Basic validation (add more as needed)
-             if (!newTask.name || !newTask.project || !newTask.assigned_to || !newTask.workgroup || !newTask.rtom || !newTask.deadline || newTask.attachment === 'N/A') {
+             // Basic validation
+             if (!selectedTaskName || !newTask.project || !newTask.assigned_to || !newTask.workgroup || !newTask.rtom || !newTask.deadline || newTask.attachment === 'N/A') {
                  alert('Please fill in all required fields and attach a PDF.');
                  return;
              }

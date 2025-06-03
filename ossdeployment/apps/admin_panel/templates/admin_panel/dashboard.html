@@ -105,6 +105,11 @@
                      <input type="file" id="project_attachment" name="project_attachment" accept=".pdf, image/*, .doc, .docx">
                 </div>
 
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" name="projectDescription" rows="4"></textarea>
+                </div>
+
                 <div class="form-row" style="margin-top: 1.5rem;">
                     <button type="submit" class="save-btn">Save Project</button>
                     <button type="button" class="cancel-btn" id="cancelAddProjectBtn">Cancel</button> {# Added ID for JS handler #}
@@ -183,7 +188,20 @@
             <form id="addTaskForm" autocomplete="off">
                 <div class="form-row">
                     <label for="task_name">Task Name <span class="required">*</span></label>
-                    <input type="text" id="task_name" name="task_name" required>
+                    <select id="task_name" name="task_name" required>
+                        <option value="">Select Task</option>
+                        <option value="SPECIFY DESIGN DETAILS">SPECIFY DESIGN DETAILS</option>
+                        <option value="APPROVE PE">APPROVE PE</option>
+                        <option value="SURVEY FIBER ROUTE">SURVEY FIBER ROUTE</option>
+                        <option value="ASSIGN WORK">ASSIGN WORK</option>
+                        <option value="DRAW FIBER">DRAW FIBER</option>
+                        <option value="SPLICE & TERMINATE">SPLICE & TERMINATE</option>
+                        <option value="UPLOAD FIBER_IN_OSS">UPLOAD FIBER_IN_OSS</option>
+                        <option value="CONDUCT FIBER_PAT">CONDUCT FIBER_PAT</option>
+                        <option value="UPLOAD DRAWING">UPLOAD DRAWING</option>
+                        <option value="UPDATE MASTER DWG">UPDATE MASTER DWG</option>
+                        <option value="CLOSE EVENT">CLOSE EVENT</option>
+                    </select>
                 </div>
 
                  <div class="form-row">

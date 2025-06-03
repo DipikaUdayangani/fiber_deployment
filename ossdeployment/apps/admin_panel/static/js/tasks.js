@@ -53,11 +53,11 @@ function closeModal(modalId) {
 
 // Dummy task data
 let tasks = [
-    { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
-    { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
-    { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
-    { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
-    { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
+    { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', project: 'Colombo Fiber Network Expansion', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
+    { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', project: 'Kandy Metro Fiber Project', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
+    { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', project: 'Galle Coastal Network Upgrade', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
+    { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', project: 'Jaffna Northern Network', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
+    { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', project: 'Kandy Metro Fiber Project', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
 ];
 
 // Dummy data for dropdowns (replace with actual data fetched from backend)
@@ -67,6 +67,19 @@ const assignedToList = [
     'Mike Wilson',
     'User 4',
     'User 5',
+];
+
+const projectsList = [
+    'Colombo Fiber Network Expansion',
+    'Kandy Metro Fiber Project',
+    'Galle Coastal Network Upgrade',
+    'Jaffna Northern Network',
+    'Matara Southern Expansion',
+    'Kurunegala Central Network',
+    'Anuradhapura Heritage City Project',
+    'Trincomalee Port Network',
+    'Ratnapura Gem City Network',
+    'Badulla Uva Region Project'
 ];
 
 const workgroupsList = [
@@ -99,7 +112,7 @@ function renderTasksTable(tasksToRender = tasks) {
     tbody.innerHTML = ''; // Clear existing rows
 
     if (tasksToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No tasks found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No tasks found.</td></tr>';
         return;
     }
     
@@ -109,6 +122,7 @@ function renderTasksTable(tasksToRender = tasks) {
             <td>${task.id}</td>
             <td>${task.name}</td>
             <td>${task.assigned_to || 'Not Assigned'}</td>
+            <td>${task.project || 'N/A'}</td>
             <td>${task.workgroup || 'N/A'}</td>
             <td>${task.rtom || 'N/A'}</td>
             <td>${task.deadline || 'N/A'}</td>
@@ -166,11 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // State
     let tasks = [
-        { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
-        { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
-        { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
-        { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
-        { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
+        { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', project: 'Colombo Fiber Network Expansion', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
+        { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', project: 'Kandy Metro Fiber Project', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
+        { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', project: 'Galle Coastal Network Upgrade', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
+        { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', project: 'Jaffna Northern Network', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
+        { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', project: 'Kandy Metro Fiber Project', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
     ];
 
     const assignedToList = [
@@ -179,6 +193,19 @@ document.addEventListener('DOMContentLoaded', function() {
         'Mike Wilson',
         'User 4',
         'User 5',
+    ];
+
+    const projectsList = [
+        'Colombo Fiber Network Expansion',
+        'Kandy Metro Fiber Project',
+        'Galle Coastal Network Upgrade',
+        'Jaffna Northern Network',
+        'Matara Southern Expansion',
+        'Kurunegala Central Network',
+        'Anuradhapura Heritage City Project',
+        'Trincomalee Port Network',
+        'Ratnapura Gem City Network',
+        'Badulla Uva Region Project'
     ];
 
     const workgroupsList = [
@@ -258,22 +285,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to populate dropdowns
     function populateDropdowns() {
         populateDropdown('assignedTo', assignedToList);
+        populateDropdown('taskProject', projectsList);
         populateDropdown('taskWorkgroup', workgroupsList);
         populateDropdown('taskRtom', rtomsList);
-    }
-
-    function populateDropdown(selectElementId, optionsList) {
-        const selectElement = document.getElementById(selectElementId);
-        if (!selectElement) return;
-
-        selectElement.innerHTML = '<option value="">Select ' + selectElement.name.replace('task', '').replace(/([A-Z])/g, ' $1').trim() + '</option>';
-
-        optionsList.forEach(optionValue => {
-            const option = document.createElement('option');
-            option.value = optionValue;
-            option.textContent = optionValue;
-            selectElement.appendChild(option);
-        });
+        
+        // Also populate edit form dropdowns
+        populateDropdown('editAssignedTo', assignedToList);
+        populateDropdown('editTaskProject', projectsList);
+        populateDropdown('editTaskWorkgroup', workgroupsList);
+        populateDropdown('editTaskRtom', rtomsList);
     }
 
     // Handle form submission
@@ -283,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = {
             name: document.getElementById('taskName').value.trim(),
             assigned_to: document.getElementById('assignedTo').value,
+            project: document.getElementById('taskProject').value,
             workgroup: document.getElementById('taskWorkgroup').value,
             rtom: document.getElementById('taskRtom').value,
             deadline: document.getElementById('taskDeadline').value,
@@ -291,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Validate required fields
-        if (!formData.name || !formData.assigned_to || !formData.workgroup || !formData.rtom || !formData.deadline) {
+        if (!formData.name || !formData.assigned_to || !formData.project || !formData.workgroup || !formData.rtom || !formData.deadline) {
             showNotification('Please fill in all required fields', 'error');
             return;
         }
@@ -319,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = {
             name: document.getElementById('editTaskName').value.trim(),
             assigned_to: document.getElementById('editAssignedTo').value,
+            project: document.getElementById('editTaskProject').value,
             workgroup: document.getElementById('editTaskWorkgroup').value,
             rtom: document.getElementById('editTaskRtom').value,
             deadline: document.getElementById('editTaskDeadline').value,
@@ -326,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Validate required fields
-        if (!formData.name || !formData.assigned_to || !formData.workgroup || !formData.rtom || !formData.deadline) {
+        if (!formData.name || !formData.assigned_to || !formData.project || !formData.workgroup || !formData.rtom || !formData.deadline) {
             showNotification('Please fill in all required fields', 'error');
             return;
         }
@@ -357,6 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editTaskId').value = taskToEdit.id;
             document.getElementById('editTaskName').value = taskToEdit.name;
             document.getElementById('editAssignedTo').value = taskToEdit.assigned_to;
+            document.getElementById('editTaskProject').value = taskToEdit.project;
             document.getElementById('editTaskWorkgroup').value = taskToEdit.workgroup;
             document.getElementById('editTaskRtom').value = taskToEdit.rtom;
             document.getElementById('editTaskDeadline').value = taskToEdit.deadline;
@@ -382,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tasksTableBody.innerHTML = '';
 
         if (tasksToRender.length === 0) {
-            tasksTableBody.innerHTML = '<tr><td colspan="9" class="text-center">No tasks found.</td></tr>';
+            tasksTableBody.innerHTML = '<tr><td colspan="10" class="text-center">No tasks found.</td></tr>';
             return;
         }
 
@@ -392,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${task.id}</td>
                 <td>${task.name || 'N/A'}</td>
                 <td>${task.assigned_to || 'N/A'}</td>
+                <td>${task.project || 'N/A'}</td>
                 <td>${task.workgroup || 'N/A'}</td>
                 <td>${task.rtom || 'N/A'}</td>
                 <td>${task.deadline || 'N/A'}</td>
@@ -435,6 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const filteredTasks = tasks.filter(task => 
             task.name.toLowerCase().includes(term) ||
             task.assigned_to.toLowerCase().includes(term) ||
+            task.project.toLowerCase().includes(term) ||
             task.workgroup.toLowerCase().includes(term) ||
             task.rtom.toLowerCase().includes(term) ||
             task.id.toLowerCase().includes(term)
@@ -494,3 +519,64 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('totalUsersCard').querySelector('.stat-value').textContent = '25'; // Example
     document.getElementById('activeTasksCard').querySelector('.stat-value').textContent = tasks.filter(task => task.status === 'Pending' || task.status === 'In Progress').length; // Example
 }); 
+
+// Update the edit modal HTML as well
+document.getElementById('editTaskModal').querySelector('.modal-body').innerHTML = `
+    <form id="editTaskForm" class="modal-form">
+        <input type="hidden" id="editTaskId" name="taskId">
+        <div class="form-group">
+            <label for="editTaskName">Task Name <span class="required">*</span></label>
+            <select id="editTaskName" name="taskName" required>
+                <option value="">Select Task</option>
+                <option value="SPECIFY DESIGN DETAILS">SPECIFY DESIGN DETAILS</option>
+                <option value="APPROVE PE">APPROVE PE</option>
+                <option value="SURVEY FIBER ROUTE">SURVEY FIBER ROUTE</option>
+                <option value="ASSIGN WORK">ASSIGN WORK</option>
+                <option value="DRAW FIBER">DRAW FIBER</option>
+                <option value="SPLICE & TERMINATE">SPLICE & TERMINATE</option>
+                <option value="UPLOAD FIBER_IN_OSS">UPLOAD FIBER_IN_OSS</option>
+                <option value="CONDUCT FIBER_PAT">CONDUCT FIBER_PAT</option>
+                <option value="UPLOAD DRAWING">UPLOAD DRAWING</option>
+                <option value="UPDATE MASTER DWG">UPDATE MASTER DWG</option>
+                <option value="CLOSE EVENT">CLOSE EVENT</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="editAssignedTo">Assign To <span class="required">*</span></label>
+            <select id="editAssignedTo" name="assignedTo" required>
+                <option value="">Select Employee</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="editTaskProject">Project <span class="required">*</span></label>
+            <select id="editTaskProject" name="taskProject" required>
+                <option value="">Select Project</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="editTaskWorkgroup">Workgroup <span class="required">*</span></label>
+            <select id="editTaskWorkgroup" name="taskWorkgroup" required>
+                <option value="">Select Workgroup</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="editTaskRtom">RTOM <span class="required">*</span></label>
+            <select id="editTaskRtom" name="taskRtom" required>
+                <option value="">Select RTOM</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="editTaskDeadline">Deadline <span class="required">*</span></label>
+            <input type="date" id="editTaskDeadline" name="taskDeadline" required>
+        </div>
+        <div class="form-group">
+            <label for="editTaskAttachment">Attachment (PDF/Other)</label>
+            <input type="file" id="editTaskAttachment" name="taskAttachment" accept=".pdf, image/*, .doc, .docx">
+            <small>Maximum file size: 5MB</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        </div>
+    </form>
+`; 

@@ -311,3 +311,101 @@ function createProject(projectData) {
         }
     });
 }
+
+// Function to update project count
+async function updateProjectCount() {
+    try {
+        const response = await fetch('/admin/api/projects/count/');
+        const data = await response.json();
+        if (data.error) {
+            console.error('Error fetching project count:', data.error);
+            return;
+        }
+        document.querySelector('#totalProjectsCard .stat-value').textContent = data.count;
+    } catch (error) {
+        console.error('Error updating project count:', error);
+    }
+}
+
+// Function to create new project
+async function createProject(formData) {
+    try {
+        const response = await fetch('/admin/api/projects/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        // Update project count
+        await updateProjectCount();
+        
+        // Show success message
+        showNotification('Project created successfully', 'success');
+        
+        // Close modal
+        closeModal('projectModal');
+        
+        return data.project;
+    } catch (error) {
+        console.error('Error creating project:', error);
+        showNotification(error.message || 'Error creating project', 'error');
+        throw error;
+    }
+}
+
+// Function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Update project form submission handler
+document.addEventListener('DOMContentLoaded', function() {
+    const projectForm = document.getElementById('projectForm');
+    if (projectForm) {
+        projectForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                project_name: document.getElementById('projectName').value.trim(),
+                project_no: document.getElementById('projectNo').value.trim(),
+                slt_ref_no: document.getElementById('sltRefNo').value.trim(),
+                pe_no: document.getElementById('peNo').value.trim(),
+                contract_no: document.getElementById('contractNo').value.trim(),
+                invoice: document.getElementById('invoice').value.trim(),
+                starting_date: document.getElementById('startingDate').value,
+                description: document.getElementById('description').value.trim()
+            };
+
+            try {
+                await createProject(formData);
+                // Reset form
+                projectForm.reset();
+            } catch (error) {
+                // Error is already handled in createProject
+                console.error('Project creation failed:', error);
+            }
+        });
+    }
+
+    // Initial project count update
+    updateProjectCount();
+});

@@ -8,6 +8,7 @@ from django.utils import timezone
 from .models import User, Task, Project, TaskAssignment, RTOM, Workgroup  # Added Workgroup
 import json
 import logging
+from django.core.exceptions import ValidationError
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -23,9 +24,6 @@ def dashboard_view(request):
     
     context = {
         'total_projects': Project.objects.count(),
-        'active_projects': Project.objects.filter(status='ACTIVE').count(),
-        'completed_projects': Project.objects.filter(status='COMPLETED').count(),
-        'on_hold_projects': Project.objects.filter(status='ON_HOLD').count(),
         'total_users': User.objects.count(),
         'online_users': User.objects.filter(last_login__gte=active_threshold).count(),
         'active_today': User.objects.filter(last_login__date=current_time.date()).count(),
@@ -182,148 +180,145 @@ def projects_view(request):
         'rtoms': rtoms
     })
 
-@login_required
 @require_http_methods(["GET"])
 def get_projects(request):
     try:
-        logger.info("Fetching all projects")
-        projects = Project.objects.select_related('rtom').all()
-        logger.info(f"Found {projects.count()} projects")
-        
-        projects_data = []
-        for project in projects:
-            try:
-                # Handle potential None values and type conversions
-                budget = None
-                if project.budget is not None:
-                    try:
-                        budget = float(project.budget)
-                    except (TypeError, ValueError):
-                        logger.warning(f"Could not convert budget to float for project {project.id}")
-                
-                project_dict = {
-                    'id': project.id,
-                    'name': project.name or '',
-                    'location': project.location or '',
-                    'startDate': project.start_date.isoformat() if project.start_date else None,
-                    'endDate': project.end_date.isoformat() if project.end_date else None,
-                    'status': project.status or 'Active',
-                    'budget': budget,
-                    'description': project.description or '',
-                    'progress': project.progress or 0,
-                    'rtom': {
-                        'id': project.rtom.id,
-                        'name': project.rtom.name,
-                        'code': project.rtom.code
-                    } if project.rtom else None
-                }
-                projects_data.append(project_dict)
-            except Exception as e:
-                logger.error(f"Error processing project {project.id}: {str(e)}", exc_info=True)
-                continue
-        
-        logger.info("Successfully processed all projects")
-        return JsonResponse(projects_data, safe=False)
+        projects = Project.objects.all().values(
+            'id', 'project_name', 'project_no', 'slt_ref_no', 
+            'pe_no', 'contract_no', 'invoice', 'starting_date',
+            'description'
+        )
+        projects_list = list(projects)
+        for project in projects_list:
+            # Convert date to string format
+            if project['starting_date']:
+                project['starting_date'] = project['starting_date'].strftime('%Y-%m-%d')
+            # Add default values for frontend
+            project['status'] = 'Active'  # Default status
+            project['budget'] = 0  # Default budget
+            
+        print("Projects data being sent:", projects_list)  # Debug log
+        return JsonResponse({'projects': projects_list})
     except Exception as e:
-        logger.error(f"Error in get_projects: {str(e)}", exc_info=True)
-        return JsonResponse({
-            'error': str(e),
-            'detail': 'An error occurred while fetching projects. Please check the server logs for more details.'
-        }, status=500)
+        print("Error in get_projects:", str(e))  # Debug log
+        return JsonResponse({'error': str(e)}, status=500)
 
-@login_required
 @require_http_methods(["POST"])
 def create_project(request):
     try:
         data = json.loads(request.body)
-        logger.info(f"Creating new project with data: {data}")
         
-        # Validate required fields
-        required_fields = ['name', 'location', 'rtom']
-        missing_fields = [field for field in required_fields if not data.get(field)]
-        if missing_fields:
-            return JsonResponse({
-                'error': f'Missing required fields: {", ".join(missing_fields)}'
-            }, status=400)
-        
-        # Validate RTOM exists
-        try:
-            rtom = RTOM.objects.get(id=data['rtom'])
-        except RTOM.DoesNotExist:
-            return JsonResponse({
-                'error': f'RTOM with id {data["rtom"]} does not exist'
-            }, status=400)
-        
-        project = Project.objects.create(
-            name=data['name'],
-            location=data['location'],
-            rtom=rtom,
-            start_date=data.get('startDate'),
-            end_date=data.get('endDate'),
-            status=data.get('status', 'Active'),
-            budget=data.get('budget'),
-            description=data.get('description', '')
+        # Create new project
+        project = Project(
+            project_name=data['project_name'],
+            project_no=data['project_no'],
+            slt_ref_no=data['slt_ref_no'],
+            pe_no=data.get('pe_no'),
+            contract_no=data['contract_no'],
+            invoice=data.get('invoice'),
+            starting_date=data['starting_date'],
+            description=data.get('description')
         )
         
-        logger.info(f"Successfully created project {project.id}")
+        # Handle file upload if present
+        if 'attachment' in request.FILES:
+            project.attachment = request.FILES['attachment']
+        
+        project.save()
+        
         return JsonResponse({
-            'id': project.id,
-            'name': project.name,
-            'location': project.location,
-            'startDate': project.start_date.isoformat() if project.start_date else None,
-            'endDate': project.end_date.isoformat() if project.end_date else None,
-            'status': project.status,
-            'budget': float(project.budget) if project.budget else None,
-            'description': project.description,
-            'progress': project.progress,
-            'rtom': {
-                'id': project.rtom.id,
-                'name': project.rtom.name,
-                'code': project.rtom.code
+            'message': 'Project created successfully',
+            'project': {
+                'id': project.id,
+                'project_name': project.project_name,
+                'project_no': project.project_no,
+                'slt_ref_no': project.slt_ref_no,
+                'pe_no': project.pe_no,
+                'contract_no': project.contract_no,
+                'invoice': project.invoice,
+                'starting_date': project.starting_date.strftime('%Y-%m-%d'),
+                'description': project.description
             }
         })
-    except json.JSONDecodeError:
-        logger.error("Invalid JSON data received")
-        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
-    except Exception as e:
-        logger.error(f"Error creating project: {str(e)}", exc_info=True)
+    except ValidationError as e:
         return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
-@login_required
+@require_http_methods(["GET"])
+def get_project_count(request):
+    try:
+        count = Project.objects.count()
+        return JsonResponse({'count': count})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def get_project_details(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        return JsonResponse({
+            'project': {
+                'id': project.id,
+                'project_name': project.project_name,
+                'project_no': project.project_no,
+                'slt_ref_no': project.slt_ref_no,
+                'pe_no': project.pe_no,
+                'contract_no': project.contract_no,
+                'invoice': project.invoice,
+                'starting_date': project.starting_date.strftime('%Y-%m-%d'),
+                'description': project.description,
+                'attachment_url': project.attachment.url if project.attachment else None
+            }
+        })
+    except Project.DoesNotExist:
+        return JsonResponse({'error': 'Project not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 @require_http_methods(["PUT"])
 def update_project(request, project_id):
     try:
         project = Project.objects.get(id=project_id)
         data = json.loads(request.body)
         
-        project.name = data['name']
-        project.location = data['location']
-        project.start_date = data.get('startDate')
-        project.end_date = data.get('endDate')
-        project.status = data['status']
-        project.budget = data.get('budget')
-        project.description = data.get('description', '')
-        if 'rtom' in data:
-            project.rtom_id = data['rtom']
+        # Update project fields
+        project.project_name = data['project_name']
+        project.project_no = data['project_no']
+        project.slt_ref_no = data['slt_ref_no']
+        project.pe_no = data.get('pe_no')
+        project.contract_no = data['contract_no']
+        project.invoice = data.get('invoice')
+        project.starting_date = data['starting_date']
+        project.description = data.get('description')
+        
+        # Handle file upload if present
+        if 'attachment' in request.FILES:
+            project.attachment = request.FILES['attachment']
         
         project.save()
+        
         return JsonResponse({
-            'id': project.id,
-            'name': project.name,
-            'location': project.location,
-            'startDate': project.start_date.isoformat() if project.start_date else None,
-            'endDate': project.end_date.isoformat() if project.end_date else None,
-            'status': project.status,
-            'budget': float(project.budget) if project.budget else None,
-            'description': project.description,
-            'progress': project.progress
+            'message': 'Project updated successfully',
+            'project': {
+                'id': project.id,
+                'project_name': project.project_name,
+                'project_no': project.project_no,
+                'slt_ref_no': project.slt_ref_no,
+                'pe_no': project.pe_no,
+                'contract_no': project.contract_no,
+                'invoice': project.invoice,
+                'starting_date': project.starting_date.strftime('%Y-%m-%d'),
+                'description': project.description
+            }
         })
     except Project.DoesNotExist:
         return JsonResponse({'error': 'Project not found'}, status=404)
-    except Exception as e:
+    except ValidationError as e:
         return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
-@login_required
 @require_http_methods(["DELETE"])
 def delete_project(request, project_id):
     try:
@@ -333,4 +328,4 @@ def delete_project(request, project_id):
     except Project.DoesNotExist:
         return JsonResponse({'error': 'Project not found'}, status=404)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'error': str(e)}, status=500)

@@ -26,9 +26,26 @@ class TaskAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rtom', 'status', 'created_at')
-    list_filter = ('rtom', 'status')
-    search_fields = ('name',)
+    list_display = ('project_name', 'project_no', 'slt_ref_no', 'contract_no', 'starting_date')
+    list_filter = ('starting_date',)
+    search_fields = ('project_name', 'project_no', 'slt_ref_no', 'contract_no')
+    ordering = ('-created_at',)
+    readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('project_name', 'project_no', 'slt_ref_no', 'pe_no', 'contract_no', 'invoice')
+        }),
+        ('Dates', {
+            'fields': ('starting_date',)
+        }),
+        ('Additional Information', {
+            'fields': ('description', 'attachment')
+        }),
+        ('System Information', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 @admin.register(TaskAssignment)
 class TaskAssignmentAdmin(admin.ModelAdmin):

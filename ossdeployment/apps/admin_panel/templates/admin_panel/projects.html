@@ -82,42 +82,43 @@
         </div>
         <div class="modal-body">
             <form id="projectForm" class="modal-form">
+                {% csrf_token %}
                 <div class="form-group">
-                    <label for="projectName">Project Name <span class="required">*</span></label>
-                    <input type="text" id="projectName" name="projectName" required>
+                    <label for="project_name">Project Name <span class="required">*</span></label>
+                    <input type="text" id="project_name" name="project_name" required>
                 </div>
                 <div class="form-group">
-                    <label for="projectNo">Project No <span class="required">*</span></label>
-                    <input type="text" id="projectNo" name="projectNo" required>
+                    <label for="project_no">Project No <span class="required">*</span></label>
+                    <input type="text" id="project_no" name="project_no" required>
                 </div>
                 <div class="form-group">
-                    <label for="sltRefNo">SLT Ref No <span class="required">*</span></label>
-                    <input type="text" id="sltRefNo" name="sltRefNo" required>
+                    <label for="slt_ref_no">SLT Ref No <span class="required">*</span></label>
+                    <input type="text" id="slt_ref_no" name="slt_ref_no" required>
                 </div>
                 <div class="form-group">
-                    <label for="peNo">PE No</label>
-                    <input type="text" id="peNo" name="peNo">
+                    <label for="pe_no">PE No</label>
+                    <input type="text" id="pe_no" name="pe_no">
                 </div>
                 <div class="form-group">
-                    <label for="contractNo">Contract No <span class="required">*</span></label>
-                    <input type="text" id="contractNo" name="contractNo" required>
+                    <label for="contract_no">Contract No <span class="required">*</span></label>
+                    <input type="text" id="contract_no" name="contract_no" required>
                 </div>
                 <div class="form-group">
                     <label for="invoice">Invoice</label>
                     <input type="text" id="invoice" name="invoice">
                 </div>
                 <div class="form-group">
-                    <label for="startDate">Starting Date <span class="required">*</span></label>
-                    <input type="date" id="startDate" name="startDate" required>
+                    <label for="starting_date">Starting Date <span class="required">*</span></label>
+                    <input type="date" id="starting_date" name="starting_date" required>
                 </div>
                 <div class="form-group">
-                    <label for="projectAttachment">Attachment</label>
-                    <input type="file" id="projectAttachment" name="projectAttachment" accept=".pdf, image/*, .doc, .docx">
+                    <label for="project_attachment">Attachment</label>
+                    <input type="file" id="project_attachment" name="project_attachment" accept=".pdf, image/*, .doc, .docx">
                     <small>Maximum file size: 5MB</small>
                 </div>
                 <div class="form-group">
-                    <label for="projectDescription">Description</label>
-                    <textarea id="projectDescription" name="projectDescription" rows="4"></textarea>
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Save Project</button>

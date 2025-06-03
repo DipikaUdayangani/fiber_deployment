@@ -71,29 +71,25 @@ class Task(models.Model):
         return self.name
 
 class Project(models.Model):
-    STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('On Hold', 'On Hold'),
-        ('Completed', 'Completed')
-    ]
-
-    name = models.CharField(max_length=200)
-    location = models.CharField(max_length=200, null=True, blank=True)
-    rtom = models.ForeignKey(RTOM, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    budget = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
-    description = models.TextField(blank=True)
-    progress = models.IntegerField(default=0)  # Percentage of completion
+    project_name = models.CharField(max_length=200, blank=True, null=True)
+    project_no = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    slt_ref_no = models.CharField(max_length=50, blank=True, null=True)
+    pe_no = models.CharField(max_length=50, blank=True, null=True)
+    contract_no = models.CharField(max_length=50, blank=True, null=True)
+    invoice = models.CharField(max_length=50, blank=True, null=True)
+    starting_date = models.DateField(null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
+    attachment = models.FileField(upload_to='project_attachments/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.project_name} ({self.project_no})"
 
     class Meta:
         ordering = ['-created_at']
+        verbose_name = 'Project'
+        verbose_name_plural = 'Projects'
 
 class TaskAssignment(models.Model):
     STATUS_CHOICES = [

@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/manage_users.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -42,59 +43,53 @@
 </div>
 
 {# Add/Edit User Modal #}
-<div id="userModal" class="custom-modal">
-    <div class="modal-content">
-        <div class="modal-header-flex">
+<div id="userModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
             <h2 id="modalTitle">Add New User</h2>
-            <span class="close-btn">&times;</span>
+            <button type="button" class="modal-close">&times;</button>
         </div>
-        <form id="userForm">
-            <input type="hidden" id="userId" name="id">
-            <div class="form-row">
-                <label for="employeeName">Employee Name <span class="required">*</span></label>
-                <input type="text" id="employeeName" name="employeeName" required>
-            </div>
-            <div class="form-row">
-                <label for="employeeId">Employee ID <span class="required">*</span></label>
-                <input type="text" id="employeeId" name="employeeId" required>
-            </div>
-            <div class="form-row">
-                <label for="userEmail">Email <span class="required">*</span></label>
-                <input type="email" id="userEmail" name="userEmail" required>
-            </div>
-            <div class="form-row">
-                <label for="userWorkgroup">Workgroup <span class="required">*</span></label>
-                <select id="userWorkgroup" name="userWorkgroup" required>
-                    <option value="">Select Workgroup</option>
-                    {# Options will be populated by JavaScript #}
-                </select>
-            </div>
-            <div class="form-row">
-                <label for="userRtom">RTOM <span class="required">*</span></label>
-                <select id="userRtom" name="userRtom" required>
-                    <option value="">Select RTOM</option>
-                    {# Options will be populated by JavaScript #}
-                </select>
-            </div>
-            {# Optional: Add Status field if needed in the modal form #}
-            {# <div class="form-row">
-                <label for="userStatus">Status <span class="required">*</span></label>
-                <select id="userStatus" name="userStatus" required>
-                    <option value="">Select Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                </select>
-            </div> #}
-
-            <div class="form-actions">
-                <button type="submit" class="save-btn">Save User</button>
-                <button type="button" class="cancel-btn" >Cancel</button>
-            </div>
-        </form>
+        <div class="modal-body">
+            <form id="userForm" class="modal-form">
+                <input type="hidden" id="userId" name="id">
+                <div class="form-group">
+                    <label for="employeeName">Employee Name <span class="required">*</span></label>
+                    <input type="text" id="employeeName" name="employeeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeId">Employee ID <span class="required">*</span></label>
+                    <input type="text" id="employeeId" name="employeeId" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email <span class="required">*</span></label>
+                    <input type="email" id="userEmail" name="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="userWorkgroup">Workgroup <span class="required">*</span></label>
+                    <select id="userWorkgroup" name="userWorkgroup" required>
+                        <option value="">Select Workgroup</option>
+                        {# Options will be populated by JavaScript #}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userRtom">RTOM <span class="required">*</span></label>
+                    <select id="userRtom" name="userRtom" required>
+                        <option value="">Select RTOM</option>
+                        {# Options will be populated by JavaScript #}
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save User</button>
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/manage_users.js' %}"></script>
+<script src="{% static 'js/manage_users.js' %}" defer></script>
+<script src="{% static 'js/modal.js' %}" defer></script>
 {% endblock %}

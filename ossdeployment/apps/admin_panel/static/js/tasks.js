@@ -116,13 +116,9 @@ function renderTasksTable(tasksToRender = tasks) {
                 ${task.attachment ? '<span class="attachment-icon"><i class="fas fa-file-alt"></i></span>' : 'N/A'}
             </td>
             <td><span class="status-badge status-${task.status.replace(/\s+/g, '-')}">${task.status}</span></td>
-            <td>
-                <button class="action-btn edit" data-index="${idx}" data-tooltip="Edit Task">
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="action-btn delete" data-index="${idx}" data-tooltip="Delete Task">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+            <td class="action-buttons">
+                <button class="edit-btn" data-id="${task.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" data-id="${task.id}" title="Delete"><i class="fas fa-trash"></i></button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -160,84 +156,93 @@ function populateDropdown(selectElementId, optionsList) {
 
 // Initialize everything when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initial render of all tasks and update counts
+    // DOM Elements
+    const taskForm = document.getElementById('taskForm');
+    const editTaskForm = document.getElementById('editTaskForm');
+    const openAddTaskModalBtn = document.getElementById('openAddTaskModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const editModalTitle = document.getElementById('editModalTitle');
+    const tasksTableBody = document.getElementById('tasksTableBody');
+
+    // State
+    let tasks = [
+        { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
+        { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
+        { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
+        { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
+        { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
+    ];
+
+    const assignedToList = [
+        'John Doe',
+        'Jane Smith',
+        'Mike Wilson',
+        'User 4',
+        'User 5',
+    ];
+
+    const workgroupsList = [
+        'NET-PLAN-TX',
+        'LEA-MNG-OPMC',
+        'NET-PLAN-ACC',
+        'NET-PROJ-ACC-CABLE',
+        'XXX-MNG-OPMC',
+        'XXX-ENG-NW',
+        'NET-PLAN-DRAWING',
+        'XXX-RTOM',
+        'ACCESS-PLAN',
+    ];
+
+    const rtomsList = [
+        'RTOM 1',
+        'RTOM 2',
+        'RTOM 3',
+        'RTOM 4',
+        'RTOM Colombo',
+        'RTOM Kandy',
+        'RTOM Galle',
+    ];
+
+    // Initialize
+    setupEventListeners();
     renderTasksTable();
     updateTabCounts();
 
-    // Add New Task button click handler
-    const openAddTaskModalBtn = document.getElementById('openAddTaskModalBtn');
+    // Event Listeners Setup
+    function setupEventListeners() {
+        // Add New Task button
     if (openAddTaskModalBtn) {
-        console.log('Found + New Task button. Attaching click listener.');
-        openAddTaskModalBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('+ New Task button clicked!');
-
-            // Reset and prepare the form
-            const form = document.getElementById('addTaskForm');
-            if (form) {
-                form.reset();
-                // Populate dropdowns
-                populateDropdown('assigned_to', assignedToList);
-                populateDropdown('task_workgroup', workgroupsList);
-                populateDropdown('task_rtom', rtomsList);
-            }
-
-            // Open the modal
-            openModal('addTaskModal');
+            openAddTaskModalBtn.addEventListener('click', () => {
+                modalTitle.textContent = 'Add New Task';
+                taskForm.reset();
+                populateDropdowns();
+                window.openProjectModal();
         });
     }
 
-    // Add Task form submission handler
-    const addTaskForm = document.getElementById('addTaskForm');
-    if (addTaskForm) {
-        addTaskForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-            e.stopPropagation();
-            console.log('Form submission intercepted');
-        
-            // Get form data
-        const formData = new FormData(this);
+        // Form submissions
+        if (taskForm) {
+            taskForm.addEventListener('submit', handleTaskFormSubmit);
+        }
 
-            // Basic validation
-            if (!formData.get('task_name') || !formData.get('assigned_to') || 
-                !formData.get('workgroup') || !formData.get('rtom') || 
-                !formData.get('deadline')) {
-                alert('Please fill in all required fields.');
-                return false;
-            }
+        if (editTaskForm) {
+            editTaskForm.addEventListener('submit', handleEditTaskFormSubmit);
+        }
 
-            // Create new task object
-            const newTask = {
-                id: 'TASK' + (tasks.length + 1).toString().padStart(3, '0'),
-                name: formData.get('task_name'),
-                assigned_to: formData.get('assigned_to'),
-                workgroup: formData.get('workgroup'),
-                rtom: formData.get('rtom'),
-                deadline: formData.get('deadline'),
-                attachment: formData.get('attachment') && formData.get('attachment').name ? true : false,
-                status: 'Pending'
-            };
-
-            // Add the new task
-            tasks.push(newTask);
-
-            // Update UI
-            renderTasksTable();
-            updateTabCounts();
-
-            // Close modal and show success message
-            closeModal('addTaskModal');
-            alert('New task added successfully!');
+        // Search functionality
+        const searchInput = document.getElementById('taskSearchInput');
+        const searchBtn = document.getElementById('taskSearchBtn');
+        if (searchInput && searchBtn) {
+            searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearch(searchInput.value);
         });
     }
 
-    // Tab switching logic
+        // Tab switching
     document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
-        tab.onclick = function() {
-            // Remove active class from all tabs
+            tab.addEventListener('click', function() {
             document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
-            // Add active class to clicked tab
             this.classList.add('active');
 
             const status = this.getAttribute('data-status');
@@ -246,33 +251,203 @@ document.addEventListener('DOMContentLoaded', function() {
                 filteredTasks = tasks.filter(task => task.status === status);
             }
             renderTasksTable(filteredTasks);
+            });
+    });
+    }
+
+    // Function to populate dropdowns
+    function populateDropdowns() {
+        populateDropdown('assignedTo', assignedToList);
+        populateDropdown('taskWorkgroup', workgroupsList);
+        populateDropdown('taskRtom', rtomsList);
+    }
+
+    function populateDropdown(selectElementId, optionsList) {
+        const selectElement = document.getElementById(selectElementId);
+        if (!selectElement) return;
+
+        selectElement.innerHTML = '<option value="">Select ' + selectElement.name.replace('task', '').replace(/([A-Z])/g, ' $1').trim() + '</option>';
+
+        optionsList.forEach(optionValue => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue;
+            selectElement.appendChild(option);
+        });
+    }
+
+    // Handle form submission
+    async function handleTaskFormSubmit(e) {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('taskName').value.trim(),
+            assigned_to: document.getElementById('assignedTo').value,
+            workgroup: document.getElementById('taskWorkgroup').value,
+            rtom: document.getElementById('taskRtom').value,
+            deadline: document.getElementById('taskDeadline').value,
+            attachment: document.getElementById('taskAttachment').files.length > 0,
+            status: 'Pending'
         };
-    });
 
-     // Add event listeners for Edit and Delete buttons (using event delegation)
-    document.getElementById('tasksTableBody').addEventListener('click', function(e) {
-        const target = e.target.closest('.action-btn');
-        if (!target) return;
-
-        const index = target.getAttribute('data-index');
-        const task = tasks[index];
-
-        if (target.classList.contains('edit')) {
-            // Handle Edit - Open modal and populate form
-            console.log('Edit task:', task);
-            // Implement opening and populating edit modal here later
-             alert('Edit functionality coming soon for Task ID: ' + task.id);
-
-        } else if (target.classList.contains('delete')) {
-            // Handle Delete
-            if (confirm(`Are you sure you want to delete task ${task.id}?`)) {
-                tasks.splice(index, 1);
-                renderTasksTable(); // Re-render table
-                updateTabCounts(); // Update counts after deletion
-                alert('Task deleted (demo only)!');
-            }
+        // Validate required fields
+        if (!formData.name || !formData.assigned_to || !formData.workgroup || !formData.rtom || !formData.deadline) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
         }
-    });
+
+        try {
+            // Create new task
+            formData.id = 'TASK' + (tasks.length + 1).toString().padStart(3, '0');
+            tasks.push(formData);
+
+            showNotification('Task created successfully', 'success');
+            window.closeProjectModal();
+            renderTasksTable();
+            updateTabCounts();
+        } catch (error) {
+            console.error('Error saving task:', error);
+            showNotification(error.message || 'Error saving task', 'error');
+        }
+    }
+
+    // Handle edit form submission
+    async function handleEditTaskFormSubmit(e) {
+        e.preventDefault();
+
+        const taskId = document.getElementById('editTaskId').value;
+        const formData = {
+            name: document.getElementById('editTaskName').value.trim(),
+            assigned_to: document.getElementById('editAssignedTo').value,
+            workgroup: document.getElementById('editTaskWorkgroup').value,
+            rtom: document.getElementById('editTaskRtom').value,
+            deadline: document.getElementById('editTaskDeadline').value,
+            attachment: document.getElementById('editTaskAttachment').files.length > 0
+        };
+
+        // Validate required fields
+        if (!formData.name || !formData.assigned_to || !formData.workgroup || !formData.rtom || !formData.deadline) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        try {
+            // Update existing task
+            const index = tasks.findIndex(t => t.id === taskId);
+            if (index !== -1) {
+                tasks[index] = { ...tasks[index], ...formData };
+            }
+
+            showNotification('Task updated successfully', 'success');
+            window.closeProjectModal();
+            renderTasksTable();
+        } catch (error) {
+            console.error('Error updating task:', error);
+            showNotification(error.message || 'Error updating task', 'error');
+        }
+    }
+
+    // Handle edit button click
+    function handleEditButtonClick(event) {
+        const taskId = event.currentTarget.dataset.id;
+        const taskToEdit = tasks.find(task => task.id === taskId);
+
+        if (taskToEdit) {
+            editModalTitle.textContent = 'Edit Task';
+            document.getElementById('editTaskId').value = taskToEdit.id;
+            document.getElementById('editTaskName').value = taskToEdit.name;
+            document.getElementById('editAssignedTo').value = taskToEdit.assigned_to;
+            document.getElementById('editTaskWorkgroup').value = taskToEdit.workgroup;
+            document.getElementById('editTaskRtom').value = taskToEdit.rtom;
+            document.getElementById('editTaskDeadline').value = taskToEdit.deadline;
+
+            populateDropdowns();
+            window.openProjectModal();
+        }
+    }
+
+    // Handle delete button click
+    function handleDeleteButtonClick(event) {
+        const taskId = event.currentTarget.dataset.id;
+        if (confirm('Are you sure you want to delete this task?')) {
+            tasks = tasks.filter(task => task.id !== taskId);
+            renderTasksTable();
+            updateTabCounts();
+            showNotification('Task deleted successfully', 'success');
+        }
+    }
+
+    // Render tasks table
+    function renderTasksTable(tasksToRender = tasks) {
+        tasksTableBody.innerHTML = '';
+
+        if (tasksToRender.length === 0) {
+            tasksTableBody.innerHTML = '<tr><td colspan="9" class="text-center">No tasks found.</td></tr>';
+            return;
+        }
+
+        tasksToRender.forEach(task => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${task.id}</td>
+                <td>${task.name || 'N/A'}</td>
+                <td>${task.assigned_to || 'N/A'}</td>
+                <td>${task.workgroup || 'N/A'}</td>
+                <td>${task.rtom || 'N/A'}</td>
+                <td>${task.deadline || 'N/A'}</td>
+                <td class="attachment-cell">
+                    ${task.attachment ? '<span class="attachment-icon"><i class="fas fa-file-alt"></i></span>' : 'N/A'}
+                </td>
+                <td><span class="status-badge status-${task.status.toLowerCase().replace(/\s+/g, '-')}">${task.status}</span></td>
+                <td class="action-buttons">
+                    <button class="edit-btn" data-id="${task.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="delete-btn" data-id="${task.id}" title="Delete"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tasksTableBody.appendChild(row);
+        });
+
+        // Add event listeners to buttons
+        tasksTableBody.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', handleEditButtonClick);
+        });
+        tasksTableBody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', handleDeleteButtonClick);
+        });
+    }
+
+    // Update tab counts
+    function updateTabCounts() {
+        document.getElementById('allTasksCount').textContent = tasks.length;
+        document.getElementById('pendingTasksCount').textContent = tasks.filter(task => task.status === 'Pending').length;
+        document.getElementById('inProgressTasksCount').textContent = tasks.filter(task => task.status === 'In Progress').length;
+        document.getElementById('completedTasksCount').textContent = tasks.filter(task => task.status === 'Completed').length;
+    }
+
+    // Search functionality
+    function performSearch(searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        if (!term) {
+            renderTasksTable();
+            return;
+        }
+
+        const filteredTasks = tasks.filter(task => 
+            task.name.toLowerCase().includes(term) ||
+            task.assigned_to.toLowerCase().includes(term) ||
+            task.workgroup.toLowerCase().includes(term) ||
+            task.rtom.toLowerCase().includes(term) ||
+            task.id.toLowerCase().includes(term)
+        );
+
+        renderTasksTable(filteredTasks);
+    }
+
+    // Utility function for notifications
+    function showNotification(message, type = 'info') {
+        console.log(`${type.toUpperCase()}: ${message}`);
+        // TODO: Implement proper notification system
+    }
 
     // Close button handlers for modals
     document.querySelectorAll('.custom-modal .close-btn').forEach(btn => {
@@ -313,27 +488,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
         });
     });
-
-    // Search functionality (basic filtering)
-    const taskSearchInput = document.getElementById('taskSearchInput');
-    if (taskSearchInput) {
-        taskSearchInput.oninput = function() {
-            const searchText = this.value.toLowerCase();
-            const activeTab = document.querySelector('.task-tabs .tab-link.active').getAttribute('data-status');
-
-            let tasksToSearch = tasks;
-            if (activeTab !== 'All') {
-                 tasksToSearch = tasks.filter(task => task.status === activeTab);
-            }
-
-            const filteredTasks = tasksToSearch.filter(task =>
-                Object.values(task).some(value =>
-                    value && value.toString().toLowerCase().includes(searchText)
-                )
-            );
-            renderTasksTable(filteredTasks);
-        };
-    }
 
     // Dummy data for stat cards (replace with actual counts later)
     // You would fetch total users and active tasks from your backend

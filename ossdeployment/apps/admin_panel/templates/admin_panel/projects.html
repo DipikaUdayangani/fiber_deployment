@@ -1,0 +1,142 @@
+{% extends "admin_panel/base.html" %}
+{% load static %}
+
+{% block title %}Project Management{% endblock %}
+{% block page_title %}Project Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/projects.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="projects-container">
+    <div class="projects-header">
+        <h1>Project Management</h1>
+        <div class="header-actions">
+            <div class="search-box">
+                <input type="text" id="projectSearchInput" placeholder="Search projects...">
+                <button id="projectSearchBtn"><i class="fas fa-search"></i></button>
+            </div>
+            <button class="add-btn" id="openAddProjectModalBtn">+ New Project</button>
+        </div>
+    </div>
+
+    <div class="project-stats-flex">
+        <!-- Active Projects Card -->
+        <div class="stat-card" id="activeProjectsCard">
+            <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+            <div class="stat-value">Loading...</div>
+            <div class="stat-label">Active Projects</div>
+        </div>
+
+        <!-- Completed Projects Card -->
+        <div class="stat-card" id="completedProjectsCard">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value">Loading...</div>
+            <div class="stat-label">Completed Projects</div>
+        </div>
+
+        <!-- Total Budget Card -->
+        <div class="stat-card" id="totalBudgetCard">
+            <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-value">Loading...</div>
+            <div class="stat-label">Total Budget</div>
+        </div>
+    </div>
+
+    <div class="project-tabs">
+        <button class="tab-link active" data-status="All">All Projects (<span id="allProjectsCount">0</span>)</button>
+        <button class="tab-link" data-status="Active">Active (<span id="activeProjectsCount">0</span>)</button>
+        <button class="tab-link" data-status="On Hold">On Hold (<span id="onHoldProjectsCount">0</span>)</button>
+        <button class="tab-link" data-status="Completed">Completed (<span id="completedProjectsCount">0</span>)</button>
+    </div>
+
+    <div class="projects-table-container">
+        <table class="projects-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Location</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Budget</th>
+                    <th>Progress</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="projectsTableBody">
+                {# Project data will be loaded here by JS #}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# Add/Edit Project Modal #}
+<div id="projectModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 id="projectModalTitle">Add New Project</h2>
+            <button type="button" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="projectForm" class="modal-form">
+                <div class="form-group">
+                    <label for="projectName">Project Name:</label>
+                    <input type="text" id="projectName" name="projectName" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectLocation">Location:</label>
+                    <input type="text" id="projectLocation" name="projectLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectRtom">RTOM:</label>
+                    <select id="projectRtom" name="projectRtom" required>
+                        <option value="">Select RTOM</option>
+                        {% for rtom in rtoms %}
+                        <option value="{{ rtom.id }}">{{ rtom.name }} ({{ rtom.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate" name="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate" name="endDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="projectStatus">Status:</label>
+                    <select id="projectStatus" name="projectStatus" required>
+                        <option value="Active">Active</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="projectBudget">Budget (LKR):</label>
+                    <input type="number" id="projectBudget" name="projectBudget" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description:</label>
+                    <textarea id="projectDescription" name="projectDescription" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Project</button>
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/projects.js' %}" defer></script>
+<script src="{% static 'js/modal.js' %}" defer></script>
+{% endblock %} 

@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/tasks.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -13,15 +14,15 @@
     <div class="task-management-header">
         <h1>Task Management</h1>
         <div class="header-actions">
-            <div class="search-box">
+            {% comment %} <div class="search-box">
                 <input type="text" id="taskSearchInput" placeholder="Search tasks...">
                 <button id="taskSearchBtn"><i class="fas fa-search"></i></button>
-            </div>
+            </div> {% endcomment %}
             <button class="add-btn" id="openAddTaskModalBtn">+ New Task</button>
         </div>
     </div>
 
-    <div class="task-stats-flex">
+    {% comment %} <div class="task-stats-flex">
         <!-- Total Users Card -->
         <div class="stat-card" id="totalUsersCard">
             <div class="stat-icon"><i class="fas fa-users"></i></div>
@@ -35,7 +36,7 @@
             <div class="stat-value">Loading...</div> {# Will be populated by JS #}
             <div class="stat-label">Active Tasks</div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
     <div class="task-tabs">
         <button class="tab-link active" data-status="All">All Tasks (<span id="allTasksCount">0</span>)</button>
@@ -66,76 +67,113 @@
     </div>
 
     <!-- Add Task Modal -->
-    <div id="addTaskModal" class="custom-modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header-flex">
-                <h2>Add New Task</h2>
-                <span class="close-btn" onclick="closeModal('addTaskModal')">&times;</span>
+    <div id="taskModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Task</h2>
+                <button type="button" class="modal-close">&times;</button>
             </div>
-            <form id="addTaskForm" autocomplete="off">
-                <div class="form-row">
-                    <label for="task_name">Task Name</label>
-                    <input type="text" id="task_name" name="task_name" required>
-                </div>
-                <div class="form-row">
-                    <label for="assigned_to">Assign To</label>
-                    <select id="assigned_to" name="assigned_to" required>
-                        <option value="">Select Employee</option>
-                         {# Options will be populated by JS #}
-                    </select>
-                </div>
-                 <div class="form-row">
-                    <label for="task_workgroup">Workgroup</label>
-                    <select id="task_workgroup" name="workgroup" required>
-                        <option value="">Select Workgroup</option>
-                         {# Options will be populated by JS #}
-                    </select>
-                </div>
-                 <div class="form-row">
-                    <label for="task_rtom">RTOM</label>
-                    <select id="task_rtom" name="rtom" required>
-                         <option value="">Select RTOM</option>
-                         {# Options will be populated by JS #}
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label for="task_deadline">Deadline</label>
-                    <input type="date" id="task_deadline" name="deadline" required>
-                </div>
-                <div class="form-row">
-                    <label for="task_attachment">Attachment (PDF/Other)</label>
-                    <input type="file" id="task_attachment" name="attachment" accept=".pdf, image/*, .doc, .docx">
-                    <small>Maximum file size: 5MB</small>
-                </div>
-
-                <div class="form-row" style="margin-top: 1.5rem;">
-                    <button type="submit" class="save-btn">Save Task</button>
-                    <button type="button" class="cancel-btn" onclick="closeModal('addTaskModal')">Cancel</button>
-                </div>
-            </form>
+            <div class="modal-body">
+                <form id="taskForm" class="modal-form">
+                    <div class="form-group">
+                        <label for="taskName">Task Name <span class="required">*</span></label>
+                        <input type="text" id="taskName" name="taskName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignedTo">Assign To <span class="required">*</span></label>
+                        <select id="assignedTo" name="assignedTo" required>
+                            <option value="">Select Employee</option>
+                            {# Options will be populated by JavaScript #}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskWorkgroup">Workgroup <span class="required">*</span></label>
+                        <select id="taskWorkgroup" name="taskWorkgroup" required>
+                            <option value="">Select Workgroup</option>
+                            {# Options will be populated by JavaScript #}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskRtom">RTOM <span class="required">*</span></label>
+                        <select id="taskRtom" name="taskRtom" required>
+                            <option value="">Select RTOM</option>
+                            {# Options will be populated by JavaScript #}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDeadline">Deadline <span class="required">*</span></label>
+                        <input type="date" id="taskDeadline" name="taskDeadline" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskAttachment">Attachment (PDF/Other)</label>
+                        <input type="file" id="taskAttachment" name="taskAttachment" accept=".pdf, image/*, .doc, .docx">
+                        <small>Maximum file size: 5MB</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Task</button>
+                        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Edit Task Modal -->
-    <div id="editTaskModal" class="custom-modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header-flex">
-                <h2>Edit Task</h2>
-                <span class="close-btn" onclick="closeModal('editTaskModal')">&times;</span>
+    <div id="editTaskModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="editModalTitle">Edit Task</h2>
+                <button type="button" class="modal-close">&times;</button>
             </div>
-            <form id="editTaskForm" autocomplete="off">
-                 {# Edit task fields will go here later #}
-                <p>Edit task fields will be added here.</p>
-                 <div class="form-row" style="margin-top: 1.5rem;">
-                    <button type="submit" class="save-btn">Save Changes</button>
-                    <button type="button" class="cancel-btn" onclick="closeModal('editTaskModal')">Cancel</button>
-                </div>
-            </form>
+            <div class="modal-body">
+                <form id="editTaskForm" class="modal-form">
+                    <input type="hidden" id="editTaskId" name="taskId">
+                    <div class="form-group">
+                        <label for="editTaskName">Task Name <span class="required">*</span></label>
+                        <input type="text" id="editTaskName" name="taskName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAssignedTo">Assign To <span class="required">*</span></label>
+                        <select id="editAssignedTo" name="assignedTo" required>
+                            <option value="">Select Employee</option>
+                            {# Options will be populated by JavaScript #}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskWorkgroup">Workgroup <span class="required">*</span></label>
+                        <select id="editTaskWorkgroup" name="taskWorkgroup" required>
+                            <option value="">Select Workgroup</option>
+                            {# Options will be populated by JavaScript #}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskRtom">RTOM <span class="required">*</span></label>
+                        <select id="editTaskRtom" name="taskRtom" required>
+                            <option value="">Select RTOM</option>
+                            {# Options will be populated by JavaScript #}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskDeadline">Deadline <span class="required">*</span></label>
+                        <input type="date" id="editTaskDeadline" name="taskDeadline" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskAttachment">Attachment (PDF/Other)</label>
+                        <input type="file" id="editTaskAttachment" name="taskAttachment" accept=".pdf, image/*, .doc, .docx">
+                        <small>Maximum file size: 5MB</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/tasks.js' %}"></script>
+<script src="{% static 'js/tasks.js' %}" defer></script>
+<script src="{% static 'js/modal.js' %}" defer></script>
 {% endblock %}

@@ -1,35 +1,67 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Get form elements
-    const loginForm = document.getElementById('loginForm');
+    const loginForm = document.querySelector('.login-form');
     const userTypeSelect = document.getElementById('user_type');
     const employeeIdInput = document.getElementById('employee_id');
     const passwordInput = document.getElementById('password');
     const alertDiv = document.querySelector('.alert');
+    const messagesContainer = document.querySelector('.messages');
 
     if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Validate form
-            if (!userTypeSelect.value) {
-                showAlert('Please select a user type', 'error');
-                return;
-            }
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
 
-            if (!employeeIdInput.value) {
-                showAlert('Please enter your employee ID', 'error');
-                return;
-            }
+                const data = await response.json();
 
-            if (!passwordInput.value) {
-                showAlert('Please enter your password', 'error');
-                return;
+                if (data.success) {
+                    // Redirect to the appropriate dashboard based on user type
+                    window.location.href = data.redirect_url;
+                } else {
+                    // Show error message
+                    if (messagesContainer) {
+                        messagesContainer.innerHTML = `
+                            <div class="alert alert-error">
+                                ${data.error || 'Login failed. Please check your credentials.'}
+                            </div>
+                        `;
+                    } else {
+                        alert(data.error || 'Login failed. Please check your credentials.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = `
+                        <div class="alert alert-error">
+                            An error occurred. Please try again.
+                        </div>
+                    `;
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
             }
-
-            // If validation passes, submit the form
-            this.submit();
         });
     }
+
+    // Clear messages when user starts typing
+    const inputs = loginForm.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (messagesContainer) {
+                messagesContainer.innerHTML = '';
+            }
+        });
+    });
 
     // Password toggle functionality
     const toggleButtons = document.querySelectorAll('.toggle-password');

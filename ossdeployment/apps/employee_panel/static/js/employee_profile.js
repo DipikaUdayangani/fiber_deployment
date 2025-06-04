@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Employee Profile script loaded.');
 
+    // Ensure static URL is set and properly formatted
+    if (typeof window.STATIC_URL === 'undefined' || !window.STATIC_URL) {
+        console.warn('Static URL not set, using default');
+        window.STATIC_URL = '/static/';
+    }
+
+    // Normalize static URL
+    window.STATIC_URL = window.STATIC_URL.replace(/\/+$/, '') + '/';
+    console.log('Using static URL:', window.STATIC_URL);
+
     const userNameSpan = document.getElementById('userName');
     const userIdSpan = document.getElementById('userId');
     const userEmailSpan = document.getElementById('userEmail');
@@ -9,12 +19,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveImageButton = document.getElementById('saveImageButton');
     const changePasswordForm = document.getElementById('changePasswordForm');
 
+    // Debug: Log the image source
+    console.log('Profile image source:', profileImageView.src);
+    console.log('Profile image current src:', profileImageView.getAttribute('src'));
+
     // Dummy user data (replace with actual data fetching)
     const dummyUser = {
         name: 'John Doe',
         userId: 'EMP001',
-        email: 'john.doe@example.com',
-        profileImageUrl: '{% static "images/default_profile.png" %}' // Default or fetched image URL
+        email: 'john.doe@example.com'
+    };
+
+    // Set up error handling for the profile image
+    profileImageView.onerror = function(e) {
+        console.error('Failed to load profile image:', e);
+        console.error('Attempted URL:', this.src);
+        // Show a text placeholder instead of trying to load another image
+        this.style.display = 'none';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'profile-image-placeholder';
+        placeholder.textContent = dummyUser.name.charAt(0).toUpperCase();
+        this.parentNode.insertBefore(placeholder, this);
     };
 
     // Display dummy user data
@@ -22,58 +47,54 @@ document.addEventListener('DOMContentLoaded', function() {
         userNameSpan.textContent = dummyUser.name;
         userIdSpan.textContent = dummyUser.userId;
         userEmailSpan.textContent = dummyUser.email;
-        profileImageView.src = dummyUser.profileImageUrl;
     }
 
-    // Handle profile image selection
-    profileImageInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
+    // Handle image selection
+    profileImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 profileImageView.src = e.target.result;
-                saveImageButton.disabled = false; // Enable save button
+                saveImageButton.disabled = false;
             };
             reader.readAsDataURL(file);
         }
     });
 
-    // Simulate saving profile image
+    // Handle image save
     saveImageButton.addEventListener('click', function() {
-        // In a real application, you would upload the image to the server here.
-        // For this example, we'll just log the action and disable the button.
-        console.log('Simulating saving profile image...');
-        // Add actual AJAX/Fetch request here to send image data to backend
-        alert('Profile image updated (simulated)!');
-        saveImageButton.disabled = true; // Disable after saving
+        // Here you would typically upload the image to the server
+        // For now, we'll just show a success message
+        showNotification('success', 'Profile image updated successfully');
+        saveImageButton.disabled = true;
     });
 
-    // Simulate changing password
-    changePasswordForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        
+    // Handle password change
+    changePasswordForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        // Basic validation (replace with backend validation)
         if (newPassword !== confirmPassword) {
-            alert('New password and confirm password do not match.');
+            showNotification('error', 'New passwords do not match');
             return;
         }
 
-        // In a real application, you would send the password data to the server.
-        // For this example, we'll just log the action.
-        console.log('Simulating changing password...');
-        console.log('Current Password:', currentPassword);
-        console.log('New Password:', newPassword);
-
-        // Add actual AJAX/Fetch request here to send password data to backend
-
-        alert('Password change requested (simulated)!');
+        // Here you would typically send the password change request to the server
+        // For now, we'll just show a success message
+        showNotification('success', 'Password changed successfully');
         changePasswordForm.reset();
     });
 
-    // Initial display of user details
+    // Helper function to show notifications
+    function showNotification(type, message) {
+        console.log(`${type} notification: ${message}`);
+        // Here you would typically show a notification to the user
+        // For now, we'll just log it to the console
+    }
+
+    // Initialize the page
     displayUserDetails();
 }); 

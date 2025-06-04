@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const tasksGrid = document.querySelector('.tasks-grid');
     const statusFilter = document.getElementById('statusFilter');
     const documentModal = document.getElementById('documentModal');
+    const uploadModal = document.getElementById('uploadModal');
     const rejectionModal = document.getElementById('rejectionModal');
     const closeModalBtns = document.querySelectorAll('.close-modal');
     const submitRejection = document.querySelector('.submit-rejection');
+    const uploadForm = document.getElementById('uploadForm');
 
     // Dummy data for the logged-in employee (emp001)
     const employeeId = 'emp001';
@@ -108,7 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
             taskCard.className = 'task-card';
             taskCard.innerHTML = `
                 <div class="task-header">
-                    <h3 class="task-title">${task.taskName}</h3>
+                    <div class="task-title-row">
+                        <h3 class="task-title">${task.taskName}</h3>
+                        <button class="attachment-button" onclick="showUploadModal(${task.id})">
+                            <i class="fas fa-paperclip"></i> Attach
+                        </button>
+                    </div>
                     <div class="project-info">
                         Project: ${task.projectName} (${task.projectNo})<br>
                         Workgroup: ${task.workgroup}<br>
@@ -116,33 +123,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <span class="task-status status-${task.status}">${task.status.charAt(0).toUpperCase() + task.status.slice(1)}</span>
                 </div>
-                <div class="documents-list">
-                    ${task.documents.map(doc => `
-                        <div class="document-item" data-document-id="${doc.id}" data-task-id="${task.id}">
-                            <div class="document-content">
-                                <i class="fas fa-file-${doc.type === 'pdf' ? 'pdf' : 'word'} document-icon"></i>
-                                <span class="document-name">${doc.name}</span>
-                                <span class="document-status-badge status-${doc.status}">${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}</span>
+                <div class="task-attachments">
+                    <div class="task-attachments-header">
+                        <span class="task-attachments-title">Attachments</span>
+                    </div>
+                    <div class="documents-list">
+                        ${task.documents.map(doc => `
+                            <div class="document-item" data-document-id="${doc.id}" data-task-id="${task.id}">
+                                <div class="document-content">
+                                    <i class="fas fa-file-${doc.type === 'pdf' ? 'pdf' : 'word'} document-icon"></i>
+                                    <span class="document-name">${doc.name}</span>
+                                    <span class="document-status-badge status-${doc.status}">${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}</span>
+                                </div>
+                                ${doc.status === 'pending' ? `
+                                    <div class="document-actions">
+                                        <button class="document-action-button approve" 
+                                            onclick="approveDocument(${doc.id}, ${task.id})">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                        <button class="document-action-button reject" 
+                                            onclick="showRejectionModal(${doc.id}, ${task.id})">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                ` : ''}
+                                ${doc.status === 'rejected' && doc.rejectionReason ? `
+                                    <div class="rejection-message">
+                                        <strong>Rejection Reason:</strong> ${doc.rejectionReason}
+                                    </div>
+                                ` : ''}
                             </div>
-                            ${doc.status === 'pending' ? `
-                                <div class="document-actions">
-                                    <button class="document-action-button approve" 
-                                        onclick="approveDocument(${doc.id}, ${task.id})">
-                                        <i class="fas fa-check"></i> Approve
-                                    </button>
-                                    <button class="document-action-button reject" 
-                                        onclick="showRejectionModal(${doc.id}, ${task.id})">
-                                        <i class="fas fa-times"></i> Reject
-                                    </button>
-                                </div>
-                            ` : ''}
-                            ${doc.status === 'rejected' && doc.rejectionReason ? `
-                                <div class="rejection-message">
-                                    <strong>Rejection Reason:</strong> ${doc.rejectionReason}
-                                </div>
-                            ` : ''}
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
                 </div>
             `;
             tasksGrid.appendChild(taskCard);
@@ -192,6 +204,97 @@ document.addEventListener('DOMContentLoaded', function() {
         documentModal.style.display = 'flex';
     }
 
+    // Function to show upload modal
+    window.showUploadModal = function(taskId) {
+        document.getElementById('uploadTaskId').value = taskId;
+        uploadModal.style.display = 'flex';
+    };
+
+    // Handle file upload
+    uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const taskId = formData.get('task_id');
+        
+        try {
+            const response = await fetch(`/employee-panel/api/tasks/${taskId}/upload/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification('Document uploaded successfully', 'success');
+                uploadModal.style.display = 'none';
+                uploadForm.reset();
+                await loadTasks(); // Reload tasks to show new document
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Error uploading document:', error);
+            showNotification(error.message || 'Error uploading document', 'error');
+        }
+    });
+
+    // Function to get CSRF token
+    function getCsrfToken() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            return null;
+        }
+        return csrfToken.value;
+    }
+
+    // Function to show notification
+    function showNotification(message, type = 'info') {
+        console.log(`${type.toUpperCase()}: ${message}`);
+        // TODO: Implement a proper notification system
+        alert(message);
+    }
+
+    // Function to load tasks from the server
+    async function loadTasks() {
+        try {
+            const response = await fetch('/employee-panel/api/tasks/', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin' // This is important for CSRF
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            if (data.success) {
+                renderTasks(data.tasks);
+            } else {
+                throw new Error(data.error || 'Failed to load tasks');
+            }
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+            showNotification('Error loading tasks: ' + error.message, 'error');
+            // Fallback to dummy data if API fails
+            renderTasks(employeeTasks);
+        }
+    }
+
     // Function to show rejection modal
     window.showRejectionModal = function(documentId, taskId) {
         rejectionModal.dataset.documentId = documentId;
@@ -231,26 +334,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event Listeners
     statusFilter.addEventListener('change', function() {
-        renderTasks(filterTasks(employeeTasks, this.value));
+        const filteredTasks = filterTasks(employeeTasks, this.value);
+        renderTasks(filteredTasks);
     });
 
     closeModalBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             documentModal.style.display = 'none';
+            uploadModal.style.display = 'none';
             rejectionModal.style.display = 'none';
         });
     });
 
-    documentModal.addEventListener('click', function(event) {
-        if (event.target === documentModal) {
-            documentModal.style.display = 'none';
-        }
-    });
-
-    rejectionModal.addEventListener('click', function(event) {
-        if (event.target === rejectionModal) {
-            rejectionModal.style.display = 'none';
-        }
+    // Close modals when clicking outside
+    [documentModal, uploadModal, rejectionModal].forEach(modal => {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     });
 
     submitRejection.addEventListener('click', function() {
@@ -266,6 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initial render
-    renderTasks(employeeTasks);
+    // Initial load
+    loadTasks();
 }); 

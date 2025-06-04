@@ -4,7 +4,12 @@
 {% block title %}Employee Dashboard{% endblock %}
 
 {% block extra_css %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/employee_dashboard.css' %}">
+<script>
+    // Initialize static URL before any scripts that need it
+    window.STATIC_URL = "{{ STATIC_URL }}";
+</script>
 {% endblock %}
 
 {% block page_title %}Dashboard{% endblock %}

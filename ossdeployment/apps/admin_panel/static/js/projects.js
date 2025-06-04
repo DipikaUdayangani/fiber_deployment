@@ -612,7 +612,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const addProjectBtn = document.getElementById('openAddProjectModalBtn');
     if (addProjectBtn) {
         addProjectBtn.addEventListener('click', () => {
-            openModal('projectModal');
+            window.openModal('projectModal');
+        });
+    }
+
+    // Close modal button handler
+    const closeModalBtn = document.querySelector('.modal-close');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            window.closeModal('projectModal');
         });
     }
 }); 

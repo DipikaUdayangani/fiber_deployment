@@ -4,7 +4,12 @@
 {% block title %}My Profile{% endblock %}
 
 {% block extra_css %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static "css/employee_profile.css" %}">
+    <script>
+        // Initialize static URL before any scripts that need it
+        window.STATIC_URL = "{{ STATIC_URL }}";
+    </script>
 {% endblock %}
 
 {% block page_title %}My Profile{% endblock %}
@@ -29,7 +34,7 @@
     <div class="profile-section profile-image">
         <h3>Profile Image</h3>
         <div class="image-upload-area">
-            <img id="profileImageView" src="{% static "images/default_profile.png" %}" alt="Profile Image">
+            <img id="profileImageView" alt="Profile Image">
             <div class="upload-controls">
                 <input type="file" id="profileImageInput" accept="image/*">
                 <label for="profileImageInput" class="upload-button">Browse Photo</label>

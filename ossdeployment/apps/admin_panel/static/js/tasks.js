@@ -177,58 +177,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitle = document.getElementById('modalTitle');
     const editModalTitle = document.getElementById('editModalTitle');
     const tasksTableBody = document.getElementById('tasksTableBody');
+    const editTaskModal = document.getElementById('editTaskModal');
 
-    // State
-    let tasks = [
-        { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', project: 'Colombo Fiber Network Expansion', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
-        { id: 'TASK002', name: 'Cable Installation', assigned_to: 'Jane Smith', project: 'Kandy Metro Fiber Project', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM Kandy', deadline: '2024-03-20', attachment: true, status: 'In Progress' },
-        { id: 'TASK003', name: 'Network Testing', assigned_to: 'Mike Wilson', project: 'Galle Coastal Network Upgrade', workgroup: 'ACCESS-PLAN', rtom: 'RTOM Galle', deadline: '2024-03-18', attachment: false, status: 'Completed' },
-        { id: 'TASK004', name: 'New Fiber Route Planning', assigned_to: 'John Doe', project: 'Jaffna Northern Network', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-04-01', attachment: false, status: 'Pending' },
-        { id: 'TASK005', name: 'Splice & Terminate - Kandy', assigned_to: 'Jane Smith', project: 'Kandy Metro Fiber Project', workgroup: 'XXX-ENG-NW', rtom: 'RTOM Kandy', deadline: '2024-04-05', attachment: true, status: 'In Progress' },
-    ];
+    // Check if required elements exist
+    if (!tasksTableBody) {
+        console.warn('Tasks table body element not found');
+        return;
+    }
 
-    const assignedToList = [
-        'John Doe',
-        'Jane Smith',
-        'Mike Wilson',
-        'User 4',
-        'User 5',
-    ];
-
-    const projectsList = [
-        'Colombo Fiber Network Expansion',
-        'Kandy Metro Fiber Project',
-        'Galle Coastal Network Upgrade',
-        'Jaffna Northern Network',
-        'Matara Southern Expansion',
-        'Kurunegala Central Network',
-        'Anuradhapura Heritage City Project',
-        'Trincomalee Port Network',
-        'Ratnapura Gem City Network',
-        'Badulla Uva Region Project'
-    ];
-
-    const workgroupsList = [
-        'NET-PLAN-TX',
-        'LEA-MNG-OPMC',
-        'NET-PLAN-ACC',
-        'NET-PROJ-ACC-CABLE',
-        'XXX-MNG-OPMC',
-        'XXX-ENG-NW',
-        'NET-PLAN-DRAWING',
-        'XXX-RTOM',
-        'ACCESS-PLAN',
-    ];
-
-    const rtomsList = [
-        'RTOM 1',
-        'RTOM 2',
-        'RTOM 3',
-        'RTOM 4',
-        'RTOM Colombo',
-        'RTOM Kandy',
-        'RTOM Galle',
-    ];
+    if (!editTaskModal) {
+        console.warn('Edit task modal element not found');
+    }
 
     // Initialize
     setupEventListeners();
@@ -508,75 +467,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Prevent clicks inside modal content from closing the modal
-    document.querySelectorAll('.modal-content').forEach(content => {
-        content.addEventListener('click', function(e) {
-            e.stopPropagation();
+    const modalContents = document.querySelectorAll('.modal-content');
+    if (modalContents.length > 0) {
+        modalContents.forEach(content => {
+            content.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
         });
-    });
-
-    // Dummy data for stat cards (replace with actual counts later)
-    // You would fetch total users and active tasks from your backend
-    document.getElementById('totalUsersCard').querySelector('.stat-value').textContent = '25'; // Example
-    document.getElementById('activeTasksCard').querySelector('.stat-value').textContent = tasks.filter(task => task.status === 'Pending' || task.status === 'In Progress').length; // Example
+    }
 }); 
-
-// Update the edit modal HTML as well
-document.getElementById('editTaskModal').querySelector('.modal-body').innerHTML = `
-    <form id="editTaskForm" class="modal-form">
-        <input type="hidden" id="editTaskId" name="taskId">
-        <div class="form-group">
-            <label for="editTaskName">Task Name <span class="required">*</span></label>
-            <select id="editTaskName" name="taskName" required>
-                <option value="">Select Task</option>
-                <option value="SPECIFY DESIGN DETAILS">SPECIFY DESIGN DETAILS</option>
-                <option value="APPROVE PE">APPROVE PE</option>
-                <option value="SURVEY FIBER ROUTE">SURVEY FIBER ROUTE</option>
-                <option value="ASSIGN WORK">ASSIGN WORK</option>
-                <option value="DRAW FIBER">DRAW FIBER</option>
-                <option value="SPLICE & TERMINATE">SPLICE & TERMINATE</option>
-                <option value="UPLOAD FIBER_IN_OSS">UPLOAD FIBER_IN_OSS</option>
-                <option value="CONDUCT FIBER_PAT">CONDUCT FIBER_PAT</option>
-                <option value="UPLOAD DRAWING">UPLOAD DRAWING</option>
-                <option value="UPDATE MASTER DWG">UPDATE MASTER DWG</option>
-                <option value="CLOSE EVENT">CLOSE EVENT</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="editAssignedTo">Assign To <span class="required">*</span></label>
-            <select id="editAssignedTo" name="assignedTo" required>
-                <option value="">Select Employee</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="editTaskProject">Project <span class="required">*</span></label>
-            <select id="editTaskProject" name="taskProject" required>
-                <option value="">Select Project</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="editTaskWorkgroup">Workgroup <span class="required">*</span></label>
-            <select id="editTaskWorkgroup" name="taskWorkgroup" required>
-                <option value="">Select Workgroup</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="editTaskRtom">RTOM <span class="required">*</span></label>
-            <select id="editTaskRtom" name="taskRtom" required>
-                <option value="">Select RTOM</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="editTaskDeadline">Deadline <span class="required">*</span></label>
-            <input type="date" id="editTaskDeadline" name="taskDeadline" required>
-        </div>
-        <div class="form-group">
-            <label for="editTaskAttachment">Attachment (PDF/Other)</label>
-            <input type="file" id="editTaskAttachment" name="taskAttachment" accept=".pdf, image/*, .doc, .docx">
-            <small>Maximum file size: 5MB</small>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
-        </div>
-    </form>
-`; 

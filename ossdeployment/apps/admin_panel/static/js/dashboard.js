@@ -255,20 +255,31 @@ function showNewProjectForm() {
             <form id="newProjectForm">
                 <div class="form-group">
                     <label>Project Name</label>
-                    <input type="text" id="projectName" class="swal2-input">
+                    <input type="text" id="projectName" class="swal2-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Project Number</label>
+                    <input type="text" id="projectNo" class="swal2-input" required>
+                </div>
+                <div class="form-group">
+                    <label>SLT Reference</label>
+                    <input type="text" id="sltRefNo" class="swal2-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Contract Number</label>
+                    <input type="text" id="contractNo" class="swal2-input" required>
+                </div>
+                <div class="form-group">
+                    <label>PE Number</label>
+                    <input type="text" id="peNo" class="swal2-input">
+                </div>
+                <div class="form-group">
+                    <label>Starting Date</label>
+                    <input type="date" id="startingDate" class="swal2-input">
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea id="projectDescription" class="swal2-textarea"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>RTOM</label>
-                    <select id="projectRtom" class="swal2-select">
-                        <option value="">Select RTOM</option>
-                        <option value="RTOM1">RTOM 1</option>
-                        <option value="RTOM2">RTOM 2</option>
-                        <option value="RTOM3">RTOM 3</option>
-                    </select>
+                    <textarea id="description" class="swal2-textarea"></textarea>
                 </div>
             </form>
         `,
@@ -277,11 +288,24 @@ function showNewProjectForm() {
         confirmButtonColor: '#007bff',
         cancelButtonColor: '#6c757d',
         preConfirm: () => {
-            return {
-                name: document.getElementById('projectName').value,
-                description: document.getElementById('projectDescription').value,
-                rtom: document.getElementById('projectRtom').value
+            const formData = {
+                project_name: document.getElementById('projectName').value.trim(),
+                project_no: document.getElementById('projectNo').value.trim(),
+                slt_ref_no: document.getElementById('sltRefNo').value.trim(),
+                contract_no: document.getElementById('contractNo').value.trim(),
+                pe_no: document.getElementById('peNo').value.trim(),
+                starting_date: document.getElementById('startingDate').value,
+                description: document.getElementById('description').value.trim()
+            };
+
+            // Validate required fields
+            if (!formData.project_name || !formData.project_no || 
+                !formData.slt_ref_no || !formData.contract_no) {
+                Swal.showValidationMessage('Please fill in all required fields');
+                return false;
             }
+
+            return formData;
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -315,49 +339,27 @@ function createProject(projectData) {
 // Function to update project count
 async function updateProjectCount() {
     try {
-        const response = await fetch('/admin/api/projects/count/');
+        const response = await fetch('/admin-panel/api/projects/count/');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data.error) {
             console.error('Error fetching project count:', data.error);
             return;
         }
-        document.querySelector('#totalProjectsCard .stat-value').textContent = data.count;
+        const countElement = document.querySelector('#totalProjectsCard .stat-value');
+        if (countElement) {
+            countElement.textContent = data.count;
+        }
     } catch (error) {
         console.error('Error updating project count:', error);
-    }
-}
-
-// Function to create new project
-async function createProject(formData) {
-    try {
-        const response = await fetch('/admin/api/projects/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const data = await response.json();
-        if (data.error) {
-            throw new Error(data.error);
+        // Show error in the count element if it exists
+        const countElement = document.querySelector('#totalProjectsCard .stat-value');
+        if (countElement) {
+            countElement.textContent = 'Error';
+            countElement.title = error.message;
         }
-
-        // Update project count
-        await updateProjectCount();
-        
-        // Show success message
-        showNotification('Project created successfully', 'success');
-        
-        // Close modal
-        closeModal('projectModal');
-        
-        return data.project;
-    } catch (error) {
-        console.error('Error creating project:', error);
-        showNotification(error.message || 'Error creating project', 'error');
-        throw error;
     }
 }
 

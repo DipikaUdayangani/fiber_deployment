@@ -8,6 +8,7 @@ function openModal(modalId) {
          modal.style.display = 'flex'; // Use flex display when active
     }
 }
+
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
      if (modal) {
@@ -17,6 +18,10 @@ function closeModal(modalId) {
         modal.style.display = 'none'; // Hide immediately
      }
 }
+
+// Make modal functions available globally
+window.openModal = openModal;
+window.closeModal = closeModal;
 
 // Function to populate dropdown options
 function populateDropdown(selectElementId, optionsList, valueKey = 'value', textKey = 'text') {

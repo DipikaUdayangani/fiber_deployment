@@ -10,6 +10,7 @@
 {% block page_title %}My Tasks{% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="employee-tasks-container">
     <div class="tasks-header">
         <h2>My Assigned Tasks</h2>
@@ -53,6 +54,35 @@
         </div>
     </div>
 
+    <!-- File Upload Modal -->
+    <div id="uploadModal" class="document-modal">
+        <div class="document-modal-content">
+            <div class="document-modal-header">
+                <h3>Upload Document</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="document-modal-body">
+                <form id="uploadForm" class="upload-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="uploadTaskId" name="task_id">
+                    <div class="form-group">
+                        <label for="documentFile">Select File</label>
+                        <input type="file" id="documentFile" name="document" required accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
+                        <small class="file-help">Maximum file size: 5MB. Allowed formats: PDF, DOC, DOCX, TXT, JPG, PNG</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentDescription">Description (Optional)</label>
+                        <textarea id="documentDescription" name="description" rows="3" placeholder="Add a description for this document..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Rejection Reason Modal -->
     <div id="rejectionModal" class="document-modal">
         <div class="document-modal-content">
@@ -72,6 +102,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 <script src="{% static "js/employee_tasks.js" %}"></script>
 {% endblock %} 

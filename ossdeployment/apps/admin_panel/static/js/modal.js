@@ -7,43 +7,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelModalBtn = document.querySelector('.modal-cancel');
     const modalForm = document.getElementById('projectForm');
 
-    // Open Modal
-    function openModal() {
-        console.log('Opening modal...');
-        modalOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    }
-
-    // Close Modal
-    function closeModal() {
-        console.log('Closing modal...');
-        modalOverlay.classList.remove('active');
-        document.body.style.overflow = ''; // Restore background scrolling
-        if (modalForm) {
-            modalForm.reset();
-        }
-    }
-
     // Event Listeners
     if (openModalBtn) {
         openModalBtn.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('Add project button clicked');
-            openModal();
+            window.openModal('projectModal');
         });
     }
 
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', () => {
             console.log('Close button clicked');
-            closeModal();
+            window.closeModal('projectModal');
+            if (modalForm) {
+                modalForm.reset();
+            }
         });
     }
 
     if (cancelModalBtn) {
         cancelModalBtn.addEventListener('click', () => {
             console.log('Cancel button clicked');
-            closeModal();
+            window.closeModal('projectModal');
+            if (modalForm) {
+                modalForm.reset();
+            }
         });
     }
 
@@ -51,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
             console.log('Modal backdrop clicked');
-            closeModal();
+            window.closeModal('projectModal');
         }
     });
 
@@ -59,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
             console.log('Escape key pressed');
-            closeModal();
+            window.closeModal('projectModal');
         }
     });
 
@@ -67,8 +56,4 @@ document.addEventListener('DOMContentLoaded', function() {
     modalContainer.addEventListener('click', (e) => {
         e.stopPropagation();
     });
-
-    // Make modal functions available globally
-    window.openProjectModal = openModal;
-    window.closeProjectModal = closeModal;
 }); 

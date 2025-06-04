@@ -11,4 +11,8 @@ urlpatterns = [
     path('tasks/', login_required(views.tasks_view), name='tasks'),
     path('projects/', login_required(views.projects_view), name='projects'),
     path('profile/', login_required(views.profile_view), name='profile'),
+    
+    # API endpoints
+    path('api/tasks/', login_required(views.get_tasks), name='api_get_tasks'),
+    path('api/tasks/<int:task_id>/upload/', login_required(views.upload_task_document), name='api_upload_task_document'),
 ]

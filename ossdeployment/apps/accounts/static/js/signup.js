@@ -1,40 +1,140 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('signUpModal');
-    const signUpBtn = document.querySelector('.btn-secondary');
-    const closeBtn = document.querySelector('.close');
+    const signUpModal = document.getElementById('signUpModal');
+    const signUpForm = document.querySelector('.signup-form');
+    const closeButtons = document.querySelectorAll('.close');
 
-    // Open modal
+    // Function to show sign up modal
     window.showSignUpModal = function() {
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    }
+        signUpModal.style.display = 'block';
+    };
 
-    // Close modal
-    closeBtn.onclick = function() {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+    // Close modal when clicking close buttons
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            signUpModal.style.display = 'none';
+        });
+    });
 
     // Close modal when clicking outside
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    }
-
-    // Form validation
-    const signupForm = document.querySelector('.signup-form');
-    signupForm.addEventListener('submit', function(e) {
-        const password = document.querySelector('#signup_password').value;
-        const confirmPassword = document.querySelector('#confirm_password').value;
-
-        if (password !== confirmPassword) {
-            e.preventDefault();
-            alert('Passwords do not match!');
-            return;
+    window.addEventListener('click', function(event) {
+        if (event.target === signUpModal) {
+            signUpModal.style.display = 'none';
         }
     });
+
+    // Handle signup form submission
+    if (signUpForm) {
+        signUpForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirm_password');
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            // Validate password strength
+            if (password.length < 8) {
+                alert('Password must be at least 8 characters long!');
+                return;
+            }
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Account created successfully! Please login.');
+                    signUpModal.style.display = 'none';
+                    signUpForm.reset();
+                } else {
+                    alert(data.error || 'Account creation failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    }
+
+    // Add password strength indicator
+    const passwordInput = document.getElementById('signup_password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength++;
+            
+            // Contains number
+            if (/\d/.test(password)) strength++;
+            
+            // Contains lowercase
+            if (/[a-z]/.test(password)) strength++;
+            
+            // Contains uppercase
+            if (/[A-Z]/.test(password)) strength++;
+            
+            // Contains special character
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            // Update strength indicator
+            const strengthIndicator = document.createElement('div');
+            strengthIndicator.className = 'password-strength';
+            
+            let strengthText = '';
+            let strengthClass = '';
+            
+            switch(strength) {
+                case 0:
+                case 1:
+                    strengthText = 'Very Weak';
+                    strengthClass = 'very-weak';
+                    break;
+                case 2:
+                    strengthText = 'Weak';
+                    strengthClass = 'weak';
+                    break;
+                case 3:
+                    strengthText = 'Medium';
+                    strengthClass = 'medium';
+                    break;
+                case 4:
+                    strengthText = 'Strong';
+                    strengthClass = 'strong';
+                    break;
+                case 5:
+                    strengthText = 'Very Strong';
+                    strengthClass = 'very-strong';
+                    break;
+            }
+
+            // Remove existing indicator if any
+            const existingIndicator = document.querySelector('.password-strength');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            // Add new indicator
+            strengthIndicator.innerHTML = `
+                <div class="strength-bar ${strengthClass}"></div>
+                <span class="strength-text">${strengthText}</span>
+            `;
+            this.parentNode.appendChild(strengthIndicator);
+        });
+    }
 });
 
 

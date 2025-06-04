@@ -2,11 +2,49 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Employee Dashboard script loaded.');
 
+    // Ensure static URL is set and properly formatted
+    if (typeof window.STATIC_URL === 'undefined' || !window.STATIC_URL) {
+        console.error('Static URL not properly initialized. Check if STATIC_URL is set in the template context.');
+        window.STATIC_URL = '/static/';
+    }
+
+    // Normalize static URL
+    window.STATIC_URL = window.STATIC_URL.replace(/\/+$/, '') + '/';
+    console.log('Using static URL:', window.STATIC_URL);
+
+    // Helper function to get static URL for images
+    function getStaticImageUrl(path) {
+        if (!path) {
+            console.error('No path provided to getStaticImageUrl');
+            return window.STATIC_URL + 'images/default_avatar.svg';
+        }
+        return window.STATIC_URL + 'images/' + path.replace(/^\/+/, '');
+    }
+
+    // Helper function to handle image loading errors
+    function handleImageError(img) {
+        console.warn('Failed to load image:', img.src);
+        img.onerror = null; // Prevent infinite loop
+        img.src = getStaticImageUrl('default_avatar.svg');
+    }
+
     const modal = document.getElementById('detailsModal');
     const modalContent = document.getElementById('modalContent');
     const modalTitle = document.getElementById('modalTitle');
     const closeButton = modal.querySelector('.close-button');
     const statCards = document.querySelectorAll('.stat-card-clickable');
+
+    // Add responsive handling for tables
+    function handleTableResponsiveness() {
+        const tables = document.querySelectorAll('.projects-table, .team-members-table');
+        tables.forEach(table => {
+            const container = table.closest('.table-container');
+            if (container) {
+                container.style.overflowX = 'auto';
+                container.style.width = '100%';
+            }
+        });
+    }
 
     // Dummy Data for Projects
     const dummyProjects = [
@@ -171,8 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
             role: 'Active',
             workgroup: 'NET-PLAN-TX',
             tasks: 5,
-            status: 'Online', // Example status
-            avatar: '{% static "images/default_avatar.png" %}' // Placeholder avatar
+            status: 'Online',
+            avatar: getStaticImageUrl('default_avatar.svg')
         },
         {
             name: 'Employee C',
@@ -180,33 +218,32 @@ document.addEventListener('DOMContentLoaded', function() {
             workgroup: 'LEA-MNG-OPMC',
             tasks: 3,
             status: 'Offline',
-            avatar: '{% static "images/default_avatar.png" %}'
+            avatar: getStaticImageUrl('default_avatar.svg')
         },
-        // Add more dummy team members
-         {
+        {
             name: 'Employee D',
             role: 'Active',
             workgroup: 'NET-PLAN-ACC',
             tasks: 7,
             status: 'Online',
-            avatar: '{% static "images/default_avatar.png" %}'
+            avatar: getStaticImageUrl('default_avatar.svg')
         },
-         {
+        {
             name: 'Employee E',
             role: 'Active',
             workgroup: 'ET-PROJ-ACC-CABLE',
             tasks: 4,
             status: 'Online',
-            avatar: '{% static "images/default_avatar.png" %}'
+            avatar: getStaticImageUrl('default_avatar.svg')
         },
-          {
+        {
             name: 'Employee F',
             role: 'Active',
             workgroup: 'XXX-MNG-OPMC',
             tasks: 6,
             status: 'Busy',
-            avatar: '{% static "images/default_avatar.png" %}'
-        },
+            avatar: getStaticImageUrl('default_avatar.svg')
+        }
     ];
 
 
@@ -271,22 +308,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to render team members in the table
      function renderTeamMembers() {
         const teamMembersTableBody = document.querySelector('.team-members-table tbody');
+        if (!teamMembersTableBody) {
+            console.warn('Team members table body not found');
+            return;
+        }
+
         teamMembersTableBody.innerHTML = ''; // Clear existing rows
 
         if (dummyTeamMembers.length > 0) {
             dummyTeamMembers.forEach(member => {
+                const avatarUrl = getStaticImageUrl('default_avatar.svg');
                 const row = `
                     <tr>
                         <td>
                             <div class="avatar">
-                                <img src="${member.avatar}" alt="${member.name}">
-                                ${member.name}
+                                <img src="${avatarUrl}" 
+                                     alt="${member.name}" 
+                                     onerror="handleImageError(this)"
+                                     data-member="${member.name}">
+                                <span class="member-name">${member.name}</span>
                             </div>
                         </td>
-                         <td><span class="role-badge role-${member.role.toLowerCase()}">${member.role}</span></td>
+                        <td><span class="role-badge role-${member.role.toLowerCase()}">${member.role}</span></td>
                         <td>${member.workgroup}</td>
                         <td>${member.tasks}</td>
-                         <td>${member.status}</td>
+                        <td><span class="status-indicator ${member.status.toLowerCase()}">${member.status}</span></td>
                     </tr>
                 `;
                 teamMembersTableBody.innerHTML += row;
@@ -398,8 +444,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initial render on page load
+    handleTableResponsiveness();
     updateStatNumbers();
     renderRecentProjects();
     renderTeamMembers();
 
+    // Handle window resize for responsiveness
+    window.addEventListener('resize', handleTableResponsiveness);
+
+    // Make helper functions globally available
+    window.handleImageError = handleImageError;
 }); 

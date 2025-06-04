@@ -1,56 +1,3 @@
-// Simple modal handling
-function openModal(modalId) {
-    console.log('Opening modal:', modalId);
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.error(`Modal element with ID "${modalId}" not found.`);
-        return;
-    }
-    
-    // Prevent any default behaviors
-    event?.preventDefault();
-    event?.stopPropagation();
-    
-    // Set display and visibility directly
-    modal.style.display = 'flex';
-    modal.style.visibility = 'visible';
-    modal.style.opacity = '1';
-    
-    // Add active class
-    modal.classList.add('active');
-    
-    // Prevent body scrolling
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal(modalId) {
-    console.log('Closing modal:', modalId);
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.error(`Modal element with ID "${modalId}" not found.`);
-        return;
-    }
-    
-    // Prevent any default behaviors
-    event?.preventDefault();
-    event?.stopPropagation();
-    
-    // Remove active class
-    modal.classList.remove('active');
-    
-    // Set display and visibility after transition
-    setTimeout(() => {
-        if (!modal.classList.contains('active')) {
-            modal.style.display = 'none';
-            modal.style.visibility = 'hidden';
-            modal.style.opacity = '0';
-        }
-    }, 300);
-    
-    // Restore body scrolling
-    document.body.style.overflow = 'auto';
-}
-
 // Dummy task data
 let tasks = [
     { id: 'TASK001', name: 'Site Survey - Colombo', assigned_to: 'John Doe', project: 'Colombo Fiber Network Expansion', workgroup: 'NET-PLAN-TX', rtom: 'RTOM Colombo', deadline: '2024-03-15', attachment: true, status: 'Pending' },
@@ -177,7 +124,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitle = document.getElementById('modalTitle');
     const editModalTitle = document.getElementById('editModalTitle');
     const tasksTableBody = document.getElementById('tasksTableBody');
+    const taskModal = document.getElementById('taskModal');
     const editTaskModal = document.getElementById('editTaskModal');
+    const modalCloseBtn = document.querySelector('.modal-close');
+    const modalCancelBtn = document.querySelector('.modal-cancel');
 
     // Check if required elements exist
     if (!tasksTableBody) {
@@ -197,14 +147,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners Setup
     function setupEventListeners() {
         // Add New Task button
-    if (openAddTaskModalBtn) {
+        if (openAddTaskModalBtn) {
             openAddTaskModalBtn.addEventListener('click', () => {
+                console.log('Add task button clicked');
                 modalTitle.textContent = 'Add New Task';
                 taskForm.reset();
                 populateDropdowns();
-                window.openProjectModal();
-        });
-    }
+                window.openModal('taskModal');
+            });
+        }
 
         // Form submissions
         if (taskForm) {
@@ -215,6 +166,40 @@ document.addEventListener('DOMContentLoaded', function() {
             editTaskForm.addEventListener('submit', handleEditTaskFormSubmit);
         }
 
+        // Modal close button
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', () => {
+                window.closeModal('taskModal');
+                taskForm.reset();
+            });
+        }
+
+        // Modal cancel button
+        if (modalCancelBtn) {
+            modalCancelBtn.addEventListener('click', () => {
+                window.closeModal('taskModal');
+                taskForm.reset();
+            });
+        }
+
+        // Close modal when clicking outside
+        if (taskModal) {
+            taskModal.addEventListener('click', (e) => {
+                if (e.target === taskModal) {
+                    window.closeModal('taskModal');
+                    taskForm.reset();
+                }
+            });
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && taskModal.classList.contains('active')) {
+                window.closeModal('taskModal');
+                taskForm.reset();
+            }
+        });
+
         // Search functionality
         const searchInput = document.getElementById('taskSearchInput');
         const searchBtn = document.getElementById('taskSearchBtn');
@@ -222,23 +207,23 @@ document.addEventListener('DOMContentLoaded', function() {
             searchBtn.addEventListener('click', () => performSearch(searchInput.value));
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performSearch(searchInput.value);
-        });
-    }
+            });
+        }
 
         // Tab switching
-    document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
+        document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
             tab.addEventListener('click', function() {
-            document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
-            this.classList.add('active');
+                document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
 
-            const status = this.getAttribute('data-status');
-            let filteredTasks = tasks;
-            if (status !== 'All') {
-                filteredTasks = tasks.filter(task => task.status === status);
-            }
-            renderTasksTable(filteredTasks);
+                const status = this.getAttribute('data-status');
+                let filteredTasks = tasks;
+                if (status !== 'All') {
+                    filteredTasks = tasks.filter(task => task.status === status);
+                }
+                renderTasksTable(filteredTasks);
             });
-    });
+        });
     }
 
     // Function to populate dropdowns
@@ -282,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tasks.push(formData);
 
             showNotification('Task created successfully', 'success');
-            window.closeProjectModal();
+            window.closeModal('taskModal');
             renderTasksTable();
             updateTabCounts();
         } catch (error) {
@@ -320,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             showNotification('Task updated successfully', 'success');
-            window.closeProjectModal();
+            window.closeModal('taskModal');
             renderTasksTable();
         } catch (error) {
             console.error('Error updating task:', error);
@@ -344,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editTaskDeadline').value = taskToEdit.deadline;
 
             populateDropdowns();
-            window.openProjectModal();
+            window.openModal('editTaskModal');
         }
     }
 
@@ -357,54 +342,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTabCounts();
             showNotification('Task deleted successfully', 'success');
         }
-    }
-
-    // Render tasks table
-    function renderTasksTable(tasksToRender = tasks) {
-        tasksTableBody.innerHTML = '';
-
-        if (tasksToRender.length === 0) {
-            tasksTableBody.innerHTML = '<tr><td colspan="10" class="text-center">No tasks found.</td></tr>';
-            return;
-        }
-
-        tasksToRender.forEach(task => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${task.id}</td>
-                <td>${task.name || 'N/A'}</td>
-                <td>${task.assigned_to || 'N/A'}</td>
-                <td>${task.project || 'N/A'}</td>
-                <td>${task.workgroup || 'N/A'}</td>
-                <td>${task.rtom || 'N/A'}</td>
-                <td>${task.deadline || 'N/A'}</td>
-                <td class="attachment-cell">
-                    ${task.attachment ? '<span class="attachment-icon"><i class="fas fa-file-alt"></i></span>' : 'N/A'}
-                </td>
-                <td><span class="status-badge status-${task.status.toLowerCase().replace(/\s+/g, '-')}">${task.status}</span></td>
-                <td class="action-buttons">
-                    <button class="edit-btn" data-id="${task.id}" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button class="delete-btn" data-id="${task.id}" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-            `;
-            tasksTableBody.appendChild(row);
-        });
-
-        // Add event listeners to buttons
-        tasksTableBody.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', handleEditButtonClick);
-        });
-        tasksTableBody.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', handleDeleteButtonClick);
-        });
-    }
-
-    // Update tab counts
-    function updateTabCounts() {
-        document.getElementById('allTasksCount').textContent = tasks.length;
-        document.getElementById('pendingTasksCount').textContent = tasks.filter(task => task.status === 'Pending').length;
-        document.getElementById('inProgressTasksCount').textContent = tasks.filter(task => task.status === 'In Progress').length;
-        document.getElementById('completedTasksCount').textContent = tasks.filter(task => task.status === 'Completed').length;
     }
 
     // Search functionality
@@ -431,48 +368,5 @@ document.addEventListener('DOMContentLoaded', function() {
     function showNotification(message, type = 'info') {
         console.log(`${type.toUpperCase()}: ${message}`);
         // TODO: Implement proper notification system
-    }
-
-    // Close button handlers for modals
-    document.querySelectorAll('.custom-modal .close-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const modal = this.closest('.custom-modal');
-            if (modal) {
-                closeModal(modal.id);
-            }
-        });
-    });
-
-    // Cancel button handlers
-    document.querySelectorAll('.custom-modal .cancel-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const modal = this.closest('.custom-modal');
-            if (modal) {
-                closeModal(modal.id);
-            }
-        });
-    });
-
-    // Close modal when clicking outside
-    document.querySelectorAll('.custom-modal').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal(this.id);
-            }
-        });
-    });
-
-    // Prevent clicks inside modal content from closing the modal
-    const modalContents = document.querySelectorAll('.modal-content');
-    if (modalContents.length > 0) {
-        modalContents.forEach(content => {
-            content.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
     }
 }); 

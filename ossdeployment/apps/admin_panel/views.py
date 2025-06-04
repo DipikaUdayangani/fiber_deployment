@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
@@ -329,3 +329,142 @@ def delete_project(request, project_id):
         return JsonResponse({'error': 'Project not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+@require_http_methods(["GET"])
+def get_tasks(request):
+    tasks = Task.objects.all().order_by('-created_at')
+    task_assignments = TaskAssignment.objects.select_related('assigned_to', 'task', 'project').all()
+    
+    # Create a dictionary to map task IDs to their assignments
+    task_assignments_dict = {ta.task_id: ta for ta in task_assignments}
+    
+    tasks_data = []
+    for task in tasks:
+        assignment = task_assignments_dict.get(task.id)
+        task_data = {
+            'id': task.id,
+            'name': task.name,
+            'assigned_to': assignment.assigned_to.employee_number if assignment and assignment.assigned_to else None,
+            'assigned_to_name': assignment.assigned_to.get_full_name() if assignment and assignment.assigned_to else None,
+            'project': assignment.project.project_name if assignment and assignment.project else None,
+            'project_id': assignment.project.id if assignment and assignment.project else None,
+            'workgroup': task.assigned_workgroup,
+            'rtom': task.rtom.name if task.rtom else None,
+            'rtom_id': task.rtom.id if task.rtom else None,
+            'deadline': assignment.completed_at.strftime('%Y-%m-%d') if assignment and assignment.completed_at else None,
+            'status': assignment.status if assignment else task.status,
+            'attachment': task.attachment.url if task.attachment else None
+        }
+        tasks_data.append(task_data)
+    
+    return JsonResponse({'tasks': tasks_data})
+
+@login_required
+@require_http_methods(["POST"])
+def create_task(request):
+    try:
+        data = json.loads(request.body)
+        
+        # Create the task
+        task = Task.objects.create(
+            name=data['name'],
+            description=data.get('description', ''),
+            assigned_workgroup=data['workgroup'],
+            area_condition=data.get('area_condition', ''),
+            rtom_id=data.get('rtom_id')
+        )
+        
+        # Create the task assignment
+        TaskAssignment.objects.create(
+            task=task,
+            project_id=data['project_id'],
+            assigned_to_id=data['assigned_to_id'],
+            status='PENDING'
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Task created successfully',
+            'task_id': task.id
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+
+@login_required
+@require_http_methods(["GET"])
+def get_task_details(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    assignment = TaskAssignment.objects.filter(task=task).select_related('assigned_to', 'project').first()
+    
+    task_data = {
+        'id': task.id,
+        'name': task.name,
+        'description': task.description,
+        'assigned_to_id': assignment.assigned_to.id if assignment and assignment.assigned_to else None,
+        'assigned_to_name': assignment.assigned_to.get_full_name() if assignment and assignment.assigned_to else None,
+        'project_id': assignment.project.id if assignment and assignment.project else None,
+        'project_name': assignment.project.project_name if assignment and assignment.project else None,
+        'workgroup': task.assigned_workgroup,
+        'rtom_id': task.rtom.id if task.rtom else None,
+        'rtom_name': task.rtom.name if task.rtom else None,
+        'deadline': assignment.completed_at.strftime('%Y-%m-%d') if assignment and assignment.completed_at else None,
+        'status': assignment.status if assignment else task.status,
+        'attachment': task.attachment.url if task.attachment else None
+    }
+    
+    return JsonResponse(task_data)
+
+@login_required
+@require_http_methods(["POST"])
+def update_task(request, task_id):
+    try:
+        task = get_object_or_404(Task, id=task_id)
+        data = json.loads(request.body)
+        
+        # Update task fields
+        task.name = data['name']
+        task.description = data.get('description', task.description)
+        task.assigned_workgroup = data['workgroup']
+        task.rtom_id = data.get('rtom_id')
+        if 'attachment' in request.FILES:
+            task.attachment = request.FILES['attachment']
+        task.save()
+        
+        # Update task assignment
+        assignment = TaskAssignment.objects.get(task=task)
+        assignment.project_id = data['project_id']
+        assignment.assigned_to_id = data['assigned_to_id']
+        assignment.status = data.get('status', assignment.status)
+        if 'deadline' in data:
+            assignment.completed_at = datetime.strptime(data['deadline'], '%Y-%m-%d')
+        assignment.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Task updated successfully'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+
+@login_required
+@require_http_methods(["POST"])
+def delete_task(request, task_id):
+    try:
+        task = get_object_or_404(Task, id=task_id)
+        task.delete()  # This will also delete the associated TaskAssignment due to CASCADE
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Task deleted successfully'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)

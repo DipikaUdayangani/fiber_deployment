@@ -20,4 +20,11 @@ urlpatterns = [
     path('api/projects/<int:project_id>/', views.get_project_details, name='get_project_details'),
     path('api/projects/<int:project_id>/update/', views.update_project, name='update_project'),
     path('api/projects/<int:project_id>/delete/', views.delete_project, name='delete_project'),
+
+    # API endpoints for tasks
+    path('api/tasks/', views.get_tasks, name='get_tasks'),
+    path('api/tasks/create/', views.create_task, name='create_task'),
+    path('api/tasks/<int:task_id>/', views.get_task_details, name='get_task_details'),
+    path('api/tasks/<int:task_id>/update/', views.update_task, name='update_task'),
+    path('api/tasks/<int:task_id>/delete/', views.delete_task, name='delete_task'),
 ]

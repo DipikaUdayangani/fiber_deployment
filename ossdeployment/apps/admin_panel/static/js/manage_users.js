@@ -10,32 +10,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const addNewUserBtn = document.getElementById('addNewUserBtn');
     const usersTableBody = document.getElementById('usersTableBody');
     const modalTitle = document.getElementById('modalTitle');
+    const modalCloseBtn = document.querySelector('.modal-close');
+    const modalCancelBtn = document.querySelector('.modal-cancel');
+    const userModal = document.getElementById('userModal');
 
     // State
-let dummyUsers = [
-    { id: 1, name: 'Admin User', employeeId: 'EMP001', email: 'admin.user@example.com', workgroup: 'NET-PLAN-TX', rtom: 'RTOM 1', status: 'Active' },
-    { id: 2, name: 'Contractor A', employeeId: 'EMP002', email: 'contractor.a@example.com', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM 2', status: 'Active' },
-    { id: 3, name: 'Employee 1', employeeId: 'EMP003', email: 'employee.1@example.com', workgroup: 'NET-PLAN-ACC', rtom: 'RTOM 3', status: 'Inactive' },
-    { id: 4, name: 'SLT Manager', employeeId: 'SLTM001', email: 'slt.manager@example.com', workgroup: 'XXX-RTOM', rtom: 'RTOM 1', status: 'Active' },
-];
+    let dummyUsers = [
+        { id: 1, name: 'Admin User', employeeId: 'EMP001', email: 'admin.user@example.com', workgroup: 'NET-PLAN-TX', rtom: 'RTOM 1', status: 'Active' },
+        { id: 2, name: 'Contractor A', employeeId: 'EMP002', email: 'contractor.a@example.com', workgroup: 'LEA-MNG-OPMC', rtom: 'RTOM 2', status: 'Active' },
+        { id: 3, name: 'Employee 1', employeeId: 'EMP003', email: 'employee.1@example.com', workgroup: 'NET-PLAN-ACC', rtom: 'RTOM 3', status: 'Inactive' },
+        { id: 4, name: 'SLT Manager', employeeId: 'SLTM001', email: 'slt.manager@example.com', workgroup: 'XXX-RTOM', rtom: 'RTOM 1', status: 'Active' },
+    ];
 
-const workgroupsList = [
-    'NET-PLAN-TX',
-    'LEA-MNG-OPMC',
-    'NET-PLAN-ACC',
-    'NET-PROJ-ACC-CABLE',
-    'XXX-MNG-OPMC',
-    'XXX-ENG-NW',
-    'NET-PLAN-DRAWING',
-    'XXX-RTOM',
-];
+    const workgroupsList = [
+        'NET-PLAN-TX',
+        'LEA-MNG-OPMC',
+        'NET-PLAN-ACC',
+        'NET-PROJ-ACC-CABLE',
+        'XXX-MNG-OPMC',
+        'XXX-ENG-NW',
+        'NET-PLAN-DRAWING',
+        'XXX-RTOM',
+    ];
 
-const rtomsList = [
-    'RTOM 1',
-    'RTOM 2',
-    'RTOM 3',
-    'RTOM 4',
-];
+    const rtomsList = [
+        'RTOM 1',
+        'RTOM 2',
+        'RTOM 3',
+        'RTOM 4',
+    ];
 
     // Initialize
     setupEventListeners();
@@ -51,7 +54,7 @@ const rtomsList = [
                 userIdInput.value = ''; // Clear hidden ID
                 employeeIdInput.disabled = false;
                 populateDropdowns();
-                window.openProjectModal();
+                window.openModal('userModal');
             });
         }
 
@@ -59,6 +62,40 @@ const rtomsList = [
         if (userForm) {
             userForm.addEventListener('submit', handleFormSubmit);
         }
+
+        // Modal close button
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', () => {
+                window.closeModal('userModal');
+                userForm.reset();
+            });
+        }
+
+        // Modal cancel button
+        if (modalCancelBtn) {
+            modalCancelBtn.addEventListener('click', () => {
+                window.closeModal('userModal');
+                userForm.reset();
+            });
+        }
+
+        // Close modal when clicking outside
+        if (userModal) {
+            userModal.addEventListener('click', (e) => {
+                if (e.target === userModal) {
+                    window.closeModal('userModal');
+                    userForm.reset();
+                }
+            });
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && userModal.classList.contains('active')) {
+                window.closeModal('userModal');
+                userForm.reset();
+            }
+        });
 
         // Search functionality
         const searchInput = document.getElementById('userSearchInput');
@@ -68,29 +105,29 @@ const rtomsList = [
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performSearch(searchInput.value);
             });
-}
+        }
     }
 
-// Function to populate dropdowns
+    // Function to populate dropdowns
     function populateDropdowns() {
         populateDropdown(userWorkgroupSelect, workgroupsList);
         populateDropdown(userRtomSelect, rtomsList);
     }
 
-function populateDropdown(selectElement, optionsList) {
+    function populateDropdown(selectElement, optionsList) {
         selectElement.innerHTML = '';
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
         defaultOption.textContent = `Select ${selectElement.name.replace('user', '').trim()}`;
-    selectElement.appendChild(defaultOption);
+        selectElement.appendChild(defaultOption);
 
-    optionsList.forEach(optionValue => {
-        const option = document.createElement('option');
-        option.value = optionValue;
-        option.textContent = optionValue;
-        selectElement.appendChild(option);
-    });
-}
+        optionsList.forEach(optionValue => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue;
+            selectElement.appendChild(option);
+        });
+    }
 
     // Handle form submission
     async function handleFormSubmit(e) {
@@ -109,8 +146,8 @@ function populateDropdown(selectElement, optionsList) {
         // Validate required fields
         if (!formData.name || !formData.employeeId || !formData.email || !formData.workgroup || !formData.rtom) {
             showNotification('Please fill in all required fields', 'error');
-        return;
-    }
+            return;
+        }
 
         try {
             if (formData.id) {
@@ -126,44 +163,44 @@ function populateDropdown(selectElement, optionsList) {
             }
 
             showNotification(`User ${formData.id ? 'updated' : 'created'} successfully`, 'success');
-            window.closeProjectModal();
+            window.closeModal('userModal');
             renderUsersTable();
         } catch (error) {
             console.error('Error saving user:', error);
             showNotification(error.message || 'Error saving user', 'error');
         }
-}
+    }
 
     // Handle edit button click
-function handleEditButtonClick(event) {
-    const userId = parseInt(event.currentTarget.dataset.id);
-    const userToEdit = dummyUsers.find(user => user.id === userId);
+    function handleEditButtonClick(event) {
+        const userId = parseInt(event.currentTarget.dataset.id);
+        const userToEdit = dummyUsers.find(user => user.id === userId);
 
-    if (userToEdit) {
-        modalTitle.textContent = 'Edit User';
-        userIdInput.value = userToEdit.id;
-        employeeIdInput.value = userToEdit.employeeId;
-        userNameInput.value = userToEdit.name;
-        userEmailInput.value = userToEdit.email;
-        employeeIdInput.disabled = true;
+        if (userToEdit) {
+            modalTitle.textContent = 'Edit User';
+            userIdInput.value = userToEdit.id;
+            employeeIdInput.value = userToEdit.employeeId;
+            userNameInput.value = userToEdit.name;
+            userEmailInput.value = userToEdit.email;
+            employeeIdInput.disabled = true;
 
             populateDropdowns();
-        userWorkgroupSelect.value = userToEdit.workgroup || '';
-        userRtomSelect.value = userToEdit.rtom || '';
+            userWorkgroupSelect.value = userToEdit.workgroup || '';
+            userRtomSelect.value = userToEdit.rtom || '';
 
-            window.openProjectModal();
+            window.openModal('userModal');
+        }
     }
-}
 
     // Handle delete button click
-function handleDeleteButtonClick(event) {
-    const userId = parseInt(event.currentTarget.dataset.id);
-    if (confirm('Are you sure you want to delete this user?')) {
-        dummyUsers = dummyUsers.filter(user => user.id !== userId);
+    function handleDeleteButtonClick(event) {
+        const userId = parseInt(event.currentTarget.dataset.id);
+        if (confirm('Are you sure you want to delete this user?')) {
+            dummyUsers = dummyUsers.filter(user => user.id !== userId);
             renderUsersTable();
             showNotification('User deleted successfully', 'success');
+        }
     }
-}
 
     // Render users table
     function renderUsersTable(usersToRender = dummyUsers) {
@@ -189,7 +226,7 @@ function handleDeleteButtonClick(event) {
                 </td>
             `;
             usersTableBody.appendChild(row);
-    });
+        });
 
         // Add event listeners to buttons
         usersTableBody.querySelectorAll('.edit-btn').forEach(btn => {
@@ -208,13 +245,13 @@ function handleDeleteButtonClick(event) {
             return;
         }
 
-    const filteredUsers = dummyUsers.filter(user =>
+        const filteredUsers = dummyUsers.filter(user =>
             user.name.toLowerCase().includes(term) ||
             user.employeeId.toLowerCase().includes(term) ||
             user.email.toLowerCase().includes(term) ||
             user.workgroup.toLowerCase().includes(term) ||
             user.rtom.toLowerCase().includes(term)
-    );
+        );
 
         renderUsersTable(filteredUsers);
     }

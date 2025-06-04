@@ -23,12 +23,13 @@
                     <li class="{% if active_tab == 'users' %}active{% endif %}">
                         <a href="{% url 'admin_panel:manage_users' %}"><i class="fas fa-users"></i> Manage Users</a>
                     </li>
-                    <li class="{% if active_tab == 'tasks' %}active{% endif %}">
-                        <a href="{% url 'admin_panel:tasks' %}"><i class="fas fa-tasks"></i> Tasks</a>
-                    </li>
                     <li class="{% if active_tab == 'projects' %}active{% endif %}">
                         <a href="{% url 'admin_panel:projects' %}"><i class="fas fa-project-diagram"></i> Projects</a>
                     </li>
+                    <li class="{% if active_tab == 'tasks' %}active{% endif %}">
+                        <a href="{% url 'admin_panel:tasks' %}"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    
                     <li class="{% if active_tab == 'settings' %}active{% endif %}">
                         <a href="{% url 'admin_panel:settings' %}"><i class="fas fa-cog"></i> Settings</a>
                     </li>

@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             taskCard.innerHTML = `
                 <div class="task-header">
                     <div class="task-title-row">
-                        <h3 class="task-title">${task.taskName}</h3>
+                    <h3 class="task-title">${task.taskName}</h3>
                         <button class="attachment-button" onclick="showUploadModal(${task.id})">
                             <i class="fas fa-paperclip"></i> Attach
                         </button>
@@ -126,34 +126,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="task-attachments">
                     <div class="task-attachments-header">
                         <span class="task-attachments-title">Attachments</span>
-                    </div>
-                    <div class="documents-list">
-                        ${task.documents.map(doc => `
-                            <div class="document-item" data-document-id="${doc.id}" data-task-id="${task.id}">
-                                <div class="document-content">
-                                    <i class="fas fa-file-${doc.type === 'pdf' ? 'pdf' : 'word'} document-icon"></i>
-                                    <span class="document-name">${doc.name}</span>
-                                    <span class="document-status-badge status-${doc.status}">${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}</span>
-                                </div>
-                                ${doc.status === 'pending' ? `
-                                    <div class="document-actions">
-                                        <button class="document-action-button approve" 
-                                            onclick="approveDocument(${doc.id}, ${task.id})">
-                                            <i class="fas fa-check"></i> Approve
-                                        </button>
-                                        <button class="document-action-button reject" 
-                                            onclick="showRejectionModal(${doc.id}, ${task.id})">
-                                            <i class="fas fa-times"></i> Reject
-                                        </button>
-                                    </div>
-                                ` : ''}
-                                ${doc.status === 'rejected' && doc.rejectionReason ? `
-                                    <div class="rejection-message">
-                                        <strong>Rejection Reason:</strong> ${doc.rejectionReason}
-                                    </div>
-                                ` : ''}
+                </div>
+                <div class="documents-list">
+                    ${task.documents.map(doc => `
+                        <div class="document-item" data-document-id="${doc.id}" data-task-id="${task.id}">
+                            <div class="document-content">
+                                <i class="fas fa-file-${doc.type === 'pdf' ? 'pdf' : 'word'} document-icon"></i>
+                                <span class="document-name">${doc.name}</span>
+                                <span class="document-status-badge status-${doc.status}">${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}</span>
                             </div>
-                        `).join('')}
+                            ${doc.status === 'pending' ? `
+                                <div class="document-actions">
+                                    <button class="document-action-button approve" 
+                                        onclick="approveDocument(${doc.id}, ${task.id})">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button class="document-action-button reject" 
+                                        onclick="showRejectionModal(${doc.id}, ${task.id})">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
+                            ` : ''}
+                            ${doc.status === 'rejected' && doc.rejectionReason ? `
+                                <div class="rejection-message">
+                                    <strong>Rejection Reason:</strong> ${doc.rejectionReason}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
                     </div>
                 </div>
             `;
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.addEventListener('click', function(event) {
             if (event.target === modal) {
                 modal.style.display = 'none';
-            }
+        }
         });
     });
 

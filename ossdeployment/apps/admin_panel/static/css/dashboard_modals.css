@@ -62,16 +62,13 @@
 .custom-modal.active {
     display: flex;
 }
-.modal-content {
+.custom-modal .modal-content {
     background: #fff;
-    border-radius: 16px;
-    padding: 2.5rem 2rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    min-width: 320px;
-    max-width: 90vw;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
-    animation: modalIn 0.25s cubic-bezier(.4,2,.6,1) both;
-    box-sizing: border-box; /* Include padding in width */
+    max-height: 90vh; /* Limit height to 90% of viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 @keyframes modalIn {
     from { transform: translateY(40px) scale(0.95); opacity: 0; }
@@ -99,6 +96,10 @@
     margin-bottom: 1.5rem;
     position: relative;
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
 .header-title-group { /* New class for grouping heading and button */
@@ -111,7 +112,8 @@
 .modal-header-flex h2 {
     margin: 0;
     font-size: 1.8rem;
-    color: #333;
+    color: #1976d2;
+    font-weight: 600;
 }
 
 .add-btn {
@@ -316,4 +318,202 @@
 
 .add-user-modal-content form button[type="submit"]:hover {
     background-color: #0056b3;
+}
+
+.custom-modal .form-row {
+    margin-bottom: 0.8rem;
+}
+
+.custom-modal .form-row label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.85rem; /* Reduced font size for labels */
+    color: #555;
+}
+
+.custom-modal .form-row input,
+.custom-modal .form-row select,
+.custom-modal .form-row textarea {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.85rem; /* Reduced font size for inputs */
+}
+
+.custom-modal .form-row textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.custom-modal .form-row small {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.75rem; /* Reduced font size for helper text */
+    color: #666;
+}
+
+.custom-modal .modal-header-flex h2 {
+    font-size: 1.1rem; /* Reduced font size for modal title */
+    margin: 0;
+    color: #333;
+}
+
+.custom-modal .form-row .required {
+    color: #e74c3c;
+    font-size: 0.85rem;
+}
+
+.custom-modal .save-btn,
+.custom-modal .cancel-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem; /* Reduced font size for buttons */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Add Project Modal specific styles */
+.custom-modal .modal-content.add-project-modal-content {
+    max-width: 420px; /* Reduced from 500px */
+    width: 90%; /* Slightly reduced from 95% */
+    padding: 1.2rem; /* Reduced padding */
+    margin: 1rem;
+}
+
+.custom-modal .modal-content.add-project-modal-content .modal-header-flex {
+    padding-bottom: 0.8rem; /* Reduced padding */
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1rem; /* Reduced margin */
+}
+
+.custom-modal .modal-content.add-project-modal-content .modal-header-flex h2 {
+    font-size: 1.2rem; /* Increased from 1.1rem for better visibility */
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.custom-modal .modal-content.add-project-modal-content .form-row {
+    margin-bottom: 0.8rem; /* Reduced margin */
+}
+
+.custom-modal .modal-content.add-project-modal-content .form-row label {
+    font-size: 0.85rem; /* Slightly reduced */
+    font-weight: 500;
+    color: #333; /* Darker color for better visibility */
+    margin-bottom: 0.3rem;
+}
+
+.custom-modal .modal-content.add-project-modal-content .form-row input,
+.custom-modal .modal-content.add-project-modal-content .form-row select,
+.custom-modal .modal-content.add-project-modal-content .form-row textarea {
+    padding: 0.4rem 0.6rem; /* Reduced padding */
+    font-size: 0.85rem;
+    height: 32px; /* Fixed height for inputs */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.custom-modal .modal-content.add-project-modal-content .form-row textarea {
+    height: auto; /* Override fixed height for textarea */
+    min-height: 60px;
+}
+
+.custom-modal .modal-content.add-project-modal-content .form-row small {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.2rem;
+}
+
+.custom-modal .modal-content.add-project-modal-content .form-actions {
+    margin-top: 1.2rem; /* Reduced margin */
+    padding-top: 0.8rem; /* Reduced padding */
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 0.8rem; /* Reduced gap */
+    justify-content: flex-end;
+}
+
+.custom-modal .modal-content.add-project-modal-content .save-btn,
+.custom-modal .modal-content.add-project-modal-content .cancel-btn {
+    min-width: 90px; /* Reduced from 100px */
+    padding: 0.4rem 1rem; /* Reduced padding */
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Action buttons styling */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-buttons button {
+    background: none;
+    border: none;
+    padding: 0.4rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.action-buttons .edit-btn {
+    color: #1976d2;
+}
+
+.action-buttons .delete-btn {
+    color: #dc3545;
+}
+
+.action-buttons button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons .edit-btn:hover {
+    color: #1565c0;
+}
+
+.action-buttons .delete-btn:hover {
+    color: #c82333;
+}
+
+/* Notification styling */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.9rem;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
+
+.notification.info {
+    background-color: #17a2b8;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }

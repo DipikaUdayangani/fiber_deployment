@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const openAddProjectModalBtn = document.getElementById('openAddProjectModalBtn');
     const cancelAddProjectBtn = document.getElementById('cancelAddProjectBtn');
     const addProjectForm = document.getElementById('addProjectForm');
-    const addNewTaskBtn = document.getElementById('addNewTaskBtn'); // Get the Add New Task button
+    const openAddTaskModalBtn = document.getElementById('openAddTaskModalBtn'); // Updated ID
     const closeBtns = document.querySelectorAll('.close-btn'); // Get all close buttons
     const customModals = document.querySelectorAll('.custom-modal'); // Get all modals
     const modalContents = document.querySelectorAll('.modal-content'); // Get all modal content areas
@@ -106,13 +106,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Add New Task button in tasks list modal
-    if (addNewTaskBtn) {
-        addNewTaskBtn.addEventListener('click', function() {
+    if (openAddTaskModalBtn) {
+        openAddTaskModalBtn.addEventListener('click', function() {
+            console.log('Add New Task button clicked');
             closeModal('tasksModal'); // Close the tasks list modal
 
             // Populate dropdowns in the Add Task modal
             populateDropdown('assign_to', dummyEmployees, 'userId', 'name');
-            populateDropdown('task_project_name', dummyProjects, 'name', 'name'); // Assuming project name as value and text
+            populateDropdown('task_project_name', dummyProjects, 'name', 'name');
             populateDropdown('task_workgroup', workgroupsList);
             populateDropdown('task_rtom', rtomsList);
 
@@ -122,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
              }
 
             openModal('addTaskModal'); // Open the add task modal
-             console.log('Add New Task button clicked');
         });
     }
 
@@ -330,15 +330,180 @@ document.addEventListener('DOMContentLoaded', function() {
              const tr = document.createElement('tr');
              tr.innerHTML = `
                  <td>${task.name}</td>
-                 <td class="project-name-cell">${task.project} (${task.projectId || 'N/A'})</td> {# Highlight project name #}
+                 <td class="project-name-cell">${task.project} (${task.projectId || 'N/A'})</td>
                  <td>${task.assigned_to}</td>
                  <td>${task.workgroup}</td>
                  <td>${task.rtom}</td>
                  <td><span class="status-badge status-${task.status.toLowerCase().replace(/\s+/g, '-')}">${task.status}</span></td>
+                 <td class="action-buttons">
+                     <button type="button" class="edit-btn" data-task-id="${task.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                     <button type="button" class="delete-btn" data-task-id="${task.id}" title="Delete"><i class="fas fa-trash"></i></button>
+                 </td>
              `;
              tbody.appendChild(tr);
          });
+
+         // Use event delegation for better performance and reliability
+         tbody.addEventListener('click', function(e) {
+             const target = e.target.closest('button');
+             if (!target) return;
+
+             const taskId = parseInt(target.dataset.taskId);
+             if (!taskId) return;
+
+             if (target.classList.contains('edit-btn')) {
+                 handleEditTaskClick(taskId);
+             } else if (target.classList.contains('delete-btn')) {
+                 handleDeleteTaskClick(taskId);
+             }
+         });
      }
+
+    // Get the edit task form
+    const editTaskForm = document.getElementById('editTaskForm');
+
+    // Update handleEditTaskClick function
+    async function handleEditTaskClick(taskId) {
+        console.log('Edit clicked for task:', taskId);
+        try {
+            const response = await fetch(`/admin_panel/api/tasks/${taskId}/`);
+            if (!response.ok) throw new Error('Failed to fetch task details');
+            
+            const taskData = await response.json();
+            
+            // Populate the edit form
+            document.getElementById('editTaskId').value = taskData.id;
+            document.getElementById('editTaskName').value = taskData.name;
+            document.getElementById('editAssignedTo').value = taskData.assigned_to_id;
+            document.getElementById('editTaskProject').value = taskData.project_id;
+            document.getElementById('editTaskWorkgroup').value = taskData.workgroup;
+            document.getElementById('editTaskRtom').value = taskData.rtom_id;
+            document.getElementById('editTaskDeadline').value = taskData.deadline || '';
+
+            // Populate dropdowns
+            populateDropdown('editAssignedTo', dummyEmployees, 'userId', 'name');
+            populateDropdown('editTaskProject', dummyProjects, 'name', 'name');
+            populateDropdown('editTaskWorkgroup', workgroupsList);
+            populateDropdown('editTaskRtom', rtomsList);
+
+            // Open the edit modal
+            openModal('editTaskModal');
+        } catch (error) {
+            console.error('Error fetching task details:', error);
+            showNotification('Failed to load task details', 'error');
+        }
+    }
+
+    // Update handleDeleteTaskClick function
+    async function handleDeleteTaskClick(taskId) {
+        console.log('Delete clicked for task:', taskId);
+        if (confirm('Are you sure you want to delete this task?')) {
+            try {
+                const response = await fetch(`/admin_panel/api/tasks/${taskId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to delete task');
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // Remove the task from the array
+                    dummyTasks = dummyTasks.filter(task => task.id !== taskId);
+                    // Re-render the table
+                    renderTasksTable();
+                    // Show success notification
+                    showNotification('Task deleted successfully', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to delete task');
+                }
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                showNotification('Failed to delete task', 'error');
+            }
+        }
+    }
+
+    // Update edit form submission handler
+    if (editTaskForm) {
+        editTaskForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const taskId = parseInt(formData.get('taskId'));
+            
+            try {
+                const response = await fetch(`/admin_panel/api/tasks/${taskId}/update/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        name: formData.get('taskName'),
+                        assigned_to_id: formData.get('assignedTo'),
+                        project_id: formData.get('taskProject'),
+                        workgroup: formData.get('taskWorkgroup'),
+                        rtom_id: formData.get('taskRtom'),
+                        deadline: formData.get('taskDeadline'),
+                        status: 'PENDING' // or get from form if you have a status field
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update task');
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // Close modal and show success message
+                    closeModal('editTaskModal');
+                    // Refresh the tasks table
+                    await loadTasks();
+                    showNotification('Task updated successfully', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to update task');
+                }
+            } catch (error) {
+                console.error('Error updating task:', error);
+                showNotification('Failed to update task', 'error');
+            }
+        });
+    }
+
+    // Function to load tasks from the API
+    async function loadTasks() {
+        try {
+            const response = await fetch('/admin_panel/api/tasks/');
+            if (!response.ok) throw new Error('Failed to fetch tasks');
+            
+            const data = await response.json();
+            dummyTasks = data.tasks; // Update the tasks array
+            renderTasksTable(); // Re-render the table
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+            showNotification('Failed to load tasks', 'error');
+        }
+    }
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Call loadTasks when the page loads
+    loadTasks();
 
     // Render dummy projects in the table (refined)
     function renderProjectsTable() {

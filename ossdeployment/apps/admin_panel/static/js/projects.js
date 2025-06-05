@@ -31,9 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
             projectSearchBtn.addEventListener('click', handleSearch);
         }
         if (projectSearchInput) {
-            projectSearchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleSearch();
-            });
+            projectSearchInput.addEventListener('input', handleSearch);
         }
 
         // Tab Navigation
@@ -54,6 +52,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 resetForm();
             });
         });
+
+        // Add event delegation for edit/delete buttons
+        if (projectsTableBody) {
+            projectsTableBody.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                const projectId = target.dataset.projectId;
+                if (!projectId) return;
+
+                if (target.classList.contains('edit-btn')) {
+                    handleEditClick(projectId);
+                } else if (target.classList.contains('delete-btn')) {
+                    handleDeleteClick(projectId);
+                }
+            });
+        }
     }
 
     function resetForm() {
@@ -253,23 +268,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateProjectsTable(projects) {
-        if (!Array.isArray(projects)) {
-            console.error('Invalid projects data in updateProjectsTable:', projects);
-            projects = [];
-        }
-
-        const tbody = document.getElementById('projectsTableBody');
-        if (!tbody) {
+        if (!projectsTableBody) {
             console.error('Projects table body not found');
             return;
         }
 
-        if (projects.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No projects found</td></tr>';
+        if (!Array.isArray(projects) || projects.length === 0) {
+            projectsTableBody.innerHTML = '<tr><td colspan="8" class="text-center">No projects found</td></tr>';
             return;
         }
 
-        tbody.innerHTML = projects.map(project => `
+        projectsTableBody.innerHTML = projects.map(project => `
             <tr>
                 <td>${escapeHtml(project.project_name || '')}</td>
                 <td>${escapeHtml(project.project_no || '')}</td>
@@ -277,12 +286,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${escapeHtml(project.pe_no || 'N/A')}</td>
                 <td>${escapeHtml(project.contract_no || '')}</td>
                 <td>${escapeHtml(project.invoice || 'N/A')}</td>
-                <td>${formatDate(project.starting_date) || 'N/A'}</td>
-                <td>
-                    <button onclick="editProject(${project.id})" class="action-btn edit">
+                <td>${formatDate(project.starting_date)}</td>
+                <td class="action-buttons">
+                    <button type="button" class="edit-btn" data-project-id="${project.id}" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="deleteProject(${project.id})" class="action-btn delete">
+                    <button type="button" class="delete-btn" data-project-id="${project.id}" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -390,12 +399,30 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`${type.toUpperCase()}: ${message}`);
     }
 
-    // Make functions available globally
-    window.editProject = (projectId) => {
-        const project = projects.find(p => p.id === projectId);
-        if (project) {
+    async function handleEditClick(projectId) {
+        try {
+            console.log('Fetching project details for ID:', projectId);
+            const response = await fetch(`/admin-panel/api/projects/${projectId}/`);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch project details: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            const project = data.project;
             editingProjectId = project.id;
-            // Populate form with project data using correct field IDs
+            
+            // Update modal title
+            const modalTitle = document.getElementById('projectModalTitle');
+            if (modalTitle) {
+                modalTitle.textContent = 'Edit Project';
+            }
+            
+            // Populate form with project data
             const formElements = {
                 project_name: document.getElementById('project_name'),
                 project_no: document.getElementById('project_no'),
@@ -407,152 +434,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 description: document.getElementById('description')
             };
 
-            // Log form elements for debugging
-            console.log('Edit form elements found:', Object.entries(formElements).map(([key, el]) => ({
-                field: key,
-                found: !!el,
-                value: el ? el.value : null
-            })));
-
-            // Check if any required elements are missing
-            const missingElements = Object.entries(formElements)
-                .filter(([key, el]) => !el)
-                .map(([key]) => key);
-
-            if (missingElements.length > 0) {
-                console.error('Missing form elements for editing:', missingElements);
-                showNotification(`Cannot edit project: missing form elements (${missingElements.join(', ')})`, 'error');
-                return;
-            }
-
             // Set form values
-            formElements.project_name.value = project.project_name || '';
-            formElements.project_no.value = project.project_no || '';
-            formElements.slt_ref_no.value = project.slt_ref_no || '';
-            formElements.pe_no.value = project.pe_no || '';
-            formElements.contract_no.value = project.contract_no || '';
-            formElements.invoice.value = project.invoice || '';
-            formElements.starting_date.value = project.starting_date || '';
-            formElements.description.value = project.description || '';
+            if (formElements.project_name) formElements.project_name.value = project.project_name || '';
+            if (formElements.project_no) formElements.project_no.value = project.project_no || '';
+            if (formElements.slt_ref_no) formElements.slt_ref_no.value = project.slt_ref_no || '';
+            if (formElements.pe_no) formElements.pe_no.value = project.pe_no || '';
+            if (formElements.contract_no) formElements.contract_no.value = project.contract_no || '';
+            if (formElements.invoice) formElements.invoice.value = project.invoice || '';
+            if (formElements.starting_date) formElements.starting_date.value = project.starting_date || '';
+            if (formElements.description) formElements.description.value = project.description || '';
 
-            document.getElementById('projectModalTitle').textContent = 'Edit Project';
-            window.openProjectModal();
-        }
-    };
-
-    window.deleteProject = deleteProject;
-
-    // Function to fetch and display projects
-    async function fetchAndDisplayProjects() {
-        try {
-            const response = await fetch('/admin/api/projects/');
-            const data = await response.json();
-            
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            const tbody = document.getElementById('projectsTableBody');
-            if (!tbody) return;
-
-            tbody.innerHTML = ''; // Clear existing rows
-
-            if (data.projects.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No projects found.</td></tr>';
-                return;
-            }
-
-            data.projects.forEach(project => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${project.project_no}</td>
-                    <td>${project.project_name}</td>
-                    <td>${project.slt_ref_no}</td>
-                    <td>${project.pe_no || 'N/A'}</td>
-                    <td>${project.contract_no}</td>
-                    <td>${project.invoice || 'N/A'}</td>
-                    <td>${project.starting_date}</td>
-                    <td>${project.description || 'N/A'}</td>
-                    <td class="action-buttons">
-                        <button class="edit-btn" data-id="${project.id}" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="delete-btn" data-id="${project.id}" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            // Add event listeners to buttons
-            addButtonEventListeners();
+            // Open modal
+            openModal('projectModal');
         } catch (error) {
-            console.error('Error fetching projects:', error);
-            showNotification('Error loading projects', 'error');
+            console.error('Error loading project details:', error);
+            showNotification('Error loading project details: ' + error.message, 'error');
         }
     }
 
-    // Function to add event listeners to action buttons
-    function addButtonEventListeners() {
-        // Edit buttons
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', handleEditClick);
-        });
-
-        // Delete buttons
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', handleDeleteClick);
-        });
-    }
-
-    // Function to handle edit button click
-    async function handleEditClick(event) {
-        const projectId = event.currentTarget.dataset.id;
-        try {
-            const response = await fetch(`/admin/api/projects/${projectId}/`);
-            const data = await response.json();
-            
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            const project = data.project;
-            
-            // Populate edit form
-            document.getElementById('editProjectId').value = project.id;
-            document.getElementById('editProjectName').value = project.project_name;
-            document.getElementById('editProjectNo').value = project.project_no;
-            document.getElementById('editSltRefNo').value = project.slt_ref_no;
-            document.getElementById('editPeNo').value = project.pe_no || '';
-            document.getElementById('editContractNo').value = project.contract_no;
-            document.getElementById('editInvoice').value = project.invoice || '';
-            document.getElementById('editStartingDate').value = project.starting_date;
-            document.getElementById('editDescription').value = project.description || '';
-
-            // Open edit modal
-            openModal('editProjectModal');
-        } catch (error) {
-            console.error('Error fetching project details:', error);
-            showNotification('Error loading project details', 'error');
-        }
-    }
-
-    // Function to handle delete button click
-    async function handleDeleteClick(event) {
-        const projectId = event.currentTarget.dataset.id;
-        
-        if (!confirm('Are you sure you want to delete this project?')) {
+    async function handleDeleteClick(projectId) {
+        if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
             return;
         }
 
         try {
-            const response = await fetch(`/admin/api/projects/${projectId}/delete/`, {
+            console.log('Deleting project with ID:', projectId);
+            const response = await fetch(`/admin-panel/api/projects/${projectId}/delete/`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
+                    'X-CSRFToken': getCsrfToken()
                 }
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Failed to delete project: ${response.status}`);
+            }
 
             const data = await response.json();
             if (data.error) {
@@ -560,67 +477,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             showNotification('Project deleted successfully', 'success');
-            await fetchAndDisplayProjects(); // Refresh the table
-            await updateProjectCount(); // Update the count in dashboard
+            await loadProjects(); // Refresh the projects list
         } catch (error) {
             console.error('Error deleting project:', error);
-            showNotification('Error deleting project', 'error');
+            showNotification('Error deleting project: ' + error.message, 'error');
         }
     }
 
-    // Function to handle edit form submission
-    async function handleEditSubmit(event) {
-        event.preventDefault();
-        
-        const projectId = document.getElementById('editProjectId').value;
-        const formData = {
-            project_name: document.getElementById('editProjectName').value.trim(),
-            project_no: document.getElementById('editProjectNo').value.trim(),
-            slt_ref_no: document.getElementById('editSltRefNo').value.trim(),
-            pe_no: document.getElementById('editPeNo').value.trim(),
-            contract_no: document.getElementById('editContractNo').value.trim(),
-            invoice: document.getElementById('editInvoice').value.trim(),
-            starting_date: document.getElementById('editStartingDate').value,
-            description: document.getElementById('editDescription').value.trim()
-        };
-
-        try {
-            const response = await fetch(`/admin/api/projects/${projectId}/update/`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            showNotification('Project updated successfully', 'success');
-            closeModal('editProjectModal');
-            await fetchAndDisplayProjects(); // Refresh the table
-        } catch (error) {
-            console.error('Error updating project:', error);
-            showNotification('Error updating project', 'error');
-        }
-    }
-
-    // Add new project button handler
-    const addProjectBtn = document.getElementById('openAddProjectModalBtn');
-    if (addProjectBtn) {
-        addProjectBtn.addEventListener('click', () => {
-            window.openModal('projectModal');
-        });
-    }
-
-    // Close modal button handler
-    const closeModalBtn = document.querySelector('.modal-close');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-            window.closeModal('projectModal');
-        });
-    }
+    // Make functions available globally
+    window.editProject = handleEditClick;
+    window.deleteProject = handleDeleteClick;
+    window.openProjectModal = () => {
+        resetForm();
+        openModal('projectModal');
+    };
+    window.closeProjectModal = () => {
+        closeModal('projectModal');
+        resetForm();
+    };
 }); 

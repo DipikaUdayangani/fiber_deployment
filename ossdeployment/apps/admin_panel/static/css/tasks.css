@@ -116,76 +116,264 @@
     width: 1%;
 }
 
-/* Status badges */
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 4px;
+    color: white;
     font-weight: 500;
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.status-pending {
-    background-color: #fff3e0;
-    color: #f57c00;
+.notification.success {
+    background-color: #4caf50;
 }
 
-.status-in-progress {
-    background-color: #e3f2fd;
-    color: #1976d2;
+.notification.error {
+    background-color: #f44336;
 }
 
-.status-completed {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+.notification.info {
+    background-color: #2196f3;
 }
 
-/* Action buttons */
+.notification.warning {
+    background-color: #ff9800;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Action buttons styles */
 .action-buttons {
     display: flex;
     gap: 8px;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
-.edit-btn,
-.delete-btn {
-    padding: 4px 8px;
+.action-buttons button {
+    padding: 6px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background-color: transparent;
+}
+
+.action-buttons .edit-btn {
+    color: #2196f3;
+}
+
+.action-buttons .delete-btn {
+    color: #f44336;
+}
+
+.action-buttons button:hover {
+    transform: scale(1.1);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons button:active {
+    transform: scale(0.95);
+}
+
+/* Status badge improvements */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.status-pending {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.status-badge.status-in-progress {
+    background-color: #2196f3;
+    color: white;
+}
+
+.status-badge.status-completed {
+    background-color: #4caf50;
+    color: white;
+}
+
+/* Modal improvements */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-modal.active {
     display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    margin: auto;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    height: 32px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
 }
 
-.edit-btn {
-    background-color: #e3f2fd;
-    color: #1976d2;
+.modal-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
 }
 
-.delete-btn {
-    background-color: #ffebee;
-    color: #d32f2f;
-}
-
-.edit-btn:hover {
-    background-color: #bbdefb;
-}
-
-.delete-btn:hover {
-    background-color: #ffcdd2;
-}
-
-/* Attachment icon */
-.attachment-cell {
-    text-align: center;
-}
-
-.attachment-icon {
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5em;
     color: #666;
-    font-size: 1rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+/* Form improvements */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2196f3;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #2196f3;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #f44336;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #9e9e9e;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+        overflow-y: auto;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
 }
 
 /* Responsive adjustments */
@@ -218,64 +406,4 @@
         padding: 4px 8px;
         font-size: 0.85rem;
     }
-}
-
-/* Modal adjustments */
-.modal-container {
-    max-width: 500px;
-    width: 95%;
-    max-height: 85vh;
-}
-
-.modal-body {
-    padding: 16px;
-}
-
-.form-group {
-    margin-bottom: 12px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 0.9rem;
-    color: #333;
-}
-
-.form-group select,
-.form-group input {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-.form-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    margin-top: 16px;
-}
-
-.btn {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-.btn-primary {
-    background-color: #1976d2;
-    color: white;
-}
-
-.btn-secondary {
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.btn:hover {
-    opacity: 0.9;
 }

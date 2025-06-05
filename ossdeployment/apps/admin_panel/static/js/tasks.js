@@ -54,16 +54,19 @@ const rtomsList = [
 // Function to render the tasks table
 function renderTasksTable(tasksToRender = tasks) {
     const tbody = document.getElementById('tasksTableBody');
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('Tasks table body not found');
+        return;
+    }
 
     tbody.innerHTML = ''; // Clear existing rows
 
     if (tasksToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No tasks found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center">No tasks found.</td></tr>';
         return;
     }
     
-    tasksToRender.forEach((task, idx) => {
+    tasksToRender.forEach(task => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${task.id}</td>
@@ -76,13 +79,40 @@ function renderTasksTable(tasksToRender = tasks) {
             <td class="attachment-cell">
                 ${task.attachment ? '<span class="attachment-icon"><i class="fas fa-file-alt"></i></span>' : 'N/A'}
             </td>
-            <td><span class="status-badge status-${task.status.replace(/\s+/g, '-')}">${task.status}</span></td>
+            <td><span class="status-badge status-${task.status.toLowerCase().replace(/\s+/g, '-')}">${task.status}</span></td>
             <td class="action-buttons">
-                <button class="edit-btn" data-id="${task.id}" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="delete-btn" data-id="${task.id}" title="Delete"><i class="fas fa-trash"></i></button>
+                <button type="button" class="edit-btn" data-task-id="${task.id}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" class="delete-btn" data-task-id="${task.id}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
             </td>
         `;
         tbody.appendChild(tr);
+    });
+
+    // Remove any existing event listeners
+    const newTbody = tbody.cloneNode(true);
+    tbody.parentNode.replaceChild(newTbody, tbody);
+
+    // Add event delegation for edit/delete buttons
+    newTbody.addEventListener('click', async function(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const taskId = target.dataset.taskId;
+        if (!taskId) return;
+
+        if (target.classList.contains('edit-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            await handleEditTaskClick(taskId);
+        } else if (target.classList.contains('delete-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            await handleDeleteTaskClick(taskId);
+        }
     });
 }
 
@@ -115,8 +145,88 @@ function populateDropdown(selectElementId, optionsList) {
     });
 }
 
+// Utility functions
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// API functions
+async function fetchTasks() {
+    try {
+        const response = await fetch('/admin_panel/api/tasks/');
+        if (!response.ok) throw new Error('Failed to fetch tasks');
+        const data = await response.json();
+        return data.tasks || [];
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+        showNotification('Failed to load tasks', 'error');
+        return [];
+    }
+}
+
+async function updateTask(taskId, taskData) {
+    try {
+        const response = await fetch(`/admin_panel/api/tasks/${taskId}/update/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(taskData)
+        });
+
+        if (!response.ok) throw new Error('Failed to update task');
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error updating task:', error);
+        throw error;
+    }
+}
+
+async function deleteTask(taskId) {
+    try {
+        const response = await fetch(`/admin_panel/api/tasks/${taskId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete task');
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        throw error;
+    }
+}
+
 // Initialize everything when the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // DOM Elements
     const taskForm = document.getElementById('taskForm');
     const editTaskForm = document.getElementById('editTaskForm');
@@ -141,21 +251,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     setupEventListeners();
-    renderTasksTable();
-    updateTabCounts();
+    await loadInitialTasks();
 
     // Event Listeners Setup
     function setupEventListeners() {
         // Add New Task button
-    if (openAddTaskModalBtn) {
+        if (openAddTaskModalBtn) {
             openAddTaskModalBtn.addEventListener('click', () => {
                 console.log('Add task button clicked');
                 modalTitle.textContent = 'Add New Task';
                 taskForm.reset();
                 populateDropdowns();
                 window.openModal('taskModal');
-        });
-    }
+            });
+        }
 
         // Form submissions
         if (taskForm) {
@@ -190,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     taskForm.reset();
                 }
             });
-            }
+        }
 
         // Close modal on escape key
         document.addEventListener('keydown', (e) => {
@@ -207,23 +316,23 @@ document.addEventListener('DOMContentLoaded', function() {
             searchBtn.addEventListener('click', () => performSearch(searchInput.value));
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performSearch(searchInput.value);
-        });
-    }
+            });
+        }
 
         // Tab switching
-    document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
+        document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
             tab.addEventListener('click', function() {
-            document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
-            this.classList.add('active');
+                document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
 
-            const status = this.getAttribute('data-status');
-            let filteredTasks = tasks;
-            if (status !== 'All') {
-                filteredTasks = tasks.filter(task => task.status === status);
-            }
-            renderTasksTable(filteredTasks);
+                const status = this.getAttribute('data-status');
+                let filteredTasks = tasks;
+                if (status !== 'All') {
+                    filteredTasks = tasks.filter(task => task.status === status);
+                }
+                renderTasksTable(filteredTasks);
             });
-    });
+        });
     }
 
     // Function to populate dropdowns
@@ -273,75 +382,202 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error saving task:', error);
             showNotification(error.message || 'Error saving task', 'error');
-            }
         }
+    }
 
     // Handle edit form submission
     async function handleEditTaskFormSubmit(e) {
-            e.preventDefault();
+        e.preventDefault();
 
         const taskId = document.getElementById('editTaskId').value;
         const formData = {
             name: document.getElementById('editTaskName').value.trim(),
-            assigned_to: document.getElementById('editAssignedTo').value,
-            project: document.getElementById('editTaskProject').value,
+            assigned_to_id: document.getElementById('editAssignedTo').value,
+            project_id: document.getElementById('editTaskProject').value,
             workgroup: document.getElementById('editTaskWorkgroup').value,
-            rtom: document.getElementById('editTaskRtom').value,
+            rtom_id: document.getElementById('editTaskRtom').value,
             deadline: document.getElementById('editTaskDeadline').value,
-            attachment: document.getElementById('editTaskAttachment').files.length > 0
+            status: document.getElementById('editTaskStatus').value
         };
 
         // Validate required fields
-        if (!formData.name || !formData.assigned_to || !formData.project || !formData.workgroup || !formData.rtom || !formData.deadline) {
+        if (!formData.name || !formData.assigned_to_id || !formData.project_id || 
+            !formData.workgroup || !formData.rtom_id || !formData.deadline) {
             showNotification('Please fill in all required fields', 'error');
             return;
         }
 
         try {
-            // Update existing task
-            const index = tasks.findIndex(t => t.id === taskId);
-            if (index !== -1) {
-                tasks[index] = { ...tasks[index], ...formData };
-            }
-
+            await updateTask(taskId, formData);
             showNotification('Task updated successfully', 'success');
-            window.closeModal('taskModal');
+            window.closeModal('editTaskModal');
+            
+            // Refresh the tasks list
+            const updatedTasks = await fetchTasks();
+            tasks = updatedTasks;
             renderTasksTable();
+            updateTabCounts();
         } catch (error) {
-            console.error('Error updating task:', error);
-            showNotification(error.message || 'Error updating task', 'error');
+            showNotification('Failed to update task', 'error');
         }
     }
 
     // Handle edit button click
-    function handleEditButtonClick(event) {
-        const taskId = event.currentTarget.dataset.id;
-        const taskToEdit = tasks.find(task => task.id === taskId);
+    async function handleEditTaskClick(taskId) {
+        try {
+            // Show loading state
+            const editBtn = document.querySelector(`button[data-task-id="${taskId}"].edit-btn`);
+            if (editBtn) {
+                editBtn.disabled = true;
+                editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
 
-        if (taskToEdit) {
-            editModalTitle.textContent = 'Edit Task';
-            document.getElementById('editTaskId').value = taskToEdit.id;
-            document.getElementById('editTaskName').value = taskToEdit.name;
-            document.getElementById('editAssignedTo').value = taskToEdit.assigned_to;
-            document.getElementById('editTaskProject').value = taskToEdit.project;
-            document.getElementById('editTaskWorkgroup').value = taskToEdit.workgroup;
-            document.getElementById('editTaskRtom').value = taskToEdit.rtom;
-            document.getElementById('editTaskDeadline').value = taskToEdit.deadline;
+            // For now, use dummy data since we don't have the API endpoint
+            const taskData = tasks.find(t => t.id === taskId);
+            if (!taskData) {
+                throw new Error('Task not found');
+            }
 
+            // Populate the edit form
+            const editForm = document.getElementById('editTaskForm');
+            if (!editForm) {
+                throw new Error('Edit form not found');
+            }
+
+            // Reset form first
+            editForm.reset();
+
+            // Set form values
+            document.getElementById('editTaskId').value = taskData.id;
+            document.getElementById('editTaskName').value = taskData.name;
+            document.getElementById('editAssignedTo').value = taskData.assigned_to;
+            document.getElementById('editTaskProject').value = taskData.project;
+            document.getElementById('editTaskWorkgroup').value = taskData.workgroup;
+            document.getElementById('editTaskRtom').value = taskData.rtom;
+            document.getElementById('editTaskDeadline').value = taskData.deadline || '';
+            document.getElementById('editTaskStatus').value = taskData.status || 'Pending';
+
+            // Populate dropdowns with current values
             populateDropdowns();
+
+            // Update modal title
+            const modalTitle = document.getElementById('editModalTitle');
+            if (modalTitle) {
+                modalTitle.textContent = `Edit Task: ${taskData.name}`;
+            }
+
+            // Open the edit modal
             window.openModal('editTaskModal');
+
+        } catch (error) {
+            console.error('Error preparing edit form:', error);
+            showNotification('Failed to load task details', 'error');
+        } finally {
+            // Reset button state
+            const editBtn = document.querySelector(`button[data-task-id="${taskId}"].edit-btn`);
+            if (editBtn) {
+                editBtn.disabled = false;
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            }
         }
     }
 
     // Handle delete button click
-    function handleDeleteButtonClick(event) {
-        const taskId = event.currentTarget.dataset.id;
-        if (confirm('Are you sure you want to delete this task?')) {
-            tasks = tasks.filter(task => task.id !== taskId);
-            renderTasksTable();
-            updateTabCounts();
-            showNotification('Task deleted successfully', 'success');
+    async function handleDeleteTaskClick(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) {
+            showNotification('Task not found', 'error');
+            return;
         }
+
+        // Create and show custom confirmation dialog
+        const confirmDialog = document.createElement('div');
+        confirmDialog.className = 'modal-overlay active';
+        confirmDialog.innerHTML = `
+            <div class="modal-container" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h2>Confirm Delete</h2>
+                    <button type="button" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the task "${task.name}"?</p>
+                    <p class="warning-text">This action cannot be undone.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(confirmDialog);
+
+        // Show dialog with animation
+        confirmDialog.style.display = 'flex';
+        setTimeout(() => {
+            confirmDialog.style.opacity = '1';
+            confirmDialog.querySelector('.modal-container').style.transform = 'translateY(0)';
+        }, 10);
+
+        // Handle confirmation
+        return new Promise((resolve) => {
+            const closeDialog = () => {
+                confirmDialog.style.opacity = '0';
+                confirmDialog.querySelector('.modal-container').style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    confirmDialog.remove();
+                    resolve(false);
+                }, 300);
+            };
+
+            confirmDialog.querySelector('.modal-close').onclick = closeDialog;
+            confirmDialog.querySelector('.modal-cancel').onclick = closeDialog;
+            confirmDialog.onclick = (e) => {
+                if (e.target === confirmDialog) closeDialog();
+            };
+
+            confirmDialog.querySelector('#confirmDeleteBtn').onclick = async () => {
+                try {
+                    // Show loading state
+                    const deleteBtn = document.querySelector(`button[data-task-id="${taskId}"].delete-btn`);
+                    if (deleteBtn) {
+                        deleteBtn.disabled = true;
+                        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    }
+
+                    // For now, just remove from the local array since we don't have the API endpoint
+                    tasks = tasks.filter(t => t.id !== taskId);
+                    showNotification('Task deleted successfully', 'success');
+                    
+                    // Update the UI
+                    renderTasksTable();
+                    updateTabCounts();
+                    
+                    closeDialog();
+                    resolve(true);
+                } catch (error) {
+                    console.error('Error deleting task:', error);
+                    showNotification('Failed to delete task', 'error');
+                    resolve(false);
+                } finally {
+                    // Reset button state
+                    const deleteBtn = document.querySelector(`button[data-task-id="${taskId}"].delete-btn`);
+                    if (deleteBtn) {
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    }
+                }
+            };
+
+            // Handle escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape' && confirmDialog.classList.contains('active')) {
+                    closeDialog();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+        });
     }
 
     // Search functionality
@@ -350,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!term) {
             renderTasksTable();
             return;
-            }
+        }
 
         const filteredTasks = tasks.filter(task => 
             task.name.toLowerCase().includes(term) ||
@@ -359,14 +595,20 @@ document.addEventListener('DOMContentLoaded', function() {
             task.workgroup.toLowerCase().includes(term) ||
             task.rtom.toLowerCase().includes(term) ||
             task.id.toLowerCase().includes(term)
-            );
+        );
 
-            renderTasksTable(filteredTasks);
+        renderTasksTable(filteredTasks);
     }
 
-    // Utility function for notifications
-    function showNotification(message, type = 'info') {
-        console.log(`${type.toUpperCase()}: ${message}`);
-        // TODO: Implement proper notification system
+    // Load initial tasks
+    async function loadInitialTasks() {
+        try {
+            tasks = await fetchTasks();
+            renderTasksTable();
+            updateTabCounts();
+        } catch (error) {
+            console.error('Error loading initial tasks:', error);
+            showNotification('Failed to load tasks', 'error');
+        }
     }
 }); 

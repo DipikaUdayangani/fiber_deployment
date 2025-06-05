@@ -52,21 +52,60 @@
         }, 3000);
     };
 
-    // Modal utility functions
+    // Modal utility functions with improved handling
     window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) {
+        if (!modal) {
+            console.warn(`Modal with id ${modalId} not found`);
+            return;
+        }
+
+        // Prevent multiple modals from being open
+        document.querySelectorAll('.custom-modal.active').forEach(m => {
+            if (m.id !== modalId) {
+                window.closeModal(m.id);
+            }
+        });
+
+        // Add active class and show modal
         modal.classList.add('active');
-            modal.style.display = 'flex';
-    }
+        modal.style.display = 'flex';
+        modal.style.opacity = '0';
+        
+        // Force a reflow
+        modal.offsetHeight;
+        
+        // Fade in
+        requestAnimationFrame(() => {
+            modal.style.opacity = '1';
+            modal.style.transition = 'opacity 0.3s ease-in-out';
+        });
+
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
     };
 
     window.closeModal = function(modalId) {
-    const modal = document.getElementById(modalId);
-     if (modal) {
-        modal.classList.remove('active');
-            modal.style.display = 'none';
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            console.warn(`Modal with id ${modalId} not found`);
+            return;
         }
+
+        // Fade out
+        modal.style.opacity = '0';
+        
+        // Wait for fade out animation to complete
+        setTimeout(() => {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            modal.style.transition = 'none';
+            
+            // Re-enable body scrolling if no other modals are open
+            if (!document.querySelector('.custom-modal.active')) {
+                document.body.style.overflow = '';
+    }
+        }, 300);
     };
 
     // Render tasks table function
@@ -193,8 +232,8 @@
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
-                }
-            }
+     }
+}
         }
         return cookieValue;
     };
@@ -236,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call loadTasks when the page loads
     window.loadTasks();
 
-    // Event listeners for stat cards
+    // Event listeners for stat cards with improved handling
     const projectsCard = document.getElementById('projectsCard');
     const usersCard = document.getElementById('usersCard');
     const tasksCard = document.getElementById('tasksCard');
@@ -251,25 +290,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const openAddUserModalBtn = document.getElementById('openAddUserModalBtn'); // Get the Add New User button
     const addUserForm = document.getElementById('addUserForm'); // Get the Add User form
 
+    // Add click handlers with debouncing to prevent double-clicks
+    let isModalTransitioning = false;
+
+    function handleCardClick(card, modalId, renderFunction) {
+        if (isModalTransitioning) return;
+        
+        isModalTransitioning = true;
+        card.style.pointerEvents = 'none'; // Prevent multiple clicks
+        
+        try {
+            if (renderFunction) {
+                renderFunction();
+            }
+            window.openModal(modalId);
+        } catch (error) {
+            console.error('Error opening modal:', error);
+            window.showNotification('Error opening modal', 'error');
+        } finally {
+            setTimeout(() => {
+                isModalTransitioning = false;
+                card.style.pointerEvents = '';
+            }, 500);
+        }
+    }
+
     if (projectsCard) {
-        projectsCard.addEventListener('click', function() { 
-            renderProjectsTable();
-            openModal('projectsModal'); 
-        });
+        projectsCard.addEventListener('click', () => handleCardClick(projectsCard, 'projectsModal', renderProjectsTable));
     }
 
     if (usersCard) {
-        usersCard.addEventListener('click', function() { 
-            renderUsersTable();
-            openModal('usersModal'); 
-        });
+        usersCard.addEventListener('click', () => handleCardClick(usersCard, 'usersModal', renderUsersTable));
     }
 
     if (tasksCard) {
-        tasksCard.addEventListener('click', function() { 
-            renderTasksTable();
-            openModal('tasksModal'); 
-        });
+        tasksCard.addEventListener('click', () => handleCardClick(tasksCard, 'tasksModal', renderTasksTable));
     }
 
     // Add New Project button in projects list modal
@@ -377,10 +432,23 @@ document.addEventListener('DOMContentLoaded', function() {
          });
      }
 
-    // Modal close on background click for all modals
+    // Improved modal close handling
     customModals.forEach(function(modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal && modal.classList.contains('active')) {
+        // Close on background click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal && !isModalTransitioning) {
+                closeModal(modal.id);
+            }
+        });
+
+        // Prevent clicks inside modal from closing it
+        modal.querySelector('.modal-content')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active') && !isModalTransitioning) {
                  closeModal(modal.id);
             }
         });
@@ -393,12 +461,12 @@ document.addEventListener('DOMContentLoaded', function() {
          });
      });
 
-    // Handle closing all modals with close buttons
+    // Close buttons with improved handling
     closeBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            // Find the closest modal parent and close it
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const modal = btn.closest('.custom-modal');
-            if (modal) {
+            if (modal && !isModalTransitioning) {
                 closeModal(modal.id);
             }
         });

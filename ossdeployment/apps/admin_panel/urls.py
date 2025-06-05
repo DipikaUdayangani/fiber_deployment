@@ -22,7 +22,7 @@ urlpatterns = [
     path('api/projects/<int:project_id>/delete/', views.delete_project, name='delete_project'),
 
     # API endpoints for tasks
-    path('api/tasks/', views.get_tasks, name='get_tasks'),
+    path('api/tasks/', views.tasks_api, name='tasks_api'),
     path('api/tasks/create/', views.create_task, name='create_task'),
     path('api/tasks/<int:task_id>/', views.get_task_details, name='get_task_details'),
     path('api/tasks/<int:task_id>/update/', views.update_task, name='update_task'),

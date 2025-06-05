@@ -147,15 +147,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners Setup
     function setupEventListeners() {
         // Add New Task button
-        if (openAddTaskModalBtn) {
+    if (openAddTaskModalBtn) {
             openAddTaskModalBtn.addEventListener('click', () => {
                 console.log('Add task button clicked');
                 modalTitle.textContent = 'Add New Task';
                 taskForm.reset();
                 populateDropdowns();
                 window.openModal('taskModal');
-            });
-        }
+        });
+    }
 
         // Form submissions
         if (taskForm) {
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     taskForm.reset();
                 }
             });
-        }
+            }
 
         // Close modal on escape key
         document.addEventListener('keydown', (e) => {
@@ -207,23 +207,23 @@ document.addEventListener('DOMContentLoaded', function() {
             searchBtn.addEventListener('click', () => performSearch(searchInput.value));
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performSearch(searchInput.value);
-            });
-        }
+        });
+    }
 
         // Tab switching
-        document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
+    document.querySelectorAll('.task-tabs .tab-link').forEach(tab => {
             tab.addEventListener('click', function() {
-                document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
-                this.classList.add('active');
+            document.querySelectorAll('.task-tabs .tab-link').forEach(link => link.classList.remove('active'));
+            this.classList.add('active');
 
-                const status = this.getAttribute('data-status');
-                let filteredTasks = tasks;
-                if (status !== 'All') {
-                    filteredTasks = tasks.filter(task => task.status === status);
-                }
-                renderTasksTable(filteredTasks);
+            const status = this.getAttribute('data-status');
+            let filteredTasks = tasks;
+            if (status !== 'All') {
+                filteredTasks = tasks.filter(task => task.status === status);
+            }
+            renderTasksTable(filteredTasks);
             });
-        });
+    });
     }
 
     // Function to populate dropdowns
@@ -273,12 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error saving task:', error);
             showNotification(error.message || 'Error saving task', 'error');
+            }
         }
-    }
 
     // Handle edit form submission
     async function handleEditTaskFormSubmit(e) {
-        e.preventDefault();
+            e.preventDefault();
 
         const taskId = document.getElementById('editTaskId').value;
         const formData = {
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!term) {
             renderTasksTable();
             return;
-        }
+            }
 
         const filteredTasks = tasks.filter(task => 
             task.name.toLowerCase().includes(term) ||
@@ -359,9 +359,9 @@ document.addEventListener('DOMContentLoaded', function() {
             task.workgroup.toLowerCase().includes(term) ||
             task.rtom.toLowerCase().includes(term) ||
             task.id.toLowerCase().includes(term)
-        );
+            );
 
-        renderTasksTable(filteredTasks);
+            renderTasksTable(filteredTasks);
     }
 
     // Utility function for notifications

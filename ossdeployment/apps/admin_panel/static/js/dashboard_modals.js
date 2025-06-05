@@ -1,30 +1,206 @@
-// Utility to open/close modals
-function openModal(modalId) {
+// Define all utility functions in the global scope
+(function(window) {
+    // Global notification function
+    window.showNotification = function(message, type = 'info') {
+        // Create notification container if it doesn't exist
+        let notificationContainer = document.getElementById('notification-container');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notification-container';
+            notificationContainer.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            `;
+            document.body.appendChild(notificationContainer);
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            background-color: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8'};
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease-in-out;
+        `;
+        notification.textContent = message;
+
+        // Add to container
+        notificationContainer.appendChild(notification);
+
+        // Trigger animation
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    };
+
+    // Modal utility functions
+    window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('active');
-        // Optional: Add a slight delay before removing display: none to ensure animation plays
-        // setTimeout(() => { modal.style.display = 'flex'; }, 10);
-         modal.style.display = 'flex'; // Use flex display when active
+            modal.style.display = 'flex';
     }
-}
+    };
 
-function closeModal(modalId) {
+    window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
      if (modal) {
         modal.classList.remove('active');
-        // Optional: Use a timeout to match animation duration before hiding
-        // setTimeout(() => { modal.style.display = 'none'; }, 250); // Match animation duration
-        modal.style.display = 'none'; // Hide immediately
-     }
-}
+            modal.style.display = 'none';
+        }
+    };
 
-// Make modal functions available globally
-window.openModal = openModal;
-window.closeModal = closeModal;
+    // Render tasks table function
+    window.renderTasksTable = function() {
+        const tbody = document.getElementById('tasksTableBody');
+        if (!tbody) {
+            console.warn('Tasks table body not found');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        if (!window.dummyTasks || !Array.isArray(window.dummyTasks)) {
+            console.warn('No tasks data available');
+            return;
+        }
+
+        window.dummyTasks.forEach(task => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${task.name || 'N/A'}</td>
+                <td class="project-name-cell">${task.project || 'N/A'} (${task.projectId || 'N/A'})</td>
+                <td>${task.assigned_to || 'N/A'}</td>
+                <td>${task.workgroup || 'N/A'}</td>
+                <td>${task.rtom || 'N/A'}</td>
+                <td><span class="status-badge status-${(task.status || 'pending').toLowerCase().replace(/\s+/g, '-')}">${task.status || 'Pending'}</span></td>
+                <td class="action-buttons">
+                    <button type="button" class="edit-btn" data-task-id="${task.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="delete-btn" data-task-id="${task.id}" title="Delete"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Add event delegation for edit/delete buttons
+        tbody.addEventListener('click', function(e) {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            const taskId = parseInt(target.dataset.taskId);
+            if (!taskId) return;
+
+            if (target.classList.contains('edit-btn')) {
+                handleEditTaskClick(taskId);
+            } else if (target.classList.contains('delete-btn')) {
+                handleDeleteTaskClick(taskId);
+            }
+        });
+    };
+
+    // Function to load tasks from the API
+    window.loadTasks = async function() {
+        try {
+            // Get the base URL from the current page
+            const baseUrl = window.location.pathname.split('/')[1]; // Gets 'admin_panel' or 'admin-panel'
+            const apiUrl = `/${baseUrl}/api/tasks/`;
+            
+            console.log('Fetching tasks from:', apiUrl); // Debug log
+            
+            // First try to get tasks from the API
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRFToken': window.getCookie('csrftoken')
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                console.warn(`API request failed with status ${response.status}, falling back to dummy data`);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (!data || !data.tasks) {
+                console.warn('Invalid API response format, falling back to dummy data');
+                throw new Error('Invalid response format: tasks array not found');
+            }
+
+            // Update tasks and render
+            window.dummyTasks = data.tasks;
+            window.renderTasksTable();
+            window.showNotification('Tasks loaded successfully', 'success');
+
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+            window.showNotification('Using sample data (API unavailable)', 'info');
+            
+            // Fallback to dummy data
+            window.dummyTasks = [
+                { 
+                    id: 1, 
+                    name: 'Sample Task 1', 
+                    project: 'Project A', 
+                    projectId: 'PROJ-001',
+                    assigned_to: 'John Doe', 
+                    workgroup: 'NET-PROJ-ACC-CABLE', 
+                    rtom: 'RTOM-01', 
+                    status: 'Pending' 
+                },
+                { 
+                    id: 2, 
+                    name: 'Sample Task 2', 
+                    project: 'Project B', 
+                    projectId: 'PROJ-002',
+                    assigned_to: 'Jane Smith', 
+                    workgroup: 'XXX-ENG-NW', 
+                    rtom: 'RTOM-02', 
+                    status: 'In Progress' 
+                }
+            ];
+            window.renderTasksTable();
+        }
+    };
+
+    // Helper function to get CSRF token
+    window.getCookie = function(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    };
 
 // Function to populate dropdown options
-function populateDropdown(selectElementId, optionsList, valueKey = 'value', textKey = 'text') {
+    window.populateDropdown = function(selectElementId, optionsList, valueKey = 'value', textKey = 'text') {
     const selectElement = document.getElementById(selectElementId);
     if (!selectElement) return;
 
@@ -37,7 +213,6 @@ function populateDropdown(selectElementId, optionsList, valueKey = 'value', text
 
     optionsList.forEach(optionData => {
         const option = document.createElement('option');
-        // Handle both simple arrays (value = text) and array of objects
         if (typeof optionData === 'object' && optionData !== null) {
              option.value = optionData[valueKey];
              option.textContent = optionData[textKey];
@@ -47,10 +222,19 @@ function populateDropdown(selectElementId, optionsList, valueKey = 'value', text
         }
         selectElement.appendChild(option);
     });
-}
+    };
 
+    // Initialize dummy data
+    window.dummyTasks = [];
+
+})(window);
+
+// Initialize everything when the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('dashboard_modals.js loaded'); // Log to confirm script loading
+
+    // Call loadTasks when the page loads
+    window.loadTasks();
 
     // Event listeners for stat cards
     const projectsCard = document.getElementById('projectsCard');
@@ -471,41 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to load tasks from the API
-    async function loadTasks() {
-        try {
-            const response = await fetch('/admin_panel/api/tasks/');
-            if (!response.ok) throw new Error('Failed to fetch tasks');
-            
-            const data = await response.json();
-            dummyTasks = data.tasks; // Update the tasks array
-            renderTasksTable(); // Re-render the table
-        } catch (error) {
-            console.error('Error loading tasks:', error);
-            showNotification('Failed to load tasks', 'error');
-        }
-    }
-
-    // Helper function to get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    // Call loadTasks when the page loads
-    loadTasks();
-
-    // Render dummy projects in the table (refined)
+    // Render dummy projects in the table
     function renderProjectsTable() {
         const tbody = document.getElementById('projectsTableBody');
          if (!tbody) return; // Exit if tbody not found
@@ -525,15 +675,6 @@ document.addEventListener('DOMContentLoaded', function() {
             tbody.appendChild(tr);
         });
     }
-
-    // Call render functions for initial load if needed (depends on your page load strategy)
-    // If these tables are meant to be populated when modals open, keep calls within event listeners.
-
-    // Dummy data (updated based on user requirements)
-    // Declare dummyTasks on window to be accessible by other scripts like admin tasks.js
-    window.dummyTasks = [
-        // ... existing code ...
-    ];
 
     // Add New User button in users list modal
     if (openAddUserModalBtn) {

@@ -468,3 +468,9 @@ def delete_task(request, task_id):
             'status': 'error',
             'message': str(e)
         }, status=400)
+
+def tasks_api(request):
+    if request.method == 'GET':
+        tasks = Task.objects.all()  # or whatever your model is
+        return JsonResponse({'tasks': list(tasks.values())})
+    return JsonResponse({'error': 'Method not allowed'}, status=405)

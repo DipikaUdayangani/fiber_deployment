@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User  # Change this line
+from django.http import JsonResponse
+from django.urls import reverse  # Add this import
 from apps.admin_panel.models import DummyCredentials
 import logging
 
@@ -13,25 +15,48 @@ logger = logging.getLogger(__name__)
 def login_view(request):
     if request.method == 'POST':
         employee_id = request.POST.get('employee_id')
-        user = authenticate(request, username=employee_id, password=request.POST.get('password'))
+        password = request.POST.get('password')
+        
+        # Log the login attempt
+        logger.debug(f"Login attempt for employee ID: {employee_id}")
+        
+        user = authenticate(request, username=employee_id, password=password)
         
         if user is not None:
             login(request, user)
-            logger.debug(f"User logged in - ID: {employee_id}, Workgroup: {user.workgroup}")
+            logger.debug(f"User logged in successfully - ID: {employee_id}, Workgroup: {user.workgroup}")
             
+            # Determine redirect URL based on workgroup
             if user.workgroup == 'XXX-RTOM':  # Administrator workgroup
-                logger.debug(f"Redirecting {employee_id} to admin dashboard")
-                return redirect('admin_panel:dashboard')
+                redirect_url = reverse('admin_panel:dashboard')
             elif user.workgroup in ['NET-PROJ-ACC-CABLE', 'XXX-ENG-NW']:  # Employee workgroups
-                logger.debug(f"Redirecting {employee_id} to employee dashboard")
-                return redirect('employee_panel:dashboard')
+                redirect_url = reverse('employee_panel:dashboard')
             else:  # Contractor workgroups
-                logger.debug(f"Redirecting {employee_id} to contractor dashboard")
-                return redirect('contractor_panel:dashboard')
+                redirect_url = reverse('contractor_panel:dashboard')
+            
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': redirect_url
+                })
+            else:
+                return redirect(redirect_url)
         else:
             logger.warning(f"Failed login attempt for employee ID: {employee_id}")
-            messages.error(request, 'Invalid credentials')
+            error_message = 'Invalid credentials. Please check your employee ID and password.'
             
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': error_message
+                })
+            else:
+                messages.error(request, error_message)
+                return render(request, 'accounts/login.html')
+    
+    # GET request - show login form
     return render(request, 'accounts/login.html')
 
 def register_view(request):

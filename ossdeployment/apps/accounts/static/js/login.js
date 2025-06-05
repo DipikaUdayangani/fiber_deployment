@@ -11,81 +11,127 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            // Get CSRF token from the form
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showAlert('Security token missing. Please refresh the page and try again.', 'error');
+                return;
+            }
+
             try {
                 const formData = new FormData(this);
+                
+                // Log the form data for debugging
+                console.log('Submitting form data:', {
+                    employee_id: formData.get('employee_id'),
+                    password: '***', // Don't log the actual password
+                    user_type: formData.get('user_type')
+                });
+
                 const response = await fetch(this.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin' // Important for CSRF
                 });
 
+                // Check if the response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response');
+                }
+
                 const data = await response.json();
+                console.log('Server response:', data);
 
                 if (data.success) {
-                    // Redirect to the appropriate dashboard based on user type
-                    window.location.href = data.redirect_url;
+                    // Get the base URL of the current site
+                    const baseUrl = window.location.origin;
+                    // Construct the full URL for redirection
+                    const fullRedirectUrl = data.redirect_url.startsWith('http') 
+                        ? data.redirect_url 
+                        : `${baseUrl}${data.redirect_url}`;
+                    
+                    console.log('Redirecting to:', fullRedirectUrl);
+                    window.location.href = fullRedirectUrl;
                 } else {
                     // Show error message
+                    const errorMessage = data.error || 'Login failed. Please check your credentials.';
                     if (messagesContainer) {
                         messagesContainer.innerHTML = `
                             <div class="alert alert-error">
-                                ${data.error || 'Login failed. Please check your credentials.'}
+                                ${errorMessage}
                             </div>
                         `;
                     } else {
-                        alert(data.error || 'Login failed. Please check your credentials.');
+                        showAlert(errorMessage, 'error');
                     }
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Login error:', error);
+                const errorMessage = 'An error occurred during login. Please try again.';
                 if (messagesContainer) {
                     messagesContainer.innerHTML = `
                         <div class="alert alert-error">
-                            An error occurred. Please try again.
+                            ${errorMessage}
                         </div>
                     `;
                 } else {
-                    alert('An error occurred. Please try again.');
+                    showAlert(errorMessage, 'error');
                 }
             }
         });
     }
 
-    // Clear messages when user starts typing
-    const inputs = loginForm.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            if (messagesContainer) {
-                messagesContainer.innerHTML = '';
-            }
-        });
-    });
-
-    // Password toggle functionality
-    const toggleButtons = document.querySelectorAll('.toggle-password');
-    toggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const input = this.previousElementSibling;
-            const type = input.getAttribute('type');
-            input.setAttribute('type', type === 'password' ? 'text' : 'password');
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
-        });
-    });
-
     // Show alert message function
-    function showAlert(message, type) {
-        if (alertDiv) {
+    function showAlert(message, type = 'error') {
+        if (messagesContainer) {
+            messagesContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+        } else if (alertDiv) {
             alertDiv.textContent = message;
             alertDiv.className = `alert alert-${type} show`;
             
             setTimeout(() => {
                 alertDiv.classList.remove('show');
             }, 3000);
+        } else {
+            alert(message);
         }
     }
+
+    // Clear messages when user starts typing
+    const inputs = loginForm?.querySelectorAll('input');
+    if (inputs) {
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                }
+            });
+        });
+    }
+
+    // Password toggle functionality
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            if (!input) return;
+            
+            const type = input.getAttribute('type');
+            input.setAttribute('type', type === 'password' ? 'text' : 'password');
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    });
 
     // Display Django messages if any
     const messages = document.querySelectorAll('.messages .alert');

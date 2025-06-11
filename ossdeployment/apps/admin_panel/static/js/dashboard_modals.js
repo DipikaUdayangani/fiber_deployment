@@ -763,41 +763,71 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form submit handler for Add User (Simulated)
+    // Form submit handler for Add User
     if (addUserForm) {
-        addUserForm.addEventListener('submit', function(e) {
+        addUserForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('User form submission started');
+            
             const formData = new FormData(this);
-            // Simulate adding user (replace with actual backend call)
-            const newUser = {
-                userId: formData.get('user_employee_id'),
+            
+            // Prepare user data
+            const userData = {
+                employee_id: formData.get('user_employee_id'),
                 name: formData.get('user_name'),
                 email: formData.get('user_email'),
                 workgroup: formData.get('user_workgroup'),
                 rtom: formData.get('user_rtom'),
-                role: 'Employee' // Default role, adjust if needed
+                password: 'default123' // Default password for new users
             };
 
-            // Basic validation (add more as needed)
-            if (!newUser.userId || !newUser.name || !newUser.email || !newUser.workgroup || !newUser.rtom) {
-                alert('Please fill in all required fields.');
+            console.log('Prepared user data:', userData);
+
+            // Basic validation
+            if (!userData.employee_id || !userData.name || !userData.email || !userData.workgroup || !userData.rtom) {
+                const missingFields = [];
+                if (!userData.employee_id) missingFields.push('Employee ID');
+                if (!userData.name) missingFields.push('Name');
+                if (!userData.email) missingFields.push('Email');
+                if (!userData.workgroup) missingFields.push('Workgroup');
+                if (!userData.rtom) missingFields.push('RTOM');
+                
+                showNotification(`Please fill in all required fields: ${missingFields.join(', ')}`, 'error');
                 return;
             }
 
-            // Check if user ID already exists (simple dummy check)
-            const userExists = dummyUsers.some(user => user.userId === newUser.userId);
-            if (userExists) {
-                 alert(`User with Employee ID ${newUser.userId} already exists.`);
-                 return;
-            }
+            try {
+                console.log('Making API call to create user...');
+                // Make API call to create user - using underscore instead of hyphen
+                const response = await fetch('/admin_panel/api/users/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(userData)
+                });
 
-            dummyUsers.push(newUser);
-            console.log('Simulating Add User:', newUser);
-            closeModal('addUserModal');
-            renderUsersTable(); // Re-render users table
-            alert('User added (demo only, not saved to backend)');
-             // Optionally, re-open the users list modal
-            openModal('usersModal');
+                console.log('API response status:', response.status);
+                const data = await response.json();
+                console.log('API response data:', data);
+
+                if (response.ok) {
+                    console.log('User created successfully:', data);
+                    closeModal('addUserModal');
+                    // Refresh the users list
+                    if (typeof loadUsers === 'function') {
+                        await loadUsers();
+                    }
+                    showNotification('User added successfully', 'success');
+                } else {
+                    throw new Error(data.error || 'Failed to create user');
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+                showNotification(error.message || 'Error creating user. Please try again.', 'error');
+            }
         });
     }
 

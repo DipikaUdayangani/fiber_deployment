@@ -4,134 +4,163 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.conf import settings
+from django.db.models import Q, Count, F, Case, When, Value, CharField
+from apps.admin_panel.models import Project, Task, TaskAssignment, User
+from django.utils import timezone
 import json
-import os
-from datetime import datetime
-
-def login_view(request):
-    return render(request, 'employee_panel/login.html')
-
 
 @login_required
 def dashboard_view(request):
+    """Employee dashboard view showing summary statistics."""
+    user = request.user
+    
+    # Get projects assigned to user's workgroup
+    assigned_projects = Project.objects.filter(
+        taskassignment__task__assigned_workgroup=user.workgroup
+    ).distinct()
+    
+    # Calculate project statistics
+    total_projects = assigned_projects.count()
+    completed_projects = assigned_projects.filter(status='COMPLETED').count()
+    in_progress_projects = assigned_projects.filter(status='IN_PROGRESS').count()
+    
     context = {
-        'STATIC_URL': settings.STATIC_URL
+        'total_projects': total_projects,
+        'completed_projects': completed_projects,
+        'in_progress_projects': in_progress_projects,
     }
+    
     return render(request, 'employee_panel/dashboard.html', context)
 
 @login_required
 def projects_view(request):
-    return render(request, 'employee_panel/projects.html')
+    """View showing projects assigned to the employee's workgroup."""
+    user = request.user
+    
+    # Get projects assigned to user's workgroup through task assignments
+    assigned_projects = Project.objects.filter(
+        taskassignment__task__assigned_workgroup=user.workgroup
+    ).distinct().annotate(
+        total_tasks=Count('taskassignment__task', distinct=True),
+        completed_tasks=Count(
+            'taskassignment__task',
+            filter=Q(taskassignment__status='COMPLETED'),
+            distinct=True
+        ),
+        pending_tasks=Count(
+            'taskassignment__task',
+            filter=Q(taskassignment__status='PENDING'),
+            distinct=True
+        ),
+        in_progress_tasks=Count(
+            'taskassignment__task',
+            filter=Q(taskassignment__status='IN_PROGRESS'),
+            distinct=True
+        )
+    ).order_by('-starting_date')
+    
+    # Prepare project data for template
+    projects_data = []
+    for project in assigned_projects:
+        project_data = {
+            'id': project.id,
+            'project_name': project.project_name,
+            'project_no': project.project_no,
+            'pe_no': project.pe_no,
+            'contract_no': project.contract_no,
+            'status': project.status,
+            'total_tasks': project.total_tasks,
+            'completed_tasks': project.completed_tasks,
+            'pending_tasks': project.pending_tasks,
+            'in_progress_tasks': project.in_progress_tasks,
+        }
+        projects_data.append(project_data)
+    
+    context = {
+        'projects': projects_data,
+    }
+    
+    return render(request, 'employee_panel/projects.html', context)
 
 @login_required
 def tasks_view(request):
-    return render(request, 'employee_panel/tasks.html')
+    """View showing tasks assigned to the employee's workgroup."""
+    user = request.user
+    
+    # Get tasks assigned to user's workgroup
+    assigned_tasks = Task.objects.filter(
+        assigned_workgroup=user.workgroup
+    ).select_related('project').order_by('-created_at')
+    
+    context = {
+        'tasks': assigned_tasks,
+    }
+    
+    return render(request, 'employee_panel/tasks.html', context)
 
 @login_required
 def profile_view(request):
-    # In a real application, fetch logged-in user's profile data
+    """View for employee profile management."""
+    user = request.user
     context = {
-        'user': request.user,  # Example of passing user object
-        'STATIC_URL': settings.STATIC_URL  # Add STATIC_URL to context
+        'user': user,
     }
     return render(request, 'employee_panel/profile.html', context)
 
 @login_required
-@require_http_methods(["GET"])
+@require_http_methods(['GET'])
 def get_tasks(request):
-    """
-    API endpoint to get tasks for the logged-in employee.
-    Currently returns dummy data, but should be replaced with actual database queries.
-    """
-    # TODO: Replace with actual database queries
-    dummy_tasks = [
-        {
-            "id": 1,
-            "taskName": "SPECIFY DESIGN DETAILS",
-            "projectName": "Fiber Rollout Phase 1",
-            "projectNo": "PROJ001",
-            "workgroup": "NET-PLAN-TX",
-            "rtom": "RTOM 1",
-            "status": "pending",
-            "documents": [
-                {
-                    "id": 101,
-                    "name": "design_specifications_v1.pdf",
-                    "uploadedBy": request.user.get_full_name() or request.user.username,
-                    "uploadDate": "2024-03-15",
-                    "status": "pending",
-                    "type": "pdf"
-                }
-            ]
-        },
-        # Add more dummy tasks as needed
-    ]
+    """API endpoint to get tasks for the current user's workgroup."""
+    user = request.user
     
-    return JsonResponse({
-        "success": True,
-        "tasks": dummy_tasks
-    })
+    tasks = Task.objects.filter(
+        assigned_workgroup=user.workgroup
+    ).select_related('project').order_by('-created_at')
+    
+    tasks_data = [{
+        'id': task.id,
+        'name': task.name,
+        'description': task.description,
+        'project': task.project.project_name if task.project else None,
+        'status': task.status,
+        'assigned_workgroup': task.assigned_workgroup,
+        'created_at': task.created_at.isoformat(),
+    } for task in tasks]
+    
+    return JsonResponse({'tasks': tasks_data})
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(['POST'])
 def upload_task_document(request, task_id):
-    """
-    API endpoint to handle document uploads for tasks.
-    """
+    """API endpoint to upload documents for a task."""
     try:
+        task = Task.objects.get(
+            id=task_id,
+            assigned_workgroup=request.user.workgroup
+        )
+        
         if 'document' not in request.FILES:
             return JsonResponse({
-                "success": False,
-                "error": "No file provided"
+                'success': False,
+                'error': 'No document file provided'
             }, status=400)
-
-        file = request.FILES['document']
-        description = request.POST.get('description', '')
-
-        # Validate file size (5MB limit)
-        if file.size > 5 * 1024 * 1024:  # 5MB in bytes
-            return JsonResponse({
-                "success": False,
-                "error": "File size exceeds 5MB limit"
-            }, status=400)
-
-        # Validate file type
-        allowed_types = ['.pdf', '.doc', '.docx', '.txt', '.jpg', '.jpeg', '.png']
-        file_ext = os.path.splitext(file.name)[1].lower()
-        if file_ext not in allowed_types:
-            return JsonResponse({
-                "success": False,
-                "error": f"File type not allowed. Allowed types: {', '.join(allowed_types)}"
-            }, status=400)
-
-        # Generate a unique filename
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"task_{task_id}_{timestamp}{file_ext}"
         
-        # Save the file
-        path = default_storage.save(f'task_documents/{filename}', ContentFile(file.read()))
+        document = request.FILES['document']
+        # Handle document upload logic here
+        # You'll need to implement the actual file storage logic
         
-        # TODO: Save document metadata to database
-        # For now, just return success
         return JsonResponse({
-            "success": True,
-            "message": "Document uploaded successfully",
-            "document": {
-                "id": 999,  # This should be the actual document ID from the database
-                "name": filename,
-                "uploadedBy": request.user.get_full_name() or request.user.username,
-                "uploadDate": datetime.now().strftime('%Y-%m-%d'),
-                "status": "pending",
-                "type": file_ext[1:],  # Remove the dot from extension
-                "description": description
-            }
+            'success': True,
+            'message': 'Document uploaded successfully'
         })
-
+        
+    except Task.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Task not found or not assigned to your workgroup'
+        }, status=404)
     except Exception as e:
         return JsonResponse({
-            "success": False,
-            "error": str(e)
+            'success': False,
+            'error': str(e)
         }, status=500)

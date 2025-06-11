@@ -18,16 +18,55 @@ class User(AbstractUser):
         ('XXX-RTOM', 'XXX-RTOM'),
     ]
 
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Active'),
+        ('INACTIVE', 'Inactive'),
+        ('SUSPENDED', 'Suspended'),
+    ]
+
+    # Required fields
     employee_number = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     workgroup = models.CharField(max_length=50, choices=WORKGROUP_CHOICES)
     rtom = models.ForeignKey('RTOM', on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
+    
+    # Optional fields
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    position = models.CharField(max_length=100, blank=True, null=True)
+    date_joined = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_activity = models.DateTimeField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'admin_panel_user'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+        indexes = [
+            models.Index(fields=['employee_number']),
+            models.Index(fields=['email']),
+            models.Index(fields=['workgroup']),
+            models.Index(fields=['status']),
+            models.Index(fields=['date_joined']),
+        ]
 
     def save(self, *args, **kwargs):
-        # Set employee_number to username if not provided
         if not self.employee_number:
             self.employee_number = self.username
+        if not self.username:
+            self.username = self.employee_number
         super().save(*args, **kwargs)
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip() or self.username
+
+    def get_status_display(self):
+        return dict(self.STATUS_CHOICES).get(self.status, self.status)
+
+    def get_workgroup_display(self):
+        return dict(self.WORKGROUP_CHOICES).get(self.workgroup, self.workgroup)
 
     # Add related_name to fix the clash
     groups = models.ManyToManyField(
@@ -57,29 +96,36 @@ class Task(models.Model):
         ('COMPLETED', 'Completed')
     ]
 
+    AREA_CONDITION_CHOICES = [
+        ('METRO', 'Metro'),
+        ('REGION', 'Region'),
+        ('URBAN', 'Urban'),
+        ('RURAL', 'Rural')
+    ]
+
     name = models.CharField(max_length=200)
     description = models.TextField()
-    assigned_workgroup = models.CharField(max_length=50)
-    area_condition = models.CharField(max_length=20)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
-    rtom = models.ForeignKey('RTOM', on_delete=models.SET_NULL, null=True, related_name='tasks')
+    assigned_workgroup = models.CharField(max_length=50, choices=User.WORKGROUP_CHOICES)
+    area_condition = models.CharField(max_length=20, choices=AREA_CONDITION_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    rtom = models.ForeignKey('RTOM', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    attachment = models.FileField(upload_to='task_attachments/', null=True, blank=True)
+    attachment = models.FileField(upload_to='task_attachments/')
 
     def __str__(self):
         return self.name
 
 class Project(models.Model):
-    project_name = models.CharField(max_length=200, blank=True, null=True)
-    project_no = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    slt_ref_no = models.CharField(max_length=50, blank=True, null=True)
-    pe_no = models.CharField(max_length=50, blank=True, null=True)
-    contract_no = models.CharField(max_length=50, blank=True, null=True)
-    invoice = models.CharField(max_length=50, blank=True, null=True)
-    starting_date = models.DateField(null=True, blank=True)
-    description = models.TextField(blank=True, null=True)
-    attachment = models.FileField(upload_to='project_attachments/', blank=True, null=True)
+    project_name = models.CharField(max_length=200)
+    project_no = models.CharField(max_length=50, unique=True)
+    slt_ref_no = models.CharField(max_length=50)
+    pe_no = models.CharField(max_length=50)
+    contract_no = models.CharField(max_length=50)
+    invoice = models.CharField(max_length=50)
+    starting_date = models.DateField()
+    description = models.TextField()
+    attachment = models.FileField(upload_to='project_attachments/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -99,9 +145,9 @@ class TaskAssignment(models.Model):
     ]
 
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    assigned_to = models.ForeignKey('User', on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -147,6 +193,33 @@ class Workgroup(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class UserActivity(models.Model):
+    ACTIVITY_TYPES = [
+        ('LOGIN', 'Login'),
+        ('LOGOUT', 'Logout'),
+        ('CREATE', 'Create'),
+        ('UPDATE', 'Update'),
+        ('DELETE', 'Delete'),
+        ('VIEW', 'View'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
+    description = models.TextField()
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    related_object_id = models.PositiveIntegerField(null=True, blank=True)
+    related_object_type = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'User Activity'
+        verbose_name_plural = 'User Activities'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.activity_type} - {self.created_at}"
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin

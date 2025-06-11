@@ -27,4 +27,17 @@ urlpatterns = [
     path('api/tasks/<int:task_id>/', views.get_task_details, name='get_task_details'),
     path('api/tasks/<int:task_id>/update/', views.update_task, name='update_task'),
     path('api/tasks/<int:task_id>/delete/', views.delete_task, name='delete_task'),
+
+    # API endpoints for users
+    path('api/users/', views.get_users, name='get_users'),
+    path('api/users/list/', views.get_users, name='get_users_list'),  # For the manage users page
+    path('api/users/add/', views.add_user, name='add_user'),
+    path('api/users/<int:user_id>/update/', views.update_user, name='update_user'),
+    path('api/users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
+    path('api/users/<int:user_id>/status/', views.update_user_status, name='update_user_status'),
+    path('api/users/activities/', views.get_user_activities, name='get_user_activities'),
+    path('api/users/<int:user_id>/activities/', views.get_user_activities, name='get_user_activities_by_id'),
+
+    # API endpoints for RTOMs
+    path('api/rtoms/', views.get_rtoms, name='get_rtoms'),
 ]

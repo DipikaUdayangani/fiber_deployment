@@ -361,12 +361,12 @@
         max-height: calc(100vh - 20px);
         overflow-y: auto;
     }
-
+    
     .action-buttons {
         flex-direction: column;
         gap: 4px;
     }
-
+    
     .form-actions {
         flex-direction: column;
     }
@@ -383,7 +383,7 @@
         align-items: flex-start;
     }
 
-    .header-actions {
+     .header-actions {
         width: 100%;
         justify-content: flex-start;
     }
@@ -406,4 +406,4 @@
         padding: 4px 8px;
         font-size: 0.85rem;
     }
-}
+} 

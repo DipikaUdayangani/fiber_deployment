@@ -51,31 +51,36 @@
         </div>
         <div class="modal-body">
             <form id="userForm" class="modal-form">
+                {% csrf_token %}
             <input type="hidden" id="userId" name="id">
                 <div class="form-group">
                 <label for="employeeName">Employee Name <span class="required">*</span></label>
-                <input type="text" id="employeeName" name="employeeName" required>
+                    <input type="text" id="employeeName" name="name" required>
             </div>
                 <div class="form-group">
                 <label for="employeeId">Employee ID <span class="required">*</span></label>
-                <input type="text" id="employeeId" name="employeeId" required>
+                    <input type="text" id="employeeId" name="employee_id" required>
             </div>
                 <div class="form-group">
                 <label for="userEmail">Email <span class="required">*</span></label>
-                <input type="email" id="userEmail" name="userEmail" required>
+                    <input type="email" id="userEmail" name="email" required>
             </div>
                 <div class="form-group">
                 <label for="userWorkgroup">Workgroup <span class="required">*</span></label>
-                <select id="userWorkgroup" name="userWorkgroup" required>
+                    <select id="userWorkgroup" name="workgroup" required>
                     <option value="">Select Workgroup</option>
-                    {# Options will be populated by JavaScript #}
+                        {% for value, label in workgroup_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
                 </select>
             </div>
                 <div class="form-group">
                 <label for="userRtom">RTOM <span class="required">*</span></label>
-                <select id="userRtom" name="userRtom" required>
+                    <select id="userRtom" name="rtom" required>
                     <option value="">Select RTOM</option>
-                    {# Options will be populated by JavaScript #}
+                        {% for rtom in rtoms %}
+                        <option value="{{ rtom.id }}">{{ rtom.name }}</option>
+                        {% endfor %}
                 </select>
             </div>
             <div class="form-actions">

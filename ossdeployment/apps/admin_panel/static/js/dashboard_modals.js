@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     console.log('User created successfully:', data);
-                    closeModal('addUserModal');
+            closeModal('addUserModal');
                     // Refresh the users list
                     if (typeof loadUsers === 'function') {
                         await loadUsers();

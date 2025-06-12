@@ -1,9 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib import messages
 from django.utils import timezone
 
 class User(AbstractUser):
@@ -89,6 +85,9 @@ class RTOM(models.Model):
     code = models.CharField(max_length=50, unique=True)
     area_type = models.CharField(max_length=20, choices=[('METRO', 'Metro'), ('REGION', 'Region')])
 
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
 class Task(models.Model):
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
@@ -115,6 +114,9 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-created_at']
 
 class Project(models.Model):
     project_name = models.CharField(max_length=200)
@@ -159,6 +161,9 @@ class TaskAssignment(models.Model):
         if self.status == 'COMPLETED' and not self.completed_at:
             self.completed_at = timezone.now()
         super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_at']
 
 class DummyCredentials:
     ADMIN = {
@@ -219,28 +224,4 @@ class UserActivity(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.get_full_name()} - {self.activity_type} - {self.created_at}"
-
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import User, RTOM, Task, Project, TaskAssignment
-
-@login_required
-def dashboard(request):
-    user = request.user
-    workgroup = user.workgroup
-    
-    # Get tasks based on workgroup
-    assigned_tasks = TaskAssignment.objects.filter(
-        assigned_to=user,
-        status='PENDING'
-    ).select_related('task', 'project')
-    
-    context = {
-        'workgroup': workgroup,
-        'assigned_tasks': assigned_tasks
-    }
-    
-    # Redirect to specific dashboard based on workgroup
-    template_name = f'dashboard/{workgroup.lower()}_dashboard.html'
-    return render(request, template_name, context)
+        return f"{self.user.get_full_name()} - {self.activity_type} - {self.created_at}" 

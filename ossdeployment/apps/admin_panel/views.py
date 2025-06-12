@@ -759,3 +759,23 @@ def get_rtoms(request):
         return JsonResponse({'rtoms': rtoms_data})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def dashboard(request):
+    user = request.user
+    workgroup = user.workgroup
+    
+    # Get tasks based on workgroup
+    assigned_tasks = TaskAssignment.objects.filter(
+        assigned_to=user,
+        status='PENDING'
+    ).select_related('task', 'project')
+    
+    context = {
+        'workgroup': workgroup,
+        'assigned_tasks': assigned_tasks
+    }
+    
+    # Redirect to specific dashboard based on workgroup
+    template_name = f'dashboard/{workgroup.lower()}_dashboard.html'
+    return render(request, template_name, context)

@@ -11,42 +11,99 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Get form data
-            const formData = new FormData(this);
-            
+            // Get CSRF token from the form
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showAlert('Security token missing. Please refresh the page and try again.', 'error');
+                return;
+            }
+
             try {
+                const formData = new FormData(this);
+                
+                // Log the form data for debugging
+                console.log('Submitting form data:', {
+                    employee_id: formData.get('employee_id'),
+                    password: '***', // Don't log the actual password
+                    user_type: formData.get('user_type')
+                });
+
                 const response = await fetch(this.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
+                        'X-CSRFToken': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    },
+                    credentials: 'same-origin' // Important for CSRF
                 });
 
+                // Check if the response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response');
+                }
+
                 const data = await response.json();
-                
+                console.log('Server response:', data);
+
                 if (data.success) {
-                    // Redirect to the appropriate dashboard
-                    window.location.href = data.redirect_url;
+                    // Get the base URL of the current site
+                    const baseUrl = window.location.origin;
+                    // Construct the full URL for redirection
+                    const fullRedirectUrl = data.redirect_url.startsWith('http') 
+                        ? data.redirect_url 
+                        : `${baseUrl}${data.redirect_url}`;
+                    
+                    console.log('Redirecting to:', fullRedirectUrl);
+                    window.location.href = fullRedirectUrl;
                 } else {
                     // Show error message
-                    showAlert(data.error || 'Login failed. Please try again.', 'error');
+                    const errorMessage = data.error || 'Login failed. Please check your credentials.';
+                    if (messagesContainer) {
+                        messagesContainer.innerHTML = `
+                            <div class="alert alert-error">
+                                ${errorMessage}
+                            </div>
+                        `;
+                    } else {
+                        showAlert(errorMessage, 'error');
+                    }
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showAlert('An error occurred. Please try again.', 'error');
+                const errorMessage = 'An error occurred during login. Please try again.';
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = `
+                        <div class="alert alert-error">
+                            ${errorMessage}
+                        </div>
+                    `;
+                } else {
+                    showAlert(errorMessage, 'error');
+                }
             }
         });
     }
 
     // Show alert message function
-    function showAlert(message, type) {
-        if (alertDiv) {
+    function showAlert(message, type = 'error') {
+        if (messagesContainer) {
+            messagesContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+        } else if (alertDiv) {
             alertDiv.textContent = message;
             alertDiv.className = `alert alert-${type} show`;
+            
             setTimeout(() => {
                 alertDiv.classList.remove('show');
             }, 3000);
+        } else {
+            alert(message);
         }
     }
 

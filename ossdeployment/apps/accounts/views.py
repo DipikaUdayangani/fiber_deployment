@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User  # Change this line
 from django.http import JsonResponse
 from django.urls import reverse  # Add this import
-from apps.admin_panel.models import DummyCredentials, User
+from apps.admin_panel.models import DummyCredentials
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,42 +17,46 @@ def login_view(request):
         employee_id = request.POST.get('employee_id')
         password = request.POST.get('password')
         
+        # Log the login attempt
         logger.debug(f"Login attempt for employee ID: {employee_id}")
         
-        try:
-            user = User.objects.get(employee_number=employee_id)
-            authenticated_user = authenticate(request, username=user.username, password=password)
-            
-            if authenticated_user is not None:
-                login(request, authenticated_user)
-                logger.debug(f"User logged in successfully - ID: {employee_id}, Workgroup: {user.workgroup}")
-                
-                if user.workgroup == 'XXX-RTOM':
-                    redirect_url = reverse('admin_panel:dashboard')
-                elif user.workgroup in ['NET-PROJ-ACC-CABLE', 'XXX-ENG-NW']:
-                    redirect_url = reverse('employee_panel:dashboard')
-                else:
-                    redirect_url = reverse('contractor_panel:dashboard')
-                
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': True,
-                        'redirect_url': redirect_url
-                    })
-                return redirect(redirect_url)
-            else:
-                error_message = 'Invalid password. Please try again.'
-        except User.DoesNotExist:
-            error_message = 'Invalid employee ID. Please check your credentials.'
+        user = authenticate(request, username=employee_id, password=password)
         
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': False,
-                'error': error_message
-            })
-        messages.error(request, error_message)
-        return render(request, 'accounts/login.html')
+        if user is not None:
+            login(request, user)
+            logger.debug(f"User logged in successfully - ID: {employee_id}, Workgroup: {user.workgroup}")
+            
+            # Determine redirect URL based on workgroup
+            if user.workgroup == 'XXX-RTOM':  # Administrator workgroup
+                redirect_url = reverse('admin_panel:dashboard')
+            elif user.workgroup in ['NET-PROJ-ACC-CABLE', 'XXX-ENG-NW']:  # Employee workgroups
+                redirect_url = reverse('employee_panel:dashboard')
+            else:  # Contractor workgroups
+                redirect_url = reverse('contractor_panel:dashboard')
+            
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': redirect_url
+                })
+            else:
+                return redirect(redirect_url)
+        else:
+            logger.warning(f"Failed login attempt for employee ID: {employee_id}")
+            error_message = 'Invalid credentials. Please check your employee ID and password.'
+            
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': error_message
+                })
+            else:
+                messages.error(request, error_message)
+                return render(request, 'accounts/login.html')
     
+    # GET request - show login form
     return render(request, 'accounts/login.html')
 
 def register_view(request):

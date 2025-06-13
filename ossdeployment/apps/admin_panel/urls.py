@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/users/', views.get_users, name='get_users'),
     path('api/users/list/', views.get_users, name='get_users_list'),  # For the manage users page
     path('api/users/add/', views.add_user, name='add_user'),
+    path('api/users/<int:user_id>/', views.get_user_details, name='get_user_details'),
     path('api/users/<int:user_id>/update/', views.update_user, name='update_user'),
     path('api/users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
     path('api/users/<int:user_id>/status/', views.update_user_status, name='update_user_status'),

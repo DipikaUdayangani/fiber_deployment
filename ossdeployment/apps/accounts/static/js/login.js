@@ -7,9 +7,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertDiv = document.querySelector('.alert');
     const messagesContainer = document.querySelector('.messages');
 
+    // Enable user type selection
+    if (userTypeSelect) {
+        userTypeSelect.removeAttribute('disabled');
+        userTypeSelect.innerHTML = `
+            <option value="">Select User Type</option>
+            <option value="administrator">Administrator</option>
+            <option value="employee">Employee</option>
+            <option value="contractor">Contractor</option>
+        `;
+    }
+
     if (loginForm) {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // Validate user type selection
+            const selectedUserType = userTypeSelect.value;
+            if (!selectedUserType) {
+                showAlert('Please select a user type', 'error');
+                return;
+            }
 
             // Get CSRF token from the form
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -36,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRFToken': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    credentials: 'same-origin' // Important for CSRF
+                    credentials: 'same-origin'
                 });
 
                 // Check if the response is JSON

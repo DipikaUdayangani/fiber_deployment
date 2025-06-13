@@ -603,27 +603,56 @@ def get_users(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(["PUT"])
 def update_user(request, user_id):
     try:
+        # Get the user to update
         user = get_object_or_404(User, id=user_id)
+        
+        # Only allow XXX-RTOM users to update other users
+        if user.id != request.user.id and request.user.workgroup != 'XXX-RTOM':
+            return JsonResponse({
+                'error': 'Permission denied'
+            }, status=403)
+        
+        # Parse the request data
         data = json.loads(request.body)
+        print("Update user data received:", data)
         
-        # Update user fields
-        user.first_name = data.get('first_name', user.first_name)
-        user.last_name = data.get('last_name', user.last_name)
-        user.email = data.get('email', user.email)
-        user.workgroup = data.get('workgroup', user.workgroup)
-        user.rtom_id = data.get('rtom_id', user.rtom_id)
-        user.status = data.get('status', user.status)
-        user.phone_number = data.get('phone_number', user.phone_number)
-        user.department = data.get('department', user.department)
-        user.position = data.get('position', user.position)
-        user.notes = data.get('notes', user.notes)
+        # Update basic user fields
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+        if 'email' in data:
+            # Check if email is already taken by another user
+            if User.objects.exclude(id=user_id).filter(email=data['email']).exists():
+                return JsonResponse({
+                    'error': 'Email already exists'
+                }, status=400)
+            user.email = data['email']
+        if 'workgroup' in data:
+            user.workgroup = data['workgroup']
+        if 'rtom_id' in data:
+            try:
+                rtom = RTOM.objects.get(id=data['rtom_id'])
+                user.rtom = rtom
+            except RTOM.DoesNotExist:
+                return JsonResponse({
+                    'error': 'Invalid RTOM ID'
+                }, status=400)
+        if 'status' in data:
+            user.status = data['status']
+        if 'phone_number' in data:
+            user.phone_number = data['phone_number']
+        if 'department' in data:
+            user.department = data['department']
+        if 'position' in data:
+            user.position = data['position']
+        if 'notes' in data:
+            user.notes = data['notes']
         
-        if 'profile_picture' in request.FILES:
-            user.profile_picture = request.FILES['profile_picture']
-        
+        # Save the changes
         user.save()
         
         # Log the activity
@@ -637,14 +666,32 @@ def update_user(request, user_id):
             related_object_type='User'
         )
         
+        # Return updated user data
         return JsonResponse({
-            'status': 'success',
-            'message': 'User updated successfully'
+            'success': True,
+            'message': 'User updated successfully',
+            'user': {
+                'id': user.id,
+                'employee_number': user.employee_number,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'workgroup': user.workgroup,
+                'workgroup_display': user.get_workgroup_display(),
+                'rtom_id': user.rtom.id if user.rtom else None,
+                'rtom': user.rtom.name if user.rtom else None,
+                'status': user.status,
+                'status_display': user.get_status_display()
+            }
         })
-    except Exception as e:
+    except json.JSONDecodeError:
         return JsonResponse({
-            'status': 'error',
-            'message': str(e)
+            'error': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        print("Error updating user:", str(e))
+        return JsonResponse({
+            'error': str(e)
         }, status=400)
 
 @login_required
@@ -779,3 +826,45 @@ def dashboard(request):
     # Redirect to specific dashboard based on workgroup
     template_name = f'dashboard/{workgroup.lower()}_dashboard.html'
     return render(request, template_name, context)
+
+@login_required
+@require_http_methods(["GET"])
+def get_user_details(request, user_id):
+    try:
+        user = get_object_or_404(User, id=user_id)
+        
+        # Don't allow accessing other users' details unless admin
+        if user.id != request.user.id and request.user.workgroup != 'XXX-RTOM':
+            return JsonResponse({
+                'error': 'Permission denied'
+            }, status=403)
+        
+        user_data = {
+            'id': user.id,
+            'employee_number': user.employee_number,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'workgroup': user.workgroup,
+            'workgroup_display': user.get_workgroup_display(),
+            'rtom_id': user.rtom.id if user.rtom else None,
+            'rtom': user.rtom.name if user.rtom else None,
+            'status': user.status,
+            'status_display': user.get_status_display(),
+            'phone_number': user.phone_number,
+            'department': user.department,
+            'position': user.position,
+            'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
+            'last_login': user.last_login.strftime('%Y-%m-%d %H:%M:%S') if user.last_login else None,
+            'last_activity': user.last_activity.strftime('%Y-%m-%d %H:%M:%S') if user.last_activity else None,
+            'profile_picture': user.profile_picture.url if user.profile_picture else None,
+            'notes': user.notes
+        }
+        
+        return JsonResponse({
+            'user': user_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=400)

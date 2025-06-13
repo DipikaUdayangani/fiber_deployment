@@ -43,11 +43,12 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="user_type">User Type</label>
-                        <select id="user_type" name="user_type" disabled>
-        <option value="administrator" {% if user.workgroup == 'XXX-RTOM' %}selected{% endif %}>Administrator</option>
-        <option value="employee" {% if user.workgroup|in_list:'NET-PROJ-ACC-CABLE,XXX-ENG-NW' %}selected{% endif %}>Employee</option>
-        <option value="contractor" {% if not user.workgroup|in_list:'XXX-RTOM,NET-PROJ-ACC-CABLE,XXX-ENG-NW' %}selected{% endif %}>Contractor</option>
-    </select>
+                        <select id="user_type" name="user_type" required>
+                            <option value="">Select User Type</option>
+                            <option value="administrator">Administrator</option>
+                            <option value="employee">Employee</option>
+                            <option value="contractor">Contractor</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="employee_id">Employee ID</label>

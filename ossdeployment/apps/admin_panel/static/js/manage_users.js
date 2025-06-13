@@ -165,43 +165,60 @@ function populateDropdown(selectElement, optionsList) {
         e.preventDefault();
         console.log('Form submission started');
 
+        // Get form data
         const formData = {
-            employee_id: employeeIdInput.value.trim(),
-            name: userNameInput.value.trim(),
+            first_name: '',
+            last_name: '',
             email: userEmailInput.value.trim(),
             workgroup: userWorkgroupSelect.value,
-            rtom: userRtomSelect.value,
-            password: 'default123' // Default password for new users
+            rtom_id: userRtomSelect.value
         };
+
+        // Split name into first and last name
+        const nameParts = userNameInput.value.trim().split(' ');
+        formData.first_name = nameParts[0];
+        formData.last_name = nameParts.slice(1).join(' ');
+
+        // Only include employee_id for new users
+        if (!userIdInput.value) {
+            formData.employee_id = employeeIdInput.value.trim();
+        }
 
         console.log('Form data prepared:', formData);
 
         // Validate required fields
-        if (!formData.name || !formData.employee_id || !formData.email || !formData.workgroup || !formData.rtom) {
-            const missingFields = [];
-            if (!formData.name) missingFields.push('Employee Name');
-            if (!formData.employee_id) missingFields.push('Employee ID');
-            if (!formData.email) missingFields.push('Email');
-            if (!formData.workgroup) missingFields.push('Workgroup');
-            if (!formData.rtom) missingFields.push('RTOM');
-            
+        const requiredFields = {
+            'first_name': 'Employee Name',
+            'email': 'Email',
+            'workgroup': 'Workgroup',
+            'rtom_id': 'RTOM'
+        };
+
+        if (!userIdInput.value) {
+            requiredFields['employee_id'] = 'Employee ID';
+        }
+
+        const missingFields = Object.entries(requiredFields)
+            .filter(([key]) => !formData[key])
+            .map(([_, label]) => label);
+
+        if (missingFields.length > 0) {
             console.log('Validation failed. Missing fields:', missingFields);
             showNotification(`Please fill in all required fields: ${missingFields.join(', ')}`, 'error');
             return;
         }
 
         try {
-            const url = userIdInput.value ? `/admin-panel/api/users/${userIdInput.value}/update/` : '/admin-panel/api/users/add/';
-            const method = userIdInput.value ? 'PUT' : 'POST';
+            const isEdit = userIdInput.value !== '';
+            const url = isEdit ? 
+                `/admin-panel/api/users/${userIdInput.value}/update/` : 
+                '/admin-panel/api/users/add/';
+            const method = isEdit ? 'PUT' : 'POST';
             
             console.log('Sending request to:', url);
             console.log('Request method:', method);
-            console.log('Request headers:', {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            });
-            console.log('Request body:', JSON.stringify(formData));
-
+            console.log('Request data:', formData);
+            
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -211,16 +228,15 @@ function populateDropdown(selectElement, optionsList) {
                 body: JSON.stringify(formData)
             });
 
-            console.log('Response status:', response.status);
             const data = await response.json();
-            console.log('Response data:', data);
+            console.log('Response:', data);
 
             if (response.ok) {
-                showNotification(`User ${userIdInput.value ? 'updated' : 'created'} successfully`, 'success');
+                showNotification(`User ${isEdit ? 'updated' : 'created'} successfully`, 'success');
                 window.closeModal('userModal');
-                loadUsers();
+                await loadUsers(); // Refresh the users list
             } else {
-                throw new Error(data.error || 'Failed to save user');
+                throw new Error(data.error || `Failed to ${isEdit ? 'update' : 'create'} user`);
             }
         } catch (error) {
             console.error('Error saving user:', error);
@@ -232,71 +248,93 @@ function populateDropdown(selectElement, optionsList) {
     async function loadUsers() {
         try {
             const response = await fetch('/admin-panel/api/users/list/');
+            if (!response.ok) {
+                throw new Error('Failed to load users');
+            }
+            
             const data = await response.json();
-
-            if (response.ok) {
+            console.log('Loaded users:', data);
+            
+            if (data.users) {
                 users = data.users;
                 renderUsersTable(users);
             } else {
-                throw new Error(data.error || 'Failed to load users');
+                throw new Error('Invalid response format');
             }
         } catch (error) {
             console.error('Error loading users:', error);
-            showNotification(error.message || 'Error loading users', 'error');
+            showNotification('Error loading users', 'error');
         }
     }
 
     // Handle edit button click
     async function handleEditButtonClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
         const userId = event.currentTarget.dataset.id;
+        console.log('Editing user:', userId);
+        
         try {
             const response = await fetch(`/admin-panel/api/users/${userId}/`);
-            const data = await response.json();
-
-            if (response.ok) {
-                const user = data.user;
-                modalTitle.textContent = 'Edit User';
-                userIdInput.value = user.id;
-                employeeIdInput.value = user.employee_id;
-                userNameInput.value = user.name;
-                userEmailInput.value = user.email;
-                userWorkgroupSelect.value = user.workgroup;
-                userRtomSelect.value = user.rtom_id;
-                employeeIdInput.disabled = true; // Can't change employee ID
-                window.openModal('userModal');
-            } else {
-                throw new Error(data.error || 'Failed to load user details');
+            if (!response.ok) {
+                throw new Error('Failed to fetch user details');
             }
+            
+            const data = await response.json();
+            const user = data.user;
+            
+            // Populate the form with user data
+            modalTitle.textContent = 'Edit User';
+            userIdInput.value = user.id;
+            employeeIdInput.value = user.employee_number;
+            employeeIdInput.disabled = true; // Can't change employee ID
+            userNameInput.value = `${user.first_name} ${user.last_name}`;
+            userEmailInput.value = user.email;
+            userWorkgroupSelect.value = user.workgroup;
+            userRtomSelect.value = user.rtom_id || '';
+            
+            // Show the modal
+            window.openModal('userModal');
+            
         } catch (error) {
             console.error('Error loading user details:', error);
-            showNotification(error.message || 'Error loading user details', 'error');
+            showNotification('Error loading user details', 'error');
         }
     }
 
     // Handle delete button click
     async function handleDeleteButtonClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
         const userId = event.currentTarget.dataset.id;
-        if (confirm('Are you sure you want to delete this user?')) {
-            try {
-                const response = await fetch(`/admin-panel/api/users/${userId}/delete/`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showNotification('User deleted successfully', 'success');
-                    loadUsers();
-                } else {
-                    throw new Error(data.error || 'Failed to delete user');
+        console.log('Deleting user:', userId);
+        
+        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/admin-panel/api/users/${userId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
                 }
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                showNotification(error.message || 'Error deleting user', 'error');
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showNotification('User deleted successfully', 'success');
+                await loadUsers(); // Refresh the users list
+            } else {
+                throw new Error(data.error || 'Failed to delete user');
             }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            showNotification(error.message || 'Error deleting user', 'error');
         }
     }
 
@@ -336,22 +374,22 @@ function populateDropdown(selectElement, optionsList) {
     }
 
     // Search functionality
-    function performSearch(searchTerm) {
-        const term = searchTerm.toLowerCase().trim();
-        if (!term) {
+    function performSearch(query) {
+        if (!query) {
             loadUsers();
             return;
         }
-
-        // Filter users on the client side
-        const filteredUsers = users.filter(user =>
-            (user.first_name + ' ' + user.last_name).toLowerCase().includes(term) ||
-            (user.employee_number || '').toLowerCase().includes(term) ||
-            (user.email || '').toLowerCase().includes(term) ||
-            (user.workgroup_display || '').toLowerCase().includes(term) ||
-            (user.rtom || '').toLowerCase().includes(term)
+        
+        const searchTerm = query.toLowerCase();
+        const filteredUsers = users.filter(user => 
+            user.first_name.toLowerCase().includes(searchTerm) ||
+            user.last_name.toLowerCase().includes(searchTerm) ||
+            user.employee_number.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm) ||
+            user.workgroup_display.toLowerCase().includes(searchTerm) ||
+            (user.rtom && user.rtom.toLowerCase().includes(searchTerm))
         );
-
+        
         renderUsersTable(filteredUsers);
     }
 

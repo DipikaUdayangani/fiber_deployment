@@ -14,15 +14,27 @@ def dashboard_view(request):
     """Employee dashboard view showing summary statistics."""
     user = request.user
     
-    # Get projects assigned to user's workgroup
+    # Get projects assigned to user's workgroup through task assignments
     assigned_projects = Project.objects.filter(
         taskassignment__task__assigned_workgroup=user.workgroup
-    ).distinct()
+    ).distinct().annotate(
+        total_tasks=Count('taskassignment__task', distinct=True),
+        completed_tasks=Count(
+            'taskassignment__task',
+            filter=Q(taskassignment__status='COMPLETED'),
+            distinct=True
+        ),
+        in_progress_tasks=Count(
+            'taskassignment__task',
+            filter=Q(taskassignment__status='IN_PROGRESS'),
+            distinct=True
+        )
+    )
     
     # Calculate project statistics
     total_projects = assigned_projects.count()
-    completed_projects = assigned_projects.filter(status='COMPLETED').count()
-    in_progress_projects = assigned_projects.filter(status='IN_PROGRESS').count()
+    completed_projects = assigned_projects.filter(total_tasks=F('completed_tasks')).count()
+    in_progress_projects = assigned_projects.filter(in_progress_tasks__gt=0).count()
     
     context = {
         'total_projects': total_projects,

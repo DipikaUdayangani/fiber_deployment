@@ -16,22 +16,45 @@ def login_view(request):
     if request.method == 'POST':
         employee_id = request.POST.get('employee_id')
         password = request.POST.get('password')
+        user_type = request.POST.get('user_type')
         
         # Log the login attempt
-        logger.debug(f"Login attempt for employee ID: {employee_id}")
+        logger.debug(f"Login attempt for employee ID: {employee_id}, user type: {user_type}")
         
         user = authenticate(request, username=employee_id, password=password)
         
         if user is not None:
+            # Validate user type matches the selected type
+            is_admin = user.workgroup == 'XXX-RTOM'
+            is_employee = user.workgroup in ['NET-PROJ-ACC-CABLE', 'XXX-ENG-NW']
+            is_contractor = not (is_admin or is_employee)
+            
+            selected_type_valid = (
+                (user_type == 'administrator' and is_admin) or
+                (user_type == 'employee' and is_employee) or
+                (user_type == 'contractor' and is_contractor)
+            )
+            
+            if not selected_type_valid:
+                error_message = f'Invalid user type selected for your account. Please select the correct user type.'
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': error_message
+                    })
+                else:
+                    messages.error(request, error_message)
+                    return render(request, 'accounts/login.html')
+            
             login(request, user)
             logger.debug(f"User logged in successfully - ID: {employee_id}, Workgroup: {user.workgroup}")
             
             # Determine redirect URL based on workgroup
-            if user.workgroup == 'XXX-RTOM':  # Administrator workgroup
+            if is_admin:
                 redirect_url = reverse('admin_panel:dashboard')
-            elif user.workgroup in ['NET-PROJ-ACC-CABLE', 'XXX-ENG-NW']:  # Employee workgroups
+            elif is_employee:
                 redirect_url = reverse('employee_panel:dashboard')
-            else:  # Contractor workgroups
+            else:  # Contractor
                 redirect_url = reverse('contractor_panel:dashboard')
             
             # Check if this is an AJAX request

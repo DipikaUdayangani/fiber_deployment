@@ -52,25 +52,34 @@
         }, 3000);
     };
 
-    // Modal utility functions with improved handling
+    // Global state for modal transitions
+    let isModalTransitioning = false;
+
+    // Modal utility functions
     window.openModal = function(modalId) {
-    const modal = document.getElementById(modalId);
+        if (isModalTransitioning) return;
+        
+        const modal = document.getElementById(modalId);
         if (!modal) {
-            console.warn(`Modal with id ${modalId} not found`);
+            console.error(`Modal with ID ${modalId} not found`);
             return;
         }
 
-        // Prevent multiple modals from being open
+        isModalTransitioning = true;
+
+        // Close any other open modals
         document.querySelectorAll('.custom-modal.active').forEach(m => {
             if (m.id !== modalId) {
-                window.closeModal(m.id);
+                closeModal(m.id);
             }
         });
 
-        // Add active class and show modal
-        modal.classList.add('active');
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
+
+        // Show modal with animation
         modal.style.display = 'flex';
-        modal.style.opacity = '0';
+        modal.classList.add('active');
         
         // Force a reflow
         modal.offsetHeight;
@@ -81,16 +90,22 @@
             modal.style.transition = 'opacity 0.3s ease-in-out';
         });
 
-        // Prevent body scrolling
-        document.body.style.overflow = 'hidden';
+        // Reset transition state after animation
+        setTimeout(() => {
+            isModalTransitioning = false;
+        }, 300);
     };
 
     window.closeModal = function(modalId) {
+        if (isModalTransitioning) return;
+        
         const modal = document.getElementById(modalId);
         if (!modal) {
-            console.warn(`Modal with id ${modalId} not found`);
+            console.error(`Modal with ID ${modalId} not found`);
             return;
         }
+
+        isModalTransitioning = true;
 
         // Fade out
         modal.style.opacity = '0';
@@ -104,7 +119,10 @@
             // Re-enable body scrolling if no other modals are open
             if (!document.querySelector('.custom-modal.active')) {
                 document.body.style.overflow = '';
-    }
+            }
+
+            // Reset transition state
+            isModalTransitioning = false;
         }, 300);
     };
 
